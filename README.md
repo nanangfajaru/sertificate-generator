@@ -44,3 +44,10 @@ Tambahkan baris di `PRO` pada `src/lib/certificate/templates/index.ts` (kombinas
 
 - Font PDF tertanam (Inter, Playfair Display, Great Vibes) hanya mencakup aksara Latin.
 - Pembayaran (payment gateway) belum diimplementasikan; kolom `profiles.plan` / `plan_expires_at` sudah disiapkan.
+
+## Deploy (Vercel)
+
+1. Import repo ini di Vercel (framework Next.js terdeteksi otomatis).
+2. Isi Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API Keys → service_role / secret), `NEXT_PUBLIC_SITE_URL` (URL produksi, tanpa slash di akhir).
+3. Tambahkan URL produksi ke Supabase → Authentication → URL Configuration → Redirect URLs (`https://<domain>/**`).
+4. Matikan Vercel Authentication (Settings → Deployment Protection) agar halaman publik peserta bisa dibuka tanpa login Vercel.
