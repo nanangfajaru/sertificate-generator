@@ -12,7 +12,7 @@ const features = [
 ];
 
 const steps = [
-  ["Masuk dengan Google", "Tanpa password. Akun Free langsung aktif."],
+  ["Daftar dengan Google atau email", "Akun Free langsung aktif, tanpa kartu kredit."],
   ["Buat program", "Isi nama instansi, kegiatan, tanggal, penandatangan. Pilih template."],
   ["Bagikan link", "Peserta mengisi form pendaftaran dari ponsel mereka."],
   ["Sertifikat terbit", "Otomatis atau setelah kamu setujui. Unduh PDF + QR verifikasi."],
@@ -57,7 +57,7 @@ export default function Landing() {
               Buat program, bagikan satu link, dan peserta langsung mendapat sertifikat PDF lengkap dengan nomor dan QR verifikasi.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/login" className="btn btn-primary px-5 py-3">Mulai gratis dengan Google</Link>
+              <Link href="/login" className="btn btn-primary px-5 py-3">Mulai gratis</Link>
               <a href="#template" className="btn px-5 py-3">Lihat template</a>
             </div>
             <ul className="mt-6 space-y-1 text-sm text-slate-600">
