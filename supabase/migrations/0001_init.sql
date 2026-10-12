@@ -20,9 +20,12 @@ language sql stable security definer set search_path = public
 as $$
   select coalesce(
     (select p.plan = 'pro' and (p.plan_expires_at is null or p.plan_expires_at > now())
-       from public.profiles p where p.id = uid),
+       from public.profiles p
+     where p.id = uid and (auth.uid() is null or auth.uid() = uid)),
     false);
 $$;
+revoke all on function public.is_pro(uuid) from public, anon;
+grant execute on function public.is_pro(uuid) to authenticated;
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -40,6 +43,7 @@ begin
   return new;
 end;
 $$;
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 
 create trigger on_auth_user_created
   after insert on auth.users
@@ -99,6 +103,7 @@ begin
   return new;
 end;
 $$;
+revoke all on function public.enforce_program_rules() from public, anon, authenticated;
 
 create trigger programs_rules
   before insert or update on public.programs
