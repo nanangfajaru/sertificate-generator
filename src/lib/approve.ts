@@ -1,0 +1,23 @@
+import "server-only";
+import { createAdminClient } from "./supabase/admin";
+import type { Program } from "./db";
+import { formatCertNumber } from "./util";
+
+/** Menyetujui peserta dan memberi nomor sertifikat berurutan. Dipakai juga oleh form publik (mode auto). */
+export async function approveParticipants(program: Pick<Program, "id" | "number_format">, ids: string[]) {
+  const admin = createAdminClient();
+  const { data: rows } = await admin
+    .from("participants")
+    .select("id, cert_number")
+    .eq("program_id", program.id)
+    .in("id", ids)
+    .order("created_at");
+  for (const r of rows ?? []) {
+    let cert_number = r.cert_number as string | null;
+    if (!cert_number) {
+      const { data: seq } = await admin.rpc("next_cert_seq", { p_program: program.id });
+      cert_number = formatCertNumber(program.number_format, Number(seq));
+    }
+    await admin.from("participants").update({ status: "approved", cert_number, approved_at: new Date().toISOString() }).eq("id", r.id);
+  }
+}
