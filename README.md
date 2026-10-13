@@ -9,7 +9,8 @@ Stack: Next.js 16 (App Router) · Supabase (Auth Google, Postgres, Storage) · V
 |---|---|---|
 | Program | maks. 5 | tanpa batas |
 | Template | 25 | semua (45, bisa ditambah) |
-| Upload desain sendiri (PDF/PNG/JPG) + atur posisi teks | – | ✔ |
+| Membuat & menyimpan desain sendiri (PDF/PNG/JPG, atur posisi teks) | ✔ (maks. 3 per program) | ✔ (maks. 20) |
+| **Menggunakan** desain sendiri untuk sertifikat | – | ✔ |
 
 Batas diterapkan di database (trigger `enforce_program_rules`) dan storage policy, bukan hanya di UI.
 

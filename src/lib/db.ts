@@ -40,6 +40,7 @@ export type Program = {
   design_preview_path: string | null;
   design_kind: "pdf" | "png" | "jpg" | null;
   design_layout: Layout | null;
+  design_id: string | null;
   created_at: string;
 };
 

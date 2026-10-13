@@ -6,10 +6,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { getTemplate } from "@/lib/certificate/templates";
-import { customLayoutSchema } from "@/lib/certificate/validate";
-import { FIELD_TYPES, FREE_PROGRAM_LIMIT, type Program } from "@/lib/db";
+import { FIELD_TYPES, type Program } from "@/lib/db";
 import { approveParticipants } from "@/lib/approve";
 import { notifyApproved } from "@/lib/notify";
+import { dbError } from "@/lib/db-errors";
 import { slugify } from "@/lib/util";
 
 export type ActionState = { error?: string; ok?: boolean };
@@ -33,12 +33,6 @@ const eventSchema = z.object({
 
 function formToObject(fd: FormData) {
   return Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === "string"));
-}
-
-function dbError(message: string) {
-  if (message.includes("PLAN_LIMIT_PROGRAMS")) return `Paket Free dibatasi ${FREE_PROGRAM_LIMIT} program. Upgrade ke Pro untuk program tanpa batas.`;
-  if (message.includes("PLAN_LIMIT_CUSTOM_DESIGN")) return "Upload desain sendiri hanya tersedia di paket Pro.";
-  return "Terjadi kesalahan, silakan coba lagi.";
 }
 
 // ───────────────────────── program ─────────────────────────
@@ -183,58 +177,6 @@ export async function chooseTemplate(programId: string, templateId: string): Pro
   if (t.id !== templateId) return { error: "Template tidak ditemukan" };
   if (t.tier === "pro" && !isPro) return { error: "Template ini khusus paket Pro." };
   const { error } = await supabase.from("programs").update({ template_id: t.id, cert_mode: "template" }).eq("id", programId);
-  if (error) return { error: dbError(error.message) };
-  revalidatePath(`/dashboard/programs/${programId}/design`);
-  return { ok: true };
-}
-
-export async function registerDesign(
-  programId: string,
-  meta: { path: string; previewPath: string; kind: "pdf" | "png" | "jpg"; width: number; height: number },
-): Promise<ActionState> {
-  const { supabase, profile, isPro } = await requireUser();
-  if (!isPro) return { error: "Upload desain sendiri hanya tersedia di paket Pro." };
-  const prefix = `${profile.id}/${programId}/`;
-  if (!meta.path.startsWith(prefix) || !meta.previewPath.startsWith(prefix)) return { error: "Path file tidak valid" };
-  if (!(meta.width > 0 && meta.height > 0)) return { error: "Ukuran desain tidak valid" };
-
-  const { data: prog } = await supabase.from("programs").select("design_path, design_preview_path, mapping").eq("id", programId).maybeSingle();
-  if (!prog) return { error: "Program tidak ditemukan" };
-
-  const height = Math.round((1000 * meta.height) / meta.width);
-  const nameField = (prog.mapping as Record<string, string | null>)?.name;
-  const c = "#1f2937";
-  const layout = {
-    width: 1000,
-    height,
-    items: [
-      { type: "text", id: "t-name", x: 500, y: Math.round(height * 0.5), size: 64, font: "script", color: c, align: "center", source: nameField ? `field:${nameField}` : "event:event_name", maxWidth: 800 },
-      { type: "text", id: "t-event", x: 500, y: Math.round(height * 0.62), size: 28, font: "serif-bold", color: c, align: "center", source: "event:event_name", maxWidth: 800 },
-      { type: "text", id: "t-date", x: 500, y: Math.round(height * 0.68), size: 18, font: "sans", color: "#4b5563", align: "center", source: "event:date_location", maxWidth: 800 },
-      { type: "text", id: "t-no", x: 500, y: height - 40, size: 14, font: "sans", color: "#4b5563", align: "center", source: "event:cert_number", prefix: "No. " },
-      { type: "qr", id: "t-qr", x: 900, y: height - 110, size: 70, color: "#111827" },
-    ],
-  };
-
-  const { error } = await supabase
-    .from("programs")
-    .update({ cert_mode: "custom", design_path: meta.path, design_preview_path: meta.previewPath, design_kind: meta.kind, design_layout: layout })
-    .eq("id", programId);
-  if (error) return { error: dbError(error.message) };
-
-  const old = [prog.design_path, prog.design_preview_path].filter((p) => p && p !== meta.path && p !== meta.previewPath) as string[];
-  if (old.length) await supabase.storage.from("designs").remove(old);
-
-  revalidatePath(`/dashboard/programs/${programId}/design`);
-  return { ok: true };
-}
-
-export async function saveDesignLayout(programId: string, layout: unknown): Promise<ActionState> {
-  const { supabase, isPro } = await requireUser();
-  if (!isPro) return { error: "Upload desain sendiri hanya tersedia di paket Pro." };
-  const parsed = customLayoutSchema.safeParse(layout);
-  if (!parsed.success) return { error: "Layout tidak valid" };
-  const { error } = await supabase.from("programs").update({ design_layout: parsed.data, cert_mode: "custom" }).eq("id", programId);
   if (error) return { error: dbError(error.message) };
   revalidatePath(`/dashboard/programs/${programId}/design`);
   return { ok: true };

@@ -8,7 +8,8 @@ import LazyMount from "@/components/LazyMount";
 import type { CertContext } from "@/lib/certificate/sources";
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
-import DesignEditor from "./DesignEditor";
+import type { DesignDTO } from "@/lib/designs";
+import DesignsPanel from "./DesignsPanel";
 
 type Tpl = { id: string; name: string; tier: "free" | "pro"; layout: Layout };
 
@@ -19,9 +20,8 @@ type Props = {
   mode: "template" | "custom";
   templateId: string;
   templates: Tpl[];
-  hasDesign: boolean;
-  designLayout: Layout | null;
-  designBgUrl: string | null;
+  designs: DesignDTO[];
+  activeDesignId: string | null;
   sample: CertContext;
   fields: { id: string; label: string }[];
 };
@@ -30,6 +30,8 @@ export default function DesignClient(p: Props) {
   const [tab, setTab] = useState<"template" | "custom">(p.mode);
   const [mode, setMode] = useState(p.mode);
   const [activeId, setActiveId] = useState(p.templateId);
+  const [designs, setDesigns] = useState(p.designs);
+  const [activeDesignId, setActiveDesignId] = useState(p.activeDesignId);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [preview, setPreview] = useState<Tpl | null>(null);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
@@ -61,7 +63,7 @@ export default function DesignClient(p: Props) {
     });
   }
 
-  const activeName = mode === "custom" ? "Desain sendiri" : p.templates.find((t) => t.id === activeId)?.name;
+  const activeName = mode === "custom" ? `Desain: ${designs.find((d) => d.id === activeDesignId)?.name ?? "sendiri"}` : p.templates.find((t) => t.id === activeId)?.name;
 
   return (
     <div>
@@ -71,7 +73,7 @@ export default function DesignClient(p: Props) {
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1 text-sm">
             <button className={`rounded-md px-3 py-1.5 ${tab === "template" ? "bg-brand-600 text-white" : "text-slate-600"}`} onClick={() => setTab("template")}>Template</button>
             <button className={`flex items-center gap-1 rounded-md px-3 py-1.5 ${tab === "custom" ? "bg-brand-600 text-white" : "text-slate-600"}`} onClick={() => setTab("custom")}>
-              Desain sendiri {!p.isPro && <Lock className="h-3.5 w-3.5" />}
+              Desain sendiri
             </button>
           </div>
           <p className="hidden min-w-0 flex-1 truncate text-sm text-slate-600 sm:block">
@@ -129,15 +131,21 @@ export default function DesignClient(p: Props) {
               </button>
             )}
           </>
-        ) : p.isPro ? (
-          <DesignEditor {...p} />
         ) : (
-          <div className="card text-center">
-            <Lock className="mx-auto h-8 w-8 text-slate-400" />
-            <h3 className="mt-2 font-semibold">Upload desain sendiri khusus paket Pro</h3>
-            <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">Upload PDF/PNG/JPG desain Anda, lalu atur posisi nama, tanggal, dan nomor sertifikat.</p>
-            <Link href="/#harga" className="btn btn-primary mt-4">Lihat paket Pro</Link>
-          </div>
+          <DesignsPanel
+            programId={p.programId}
+            userId={p.userId}
+            isPro={p.isPro}
+            designs={designs}
+            activeId={mode === "custom" ? activeDesignId : null}
+            sample={p.sample}
+            fields={p.fields}
+            onDesignsChange={setDesigns}
+            onActiveChange={(id) => {
+              setActiveDesignId(id);
+              setMode(id ? "custom" : "template");
+            }}
+          />
         )}
       </div>
 
