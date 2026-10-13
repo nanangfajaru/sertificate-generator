@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import { getOwnedProgram } from "@/lib/program-server";
 import { mailConfigured } from "@/lib/mailer";
+import { siteUrl } from "@/lib/util";
 import ParticipantsTable from "./ParticipantsTable";
 
 export const metadata = { title: "Peserta" };
@@ -30,7 +31,7 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
               : "Peserta otomatis menerima email berisi tautan sertifikat saat disetujui.";
         return <p className={`mb-4 rounded-lg border px-3 py-2 text-sm ${tone}`}>{msg}</p>;
       })()}
-      <ParticipantsTable programId={id} fields={fields.map((f) => ({ id: f.id, label: f.label }))} rows={data ?? []} />
+      <ParticipantsTable programId={id} siteUrl={siteUrl()} linkValidDays={program.link_valid_days} fields={fields.map((f) => ({ id: f.id, label: f.label }))} rows={data ?? []} />
     </div>
   );
 }

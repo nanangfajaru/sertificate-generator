@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { CERT_TYPES, CUSTOM_TYPE, isPresetType, presetDescription } from "@/lib/cert-types";
+import { VALIDITY_PRESETS } from "@/lib/link-validity";
 import type { Program } from "@/lib/db";
 import type { ActionState } from "./actions";
 
@@ -112,6 +113,18 @@ export default function ProgramForm({ action, program: p, submitLabel }: Props) 
             <span className="hint block">Berlaku untuk mode otomatis maupun approval. Memerlukan field bertipe Email pada formulir pendaftaran.</span>
           </span>
         </label>
+        <div>
+          <label className="label" htmlFor="link_valid_days">Masa berlaku tautan sertifikat</label>
+          <select id="link_valid_days" name="link_valid_days" className="input" defaultValue={p?.link_valid_days == null ? "" : String(p.link_valid_days)}>
+            {VALIDITY_PRESETS.map((o) => <option key={String(o.value)} value={o.value ?? ""}>{o.label}</option>)}
+            {p?.link_valid_days != null && !VALIDITY_PRESETS.some((o) => o.value === p.link_valid_days) && (
+              <option value={p.link_valid_days}>{p.link_valid_days} hari</option>
+            )}
+          </select>
+          <p className="hint">
+            Dihitung sejak sertifikat disetujui, dan ditampilkan kepada peserta di email serta halaman status. Setelah berakhir, tautan tidak dapat dibuka. QR pada PDF yang sudah diunduh mengarah ke tautan yang sama, sehingga ikut kedaluwarsa. Tautan peserta yang dihapus selalu tidak berlaku.
+          </p>
+        </div>
         {edit && (
           <>
             <label className="flex items-center gap-2 text-sm">

@@ -36,6 +36,7 @@ export type Program = {
   mapping: Record<string, string | null>;
   show_qr: boolean;
   notify_email: boolean;
+  link_valid_days: number | null;
   design_path: string | null;
   design_preview_path: string | null;
   design_kind: "pdf" | "png" | "jpg" | null;

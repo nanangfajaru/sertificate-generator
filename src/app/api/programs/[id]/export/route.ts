@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import type { Participant, Program, ProgramField } from "@/lib/db";
+import { formatExpiry, linkState } from "@/lib/link-validity";
 import { siteUrl } from "@/lib/util";
 
 const STATUS = { pending: "Menunggu", approved: "Disetujui", rejected: "Ditolak" };
@@ -30,7 +31,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     if (!data || data.length < 1000) break;
   }
 
-  const head = ["No", "Waktu daftar", ...fields.map((x) => x.label), "Status", "No. sertifikat", "Link sertifikat"];
+  const head = ["No", "Waktu daftar", ...fields.map((x) => x.label), "Status", "No. sertifikat", "Link sertifikat", "Tautan berlaku sampai"];
   const lines = [head.map(cell).join(",")];
   rows.forEach((r, i) => {
     lines.push(
@@ -40,7 +41,11 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
         ...fields.map((x) => r.data[x.id] ?? ""),
         STATUS[r.status],
         r.cert_number ?? "",
-        r.status === "approved" ? `${siteUrl()}/c/${r.code}` : "",
+        (() => (linkState(r, p.link_valid_days).state === "valid" ? `${siteUrl()}/c/${r.code}` : r.status === "approved" ? "(kedaluwarsa)" : ""))(),
+        (() => {
+          const { state, expiry } = linkState(r, p.link_valid_days);
+          return state !== "pending" && state !== "rejected" && expiry ? formatExpiry(expiry) : "";
+        })(),
       ].map(cell).join(","),
     );
   });

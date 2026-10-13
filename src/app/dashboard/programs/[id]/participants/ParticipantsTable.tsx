@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import CopyButton from "@/components/CopyButton";
 import type { Participant } from "@/lib/db";
+import { formatExpiry, linkState } from "@/lib/link-validity";
 import { deleteParticipants, resendCertificateEmails, setParticipantStatus } from "../../../actions";
 
 const STATUS = {
@@ -10,7 +12,7 @@ const STATUS = {
   rejected: ["Ditolak", "badge-bad"],
 } as const;
 
-export default function ParticipantsTable({ programId, fields, rows }: { programId: string; fields: { id: string; label: string }[]; rows: Participant[] }) {
+export default function ParticipantsTable({ programId, fields, rows, siteUrl, linkValidDays }: { programId: string; fields: { id: string; label: string }[]; rows: Participant[]; siteUrl: string; linkValidDays: number | null }) {
   const [filter, setFilter] = useState<"all" | Participant["status"]>("all");
   const [q, setQ] = useState("");
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -86,12 +88,13 @@ export default function ParticipantsTable({ programId, fields, rows }: { program
               {fields.map((f) => <th key={f.id} className="px-3 py-2">{f.label}</th>)}
               <th className="px-3 py-2">Status</th>
               <th className="px-3 py-2">No. sertifikat</th>
+              <th className="px-3 py-2">Link sertifikat</th>
               <th className="px-3 py-2">Email</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {shown.length === 0 && (
-              <tr><td colSpan={fields.length + 5} className="px-3 py-8 text-center text-slate-500">Belum ada peserta.</td></tr>
+              <tr><td colSpan={fields.length + 6} className="px-3 py-8 text-center text-slate-500">Belum ada peserta.</td></tr>
             )}
             {shown.map((r) => (
               <tr key={r.id} className={sel.has(r.id) ? "bg-brand-50/50" : undefined}>
@@ -100,6 +103,22 @@ export default function ParticipantsTable({ programId, fields, rows }: { program
                 {fields.map((f) => <td key={f.id} className="max-w-56 truncate px-3 py-2">{r.data[f.id] ?? ""}</td>)}
                 <td className="px-3 py-2"><span className={`badge ${STATUS[r.status][1]}`}>{STATUS[r.status][0]}</span></td>
                 <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{r.cert_number ?? "—"}</td>
+                <td className="whitespace-nowrap px-3 py-2">
+                  {(() => {
+                    const { state, expiry } = linkState(r, linkValidDays);
+                    if (state === "valid") {
+                      return (
+                        <div className="flex items-center gap-1.5">
+                          <CopyButton text={`${siteUrl}/c/${r.code}`} label="Salin" />
+                          <a href={`/c/${r.code}`} target="_blank" className="btn btn-sm">Buka</a>
+                          {expiry && <span className="text-xs text-slate-500">s/d {formatExpiry(expiry)}</span>}
+                        </div>
+                      );
+                    }
+                    if (state === "expired") return <span className="badge badge-bad" title={expiry ? `Berakhir ${formatExpiry(expiry)}` : undefined}>Kedaluwarsa</span>;
+                    return <span className="text-slate-400">—</span>;
+                  })()}
+                </td>
                 <td className="whitespace-nowrap px-3 py-2 text-xs">
                   {r.emailed_at ? <span className="badge badge-ok" title={new Date(r.emailed_at).toLocaleString("id-ID")}>Terkirim</span> : <span className="text-slate-400">—</span>}
                 </td>

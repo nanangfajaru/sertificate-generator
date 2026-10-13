@@ -25,6 +25,7 @@ const eventSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tanggal mulai wajib diisi"),
   end_date: z.preprocess((v) => (v === "" ? null : v), z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()),
   location: opt(100),
+  link_valid_days: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().int().min(1, "Masa berlaku minimal 1 hari").max(3650, "Masa berlaku maksimal 3650 hari").nullable()),
   signer1_name: opt(80),
   signer1_title: opt(80),
   signer2_name: opt(80),

@@ -3,6 +3,7 @@ import { certificateIssuedEmail } from "./email-templates";
 import { mailConfigured, sendMail } from "./mailer";
 import { createAdminClient } from "./supabase/admin";
 import type { Participant, Program, ProgramField } from "./db";
+import { formatExpiry, linkExpiry } from "./link-validity";
 import { siteUrl } from "./util";
 
 export type NotifyResult = { sent: number; skipped: number; failed: number };
@@ -42,6 +43,10 @@ export async function notifyApproved(programId: string, ids: string[], force = f
       certType: program.cert_type,
       certNumber: p.cert_number,
       url: `${siteUrl()}/c/${p.code}`,
+      validUntil: (() => {
+        const e = linkExpiry(program.link_valid_days, p.approved_at, p.created_at);
+        return e ? formatExpiry(e) : null;
+      })(),
     });
     await sendMail({ to, ...mail });
     await admin.from("participants").update({ emailed_at: new Date().toISOString() }).eq("id", p.id);
