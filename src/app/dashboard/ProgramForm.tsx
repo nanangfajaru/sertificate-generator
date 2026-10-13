@@ -105,6 +105,13 @@ export default function ProgramForm({ action, program: p, submitLabel }: Props) 
             </label>
           ))}
         </div>
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" name="notify_email" defaultChecked={p?.notify_email ?? true} className="mt-1" />
+          <span>
+            Kirim email ke peserta saat sertifikat terbit
+            <span className="hint block">Berlaku untuk mode otomatis maupun approval. Memerlukan field bertipe Email pada formulir pendaftaran.</span>
+          </span>
+        </label>
         {edit && (
           <>
             <label className="flex items-center gap-2 text-sm">

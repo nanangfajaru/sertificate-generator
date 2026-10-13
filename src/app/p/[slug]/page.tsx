@@ -3,6 +3,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 import type { Program, ProgramField } from "@/lib/db";
 import { formatDateRange } from "@/lib/certificate/sources";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { mailConfigured } from "@/lib/mailer";
 import RegisterForm from "./RegisterForm";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -36,7 +37,7 @@ export default async function PublicRegisterPage({ params }: { params: Promise<{
           {program.is_open ? (
             <>
               <h2 className="mb-4 font-semibold">Form pendaftaran</h2>
-              <RegisterForm slug={slug} fields={fields.map((x) => ({ id: x.id, label: x.label, type: x.type, required: x.required, options: x.options }))} manual={program.approval_mode === "manual"} />
+              <RegisterForm slug={slug} fields={fields.map((x) => ({ id: x.id, label: x.label, type: x.type, required: x.required, options: x.options }))} manual={program.approval_mode === "manual"} emailNotify={program.notify_email && mailConfigured() && fields.some((x) => x.type === "email")} />
             </>
           ) : (
             <p className="text-center text-slate-600">Pendaftaran untuk kegiatan ini sudah ditutup.</p>

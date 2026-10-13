@@ -9,6 +9,7 @@ import { getTemplate } from "@/lib/certificate/templates";
 import { customLayoutSchema } from "@/lib/certificate/validate";
 import { FIELD_TYPES, FREE_PROGRAM_LIMIT, type Program } from "@/lib/db";
 import { approveParticipants } from "@/lib/approve";
+import { notifyApproved } from "@/lib/notify";
 import { slugify } from "@/lib/util";
 
 export type ActionState = { error?: string; ok?: boolean };
@@ -62,6 +63,7 @@ export async function createProgram(_: ActionState, fd: FormData): Promise<Actio
     slug: slugify(parsed.data.name),
     ...parsed.data,
     approval_mode,
+    notify_email: raw.notify_email === "on",
     template_id: template.id,
     mapping: { name: nameField, extra: orgField },
   });
@@ -93,6 +95,7 @@ export async function updateProgram(id: string, _: ActionState, fd: FormData): P
       approval_mode: raw.approval_mode === "manual" ? "manual" : "auto",
       is_open: raw.is_open === "on",
       show_qr: raw.show_qr === "on",
+      notify_email: raw.notify_email === "on",
       number_format: numberFormat,
     })
     .eq("id", id)
@@ -272,4 +275,19 @@ export async function deleteParticipants(programId: string, ids: string[]): Prom
   if (error) return { error: dbError(error.message) };
   revalidatePath(`/dashboard/programs/${programId}/participants`);
   return { ok: true };
+}
+
+export async function resendCertificateEmails(programId: string, ids: string[]): Promise<ActionState & { message?: string }> {
+  const { supabase } = await requireUser();
+  if (!ids.length) return { error: "Pilih peserta terlebih dahulu" };
+  if (ids.length > 100) return { error: "Maksimal 100 peserta sekali kirim" };
+  const { data: owned } = await supabase.from("participants").select("id").eq("program_id", programId).eq("status", "approved").in("id", ids);
+  const ownedIds = (owned ?? []).map((r) => r.id);
+  if (!ownedIds.length) return { error: "Hanya peserta yang sudah disetujui yang dapat dikirimi email" };
+
+  const r = await notifyApproved(programId, ownedIds, true);
+  revalidatePath(`/dashboard/programs/${programId}/participants`);
+  if (!r.sent && r.failed) return { error: "Email gagal dikirim. Periksa konfigurasi SMTP." };
+  if (!r.sent) return { error: "Tidak ada email terkirim. Pastikan form memiliki field bertipe Email dan SMTP sudah dikonfigurasi." };
+  return { ok: true, message: `${r.sent} email terkirim${r.failed ? `, ${r.failed} gagal` : ""}${r.skipped ? `, ${r.skipped} dilewati (tanpa email)` : ""}.` };
 }

@@ -70,7 +70,7 @@ export async function registerWithEmail(input: { name: string; email: string; pa
   }
 
   try {
-    const m = confirmEmail(name, confirmUrl(hashed!, type!, next));
+    const m = confirmEmail(name, to, confirmUrl(hashed!, type!, next));
     await sendMail({ to, ...m });
   } catch (e) {
     console.error("sendMail(confirm) gagal:", e instanceof Error ? e.message : e);
@@ -95,7 +95,7 @@ export async function requestPasswordReset(input: { email: string }): Promise<Au
   const { data, error } = await admin.auth.admin.generateLink({ type: "recovery", email: to });
   if (error) return generic;
   try {
-    await sendMail({ to, ...resetEmail(confirmUrl(data.properties.hashed_token, data.properties.verification_type, "/auth/reset")) });
+    await sendMail({ to, ...resetEmail(to, confirmUrl(data.properties.hashed_token, data.properties.verification_type, "/auth/reset")) });
   } catch (e) {
     console.error("sendMail(reset) gagal:", e instanceof Error ? e.message : e);
     return { error: "Email gagal dikirim. Silakan coba lagi." };
@@ -118,7 +118,7 @@ export async function resendConfirmation(input: { email: string; next?: string }
   const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: to });
   if (error) return generic;
   try {
-    await sendMail({ to, ...confirmEmail(null, confirmUrl(data.properties.hashed_token, data.properties.verification_type, safeNext(input.next))) });
+    await sendMail({ to, ...confirmEmail(null, to, confirmUrl(data.properties.hashed_token, data.properties.verification_type, safeNext(input.next))) });
   } catch (e) {
     console.error("sendMail(resend) gagal:", e instanceof Error ? e.message : e);
     return { error: "Email gagal dikirim. Silakan coba lagi." };

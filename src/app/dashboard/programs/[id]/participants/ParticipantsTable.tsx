@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import type { Participant } from "@/lib/db";
-import { deleteParticipants, setParticipantStatus } from "../../../actions";
+import { deleteParticipants, resendCertificateEmails, setParticipantStatus } from "../../../actions";
 
 const STATUS = {
   pending: ["Menunggu", "badge-warn"],
@@ -35,12 +35,18 @@ export default function ParticipantsTable({ programId, fields, rows }: { program
       return n;
     });
 
-  function run(fn: () => Promise<{ error?: string }>) {
+  const [okMsg, setOkMsg] = useState<string | null>(null);
+
+  function run(fn: () => Promise<{ error?: string; message?: string }>) {
     setMsg(null);
+    setOkMsg(null);
     start(async () => {
       const res = await fn();
       if (res.error) setMsg(res.error);
-      else setSel(new Set());
+      else {
+        setSel(new Set());
+        if (res.message) setOkMsg(res.message);
+      }
     });
   }
   const ids = [...sel];
@@ -64,10 +70,12 @@ export default function ParticipantsTable({ programId, fields, rows }: { program
           <button className="btn btn-primary btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "approved"))}>Setujui</button>
           <button className="btn btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "rejected"))}>Tolak</button>
           <button className="btn btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "pending"))}>Kembalikan ke menunggu</button>
+          <button className="btn btn-sm" disabled={pending} onClick={() => run(() => resendCertificateEmails(programId, ids))}>Kirim email sertifikat</button>
           <button className="btn btn-danger btn-sm" disabled={pending} onClick={() => confirm(`Hapus ${sel.size} peserta?`) && run(() => deleteParticipants(programId, ids))}>Hapus</button>
         </div>
       )}
       {msg && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{msg}</p>}
+      {okMsg && <p className="rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">{okMsg}</p>}
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full text-left text-sm">
@@ -78,11 +86,12 @@ export default function ParticipantsTable({ programId, fields, rows }: { program
               {fields.map((f) => <th key={f.id} className="px-3 py-2">{f.label}</th>)}
               <th className="px-3 py-2">Status</th>
               <th className="px-3 py-2">No. sertifikat</th>
+              <th className="px-3 py-2">Email</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {shown.length === 0 && (
-              <tr><td colSpan={fields.length + 4} className="px-3 py-8 text-center text-slate-500">Belum ada peserta.</td></tr>
+              <tr><td colSpan={fields.length + 5} className="px-3 py-8 text-center text-slate-500">Belum ada peserta.</td></tr>
             )}
             {shown.map((r) => (
               <tr key={r.id} className={sel.has(r.id) ? "bg-brand-50/50" : undefined}>
@@ -91,6 +100,9 @@ export default function ParticipantsTable({ programId, fields, rows }: { program
                 {fields.map((f) => <td key={f.id} className="max-w-56 truncate px-3 py-2">{r.data[f.id] ?? ""}</td>)}
                 <td className="px-3 py-2"><span className={`badge ${STATUS[r.status][1]}`}>{STATUS[r.status][0]}</span></td>
                 <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{r.cert_number ?? "—"}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-xs">
+                  {r.emailed_at ? <span className="badge badge-ok" title={new Date(r.emailed_at).toLocaleString("id-ID")}>Terkirim</span> : <span className="text-slate-400">—</span>}
+                </td>
               </tr>
             ))}
           </tbody>

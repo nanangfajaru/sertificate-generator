@@ -5,7 +5,7 @@ import { submitRegistration } from "./actions";
 
 type F = { id: string; label: string; type: string; required: boolean; options: string[] };
 
-export default function RegisterForm({ slug, fields, manual }: { slug: string; fields: F[]; manual: boolean }) {
+export default function RegisterForm({ slug, fields, manual, emailNotify }: { slug: string; fields: F[]; manual: boolean; emailNotify: boolean }) {
   const [state, action, pending] = useActionState(submitRegistration.bind(null, slug), {});
   return (
     <form action={action} className="space-y-4">
@@ -30,8 +30,13 @@ export default function RegisterForm({ slug, fields, manual }: { slug: string; f
       {/* honeypot */}
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       {state.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{state.error}</p>}
-      <button className="btn btn-primary w-full py-2.5" disabled={pending}>{pending ? "Mengirim…" : "Daftar & dapatkan sertifikat"}</button>
-      {manual && <p className="text-center text-xs text-slate-500">Sertifikat akan tersedia setelah disetujui penyelenggara.</p>}
+      <button className="btn btn-primary w-full py-2.5" disabled={pending}>{pending ? "Mengirim…" : "Daftar Hadir & Dapatkan Sertifikat"}</button>
+      {(manual || emailNotify) && (
+        <p className="text-center text-xs text-slate-500">
+          {manual ? "Sertifikat akan tersedia setelah disetujui penyelenggara." : "Tautan sertifikat juga dikirim ke email Anda."}
+          {manual && emailNotify && " Tautannya akan dikirim ke email Anda saat disetujui."}
+        </p>
+      )}
     </form>
   );
 }
