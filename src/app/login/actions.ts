@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { confirmEmail, resetEmail } from "@/lib/email-templates";
-import { mailConfigured, sendMail } from "@/lib/mailer";
+import { describeMailError, mailConfigured, sendMail } from "@/lib/mailer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/util";
 
@@ -18,14 +18,28 @@ function safeNext(next?: string) {
 
 type Admin = ReturnType<typeof createAdminClient>;
 
-/** Maksimal 3 email per alamat+jenis dalam 15 menit. */
-async function allowed(admin: Admin, to: string, kind: string) {
+/** Maksimal 3 email per alamat+jenis dalam 15 menit. Mengembalikan id log, atau null bila terlalu sering. */
+async function allowed(admin: Admin, to: string, kind: string): Promise<number | null> {
   await admin.from("auth_email_log").delete().lt("created_at", new Date(Date.now() - 24 * 3600_000).toISOString());
   const since = new Date(Date.now() - 15 * 60_000).toISOString();
   const { count } = await admin.from("auth_email_log").select("id", { count: "exact", head: true }).eq("email", to).eq("kind", kind).gte("created_at", since);
-  if ((count ?? 0) >= 3) return false;
-  await admin.from("auth_email_log").insert({ email: to, kind });
-  return true;
+  if ((count ?? 0) >= 3) return null;
+  const { data } = await admin.from("auth_email_log").insert({ email: to, kind }).select("id").single();
+  return data?.id ?? 0;
+}
+
+/** Kirim email lalu catat hasilnya (ok / pesan error) di auth_email_log. */
+async function deliver(admin: Admin, logId: number, to: string, mail: { subject: string; html: string; text: string }) {
+  try {
+    await sendMail({ to, ...mail });
+    if (logId) await admin.from("auth_email_log").update({ ok: true }).eq("id", logId);
+    return true;
+  } catch (e) {
+    const msg = describeMailError(e);
+    console.error("sendMail gagal:", msg);
+    if (logId) await admin.from("auth_email_log").update({ ok: false, error: msg }).eq("id", logId);
+    return false;
+  }
 }
 
 async function status(admin: Admin, to: string): Promise<"none" | "unconfirmed" | "confirmed"> {
@@ -50,7 +64,8 @@ export async function registerWithEmail(input: { name: string; email: string; pa
   const st = await status(admin, to);
 
   if (st === "confirmed") return { error: "Email ini sudah terdaftar. Silakan masuk, atau gunakan Lupa password." };
-  if (!(await allowed(admin, to, "confirm"))) return { error: GENERIC_BUSY };
+  const logId = await allowed(admin, to, "confirm");
+  if (logId === null) return { error: GENERIC_BUSY };
 
   let hashed: string | undefined;
   let type: string | undefined;
@@ -69,11 +84,7 @@ export async function registerWithEmail(input: { name: string; email: string; pa
     userId = data.user.id;
   }
 
-  try {
-    const m = confirmEmail(name, to, confirmUrl(hashed!, type!, next));
-    await sendMail({ to, ...m });
-  } catch (e) {
-    console.error("sendMail(confirm) gagal:", e instanceof Error ? e.message : e);
+  if (!(await deliver(admin, logId, to, confirmEmail(name, to, confirmUrl(hashed!, type!, next))))) {
     if (userId) await admin.auth.admin.deleteUser(userId); // jangan tinggalkan akun yatim
     return { error: "Email konfirmasi gagal dikirim. Silakan coba lagi." };
   }
@@ -90,14 +101,12 @@ export async function requestPasswordReset(input: { email: string }): Promise<Au
   const generic: AuthResult = { info: "Jika email terdaftar, tautan untuk mengatur ulang password sudah dikirim." };
 
   if ((await status(admin, to)) === "none") return generic; // jangan bocorkan apakah email terdaftar
-  if (!(await allowed(admin, to, "reset"))) return { error: GENERIC_BUSY };
+  const logId = await allowed(admin, to, "reset");
+  if (logId === null) return { error: GENERIC_BUSY };
 
   const { data, error } = await admin.auth.admin.generateLink({ type: "recovery", email: to });
   if (error) return generic;
-  try {
-    await sendMail({ to, ...resetEmail(to, confirmUrl(data.properties.hashed_token, data.properties.verification_type, "/auth/reset")) });
-  } catch (e) {
-    console.error("sendMail(reset) gagal:", e instanceof Error ? e.message : e);
+  if (!(await deliver(admin, logId, to, resetEmail(to, confirmUrl(data.properties.hashed_token, data.properties.verification_type, "/auth/reset"))))) {
     return { error: "Email gagal dikirim. Silakan coba lagi." };
   }
   return generic;
@@ -113,14 +122,12 @@ export async function resendConfirmation(input: { email: string; next?: string }
   const generic: AuthResult = { info: "Jika email belum dikonfirmasi, tautan konfirmasi baru sudah dikirim." };
 
   if ((await status(admin, to)) !== "unconfirmed") return generic;
-  if (!(await allowed(admin, to, "confirm"))) return { error: GENERIC_BUSY };
+  const logId = await allowed(admin, to, "confirm");
+  if (logId === null) return { error: GENERIC_BUSY };
 
   const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: to });
   if (error) return generic;
-  try {
-    await sendMail({ to, ...confirmEmail(null, to, confirmUrl(data.properties.hashed_token, data.properties.verification_type, safeNext(input.next))) });
-  } catch (e) {
-    console.error("sendMail(resend) gagal:", e instanceof Error ? e.message : e);
+  if (!(await deliver(admin, logId, to, confirmEmail(null, to, confirmUrl(data.properties.hashed_token, data.properties.verification_type, safeNext(input.next)))))) {
     return { error: "Email gagal dikirim. Silakan coba lagi." };
   }
   return generic;
