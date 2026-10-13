@@ -4,6 +4,8 @@ import type { Participant, Program, ProgramField } from "../db";
 import { siteUrl } from "../util";
 import { resolveLayout, type CertContext } from "./sources";
 import { getTemplate } from "./templates";
+import { isProProfile } from "../db";
+import { withWatermark } from "./watermark";
 import type { Layout } from "./types";
 import type { Background } from "./pdf";
 
@@ -22,8 +24,15 @@ export function sampleContext(program: Program, fields: ProgramField[]): CertCon
   return buildContext(program, data, "001/SERT/I/2026", "contoh");
 }
 
-export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cert_number" | "code">) {
-  return resolveLayout(programLayout(program), buildContext(program, p.data, p.cert_number, p.code));
+export async function ownerIsPro(admin: SupabaseClient, ownerId: string): Promise<boolean> {
+  const { data } = await admin.from("profiles").select("plan, plan_expires_at").eq("id", ownerId).maybeSingle();
+  return isProProfile(data);
+}
+
+/** Sertifikat milik paket Free diberi watermark; Pro tanpa watermark. */
+export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cert_number" | "code">, watermark = false) {
+  const l = resolveLayout(programLayout(program), buildContext(program, p.data, p.cert_number, p.code));
+  return watermark ? withWatermark(l) : l;
 }
 
 export async function loadBackground(admin: SupabaseClient, program: Program): Promise<Background> {

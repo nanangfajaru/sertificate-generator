@@ -30,7 +30,7 @@ const faqs = [
   ["Bagaimana cara masuk?", "Gunakan akun Google, atau daftar dengan email dan password."],
 ];
 
-const showcaseTemplates = ["classic-navy", "frame-crimson", "modern-teal", "split-indigo", "dark-gold", "corner-forest", "stripe-navy", "seal-crimson"];
+const showcaseTemplates = ["classic-navy", "flora-rose", "sport-futsal", "frame-crimson", "medic-cross", "company-skyline", "modern-teal", "batik-kawung"];
 
 export default function Landing() {
   return (

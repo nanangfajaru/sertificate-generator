@@ -31,6 +31,8 @@ export type TextItem = Common & {
   upper?: boolean;
   spacing?: number;
   opacity?: number;
+  /** derajat searah jarum jam, berputar pada titik (x, y) */
+  rotate?: number;
 };
 export type RectItem = Common & {
   type: "rect";
@@ -45,10 +47,12 @@ export type RectItem = Common & {
 };
 export type LineItem = Common & { type: "line"; x1: number; y1: number; x2: number; y2: number; stroke: string; sw?: number; opacity?: number };
 export type CircleItem = Common & { type: "circle"; cx: number; cy: number; r: number; fill?: string; stroke?: string; sw?: number; opacity?: number };
+/** Jalur SVG (M L C Q A Z). Dipakai untuk ilustrasi: kelopak, daun, gelombang, bola, dsb. */
+export type PathItem = Common & { type: "path"; d: string; fill?: string; stroke?: string; sw?: number; opacity?: number; cap?: "round" | "butt" };
 export type PolygonItem = Common & { type: "polygon"; points: [number, number][]; fill: string; opacity?: number };
 export type QrItem = Common & { type: "qr"; x: number; y: number; size: number; color: string; url?: string };
 
-export type Item = TextItem | RectItem | LineItem | CircleItem | PolygonItem | QrItem;
+export type Item = TextItem | RectItem | LineItem | CircleItem | PolygonItem | PathItem | QrItem;
 
 /** Koordinat dalam "unit desain"; renderer menskalakan ke ukuran halaman. Titik (0,0) kiri-atas. */
 export type Layout = {

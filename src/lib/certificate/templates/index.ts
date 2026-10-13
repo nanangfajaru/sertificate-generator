@@ -1,5 +1,8 @@
 import type { CertTemplate } from "../types";
 import { FAMILIES, PALETTES } from "./families";
+import { THEMES_A } from "./themes-a";
+import { THEMES_B } from "./themes-b";
+import { THEMES_C } from "./themes-c";
 
 const FAMILY_LABEL: Record<string, string> = {
   classic: "Klasik",
@@ -38,8 +41,8 @@ const FREE: [string, string][] = [
   ["classic", "teal"], ["modern", "forest"], ["ribbon", "crimson"], ["minimal", "violet"],
 ];
 
-// Template khusus paket berbayar (20). Tambah baris di sini untuk menambah template baru.
-const PRO: [string, string][] = [
+// Template Pro lama (bergaris): tidak ditampilkan di galeri, tetap bisa dipakai program yang sudah ada.
+const LEGACY_PRO: [string, string][] = [
   ["classic", "crimson"], ["classic", "forest"], ["classic", "violet"],
   ["modern", "navy"], ["modern", "crimson"], ["modern", "violet"],
   ["ribbon", "teal"], ["ribbon", "forest"], ["ribbon", "orange"],
@@ -49,13 +52,20 @@ const PRO: [string, string][] = [
   ["seal", "navy"], ["seal", "crimson"],
 ];
 
-export const TEMPLATES: CertTemplate[] = [
-  ...FREE.map(([f, p]) => make(f, p, "free")),
-  ...PRO.map(([f, p]) => make(f, p, "pro")),
-];
+// Template Pro bertema (ilustrasi): bunga, rumah sakit, olahraga, perusahaan, dll.
+const THEMED: CertTemplate[] = [...THEMES_A, ...THEMES_B, ...THEMES_C].map((t) => ({
+  id: t.id,
+  name: t.name,
+  tier: "pro" as const,
+  layout: t.build(),
+}));
+
+export const TEMPLATES: CertTemplate[] = [...FREE.map(([f, p]) => make(f, p, "free")), ...THEMED];
+
+const LEGACY: CertTemplate[] = LEGACY_PRO.map(([f, p]) => make(f, p, "pro"));
 
 export const DEFAULT_TEMPLATE_ID = "classic-navy";
 
 export function getTemplate(id: string): CertTemplate {
-  return TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0];
+  return TEMPLATES.find((t) => t.id === id) ?? LEGACY.find((t) => t.id === id) ?? TEMPLATES[0];
 }

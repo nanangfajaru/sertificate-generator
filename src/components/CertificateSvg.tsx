@@ -75,6 +75,7 @@ function FitText({ item, interactive, selected, hl }: { item: TextItem; interact
         }}
         stroke={selected ? "#2563eb" : "none"}
         strokeWidth={selected ? 0.4 : 0}
+        transform={item.rotate ? `rotate(${item.rotate} ${item.x} ${item.y})` : undefined}
       >
         {text}
       </text>
@@ -103,6 +104,8 @@ function Shape({ item }: { item: Exclude<Item, TextItem | QrItem> }) {
       return <line x1={item.x1} y1={item.y1} x2={item.x2} y2={item.y2} stroke={item.stroke} strokeWidth={item.sw ?? 1} opacity={item.opacity} />;
     case "circle":
       return <circle cx={item.cx} cy={item.cy} r={item.r} fill={item.fill ?? "none"} stroke={item.stroke} strokeWidth={item.sw} opacity={item.opacity} />;
+    case "path":
+      return <path d={item.d} fill={item.fill ?? "none"} stroke={item.stroke} strokeWidth={item.sw} opacity={item.opacity} strokeLinecap={item.cap} strokeLinejoin="round" />;
     case "polygon":
       return <polygon points={item.points.map((p) => p.join(",")).join(" ")} fill={item.fill} opacity={item.opacity} />;
   }

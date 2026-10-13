@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { PDFDocument, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { degrees, LineCapStyle, PDFDocument, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { FONT_FILE } from "./fonts";
 import { qrMatrix } from "./qr";
@@ -55,20 +55,26 @@ function drawText(page: PDFPage, font: PDFFont, it: TextItem, s: number, H: numb
     sp *= k;
     w = textWidth(font, text, size, sp);
   }
-  let x = it.x * s;
-  if (it.align === "center") x -= w / 2;
-  else if (it.align === "right") x -= w;
-  const y = H - it.y * s;
   const color = hex(it.color);
   const opacity = it.opacity ?? 1;
+  const shift = it.align === "center" ? w / 2 : it.align === "right" ? w : 0;
+  const rotate = it.rotate ?? 0;
+  // sudut PDF berlawanan jarum jam; rotate pada layout searah jarum jam (seperti SVG)
+  const th = (-rotate * Math.PI) / 180;
+  const cos = Math.cos(th);
+  const sin = Math.sin(th);
+  const ox = it.x * s - shift * cos;
+  const oy = H - it.y * s - shift * sin;
+  const rot = rotate ? { rotate: degrees(-rotate) } : {};
+
   if (!sp) {
-    page.drawText(text, { x, y, size, font, color, opacity });
+    page.drawText(text, { x: ox, y: oy, size, font, color, opacity, ...rot });
     return;
   }
-  let cx = x;
+  let adv = 0;
   for (const ch of text) {
-    page.drawText(ch, { x: cx, y, size, font, color, opacity });
-    cx += font.widthOfTextAtSize(ch, size) + sp;
+    page.drawText(ch, { x: ox + adv * cos, y: oy + adv * sin, size, font, color, opacity, ...rot });
+    adv += font.widthOfTextAtSize(ch, size) + sp;
   }
 }
 
@@ -141,6 +147,19 @@ export async function renderCertificatePdf(layout: Layout, bg: Background): Prom
           borderWidth: it.stroke ? (it.sw ?? 1) * s : 0,
           opacity: it.opacity ?? 1,
           borderOpacity: it.opacity ?? 1,
+        });
+        break;
+      case "path":
+        page.drawSvgPath(it.d, {
+          x: 0,
+          y: PH,
+          scale: s,
+          color: it.fill ? hex(it.fill) : undefined,
+          borderColor: it.stroke ? hex(it.stroke) : undefined,
+          borderWidth: it.stroke ? it.sw ?? 1 : 0,
+          opacity: it.opacity ?? 1,
+          borderOpacity: it.opacity ?? 1,
+          borderLineCap: it.cap === "round" ? LineCapStyle.Round : undefined,
         });
         break;
       case "polygon": {
