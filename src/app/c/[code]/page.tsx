@@ -34,6 +34,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
       <div className="mx-auto max-w-3xl space-y-4">
         {participant.status === "revoked" ? (
           <RevokedCard
+            who={who}
             org={program.org_name}
             event={program.name}
             certNumber={participant.cert_number}

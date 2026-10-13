@@ -66,13 +66,13 @@ export function RejectedCard({ org }: { org: string }) {
 }
 
 /** Sertifikat pernah terbit tetapi dicabut penyelenggara: verifikasi QR tetap menjelaskan statusnya. */
-export function RevokedCard({ org, event, certNumber, revokedOn }: { org: string; event: string; certNumber: string | null; revokedOn: string | null }) {
+export function RevokedCard({ who, org, event, certNumber, revokedOn }: { who: string; org: string; event: string; certNumber: string | null; revokedOn: string | null }) {
   return (
     <div className="card text-center">
       <ShieldAlert className="mx-auto h-11 w-11 text-red-600" />
       <h1 className="mt-3 text-xl font-semibold text-red-700">Sertifikat ini telah dicabut</h1>
       <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-        Sertifikat untuk kegiatan <b>{event}</b> yang diterbitkan oleh {org} sudah <b>tidak berlaku</b>
+        Sertifikat atas nama <b className="text-slate-900">{who}</b> untuk kegiatan <b>{event}</b> yang diterbitkan oleh {org} sudah <b>tidak berlaku</b>
         {revokedOn ? ` sejak ${revokedOn}` : ""}. Hubungi penyelenggara untuk informasi lebih lanjut.
       </p>
       {certNumber && <p className="mt-3 font-mono text-xs text-slate-500">No. {certNumber}</p>}
