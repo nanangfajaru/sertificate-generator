@@ -43,7 +43,7 @@ npm run seed -- --reset   # hapus contoh program lama (slug contoh-*) lalu buat 
 
 ## Struktur singkat
 
-- `src/lib/certificate/` – mesin sertifikat: `templates/` (25 template berbasis kode), `sources.ts` (sumber data & resolver), `pdf.ts` (PDF server-side dengan pdf-lib), `CertificateSvg` (pratinjau/editor).
+- `src/lib/certificate/` – mesin sertifikat: `templates/` (20 template Free + 22 template Pro bertema, berbasis kode), `sources.ts` (sumber data & resolver), `pdf.ts` (PDF server-side dengan pdf-lib), `CertificateSvg` (pratinjau/editor).
 - `src/app/dashboard/` – admin: program, form builder, template & editor desain, peserta (approval massal), ekspor CSV.
 - `src/app/p/[slug]` – form pendaftaran publik · `src/app/c/[code]` – halaman sertifikat/verifikasi · `src/app/api/cert/[code]` – unduh PDF.
 - Halaman publik membaca data lewat service role di server; anon tidak punya akses tabel (RLS).

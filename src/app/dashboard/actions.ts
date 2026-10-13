@@ -101,7 +101,8 @@ export async function updateProgram(id: string, _: ActionState, fd: FormData): P
 }
 
 export async function deleteProgram(id: string) {
-  const { supabase } = await requireUser();
+  const { supabase, isPro } = await requireUser();
+  if (!isPro) return;
   const { data: p } = await supabase.from("programs").select("design_path, design_preview_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("programs").delete().eq("id", id);
   if (error) return;

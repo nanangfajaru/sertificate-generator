@@ -27,7 +27,7 @@ function make(family: string, palette: string, tier: "free" | "pro"): CertTempla
   };
 }
 
-// Template yang tersedia untuk semua pengguna (25)
+// Template yang tersedia untuk semua pengguna (20)
 const FREE: [string, string][] = [
   ["classic", "navy"],
   ["modern", "teal"],
@@ -37,9 +37,11 @@ const FREE: [string, string][] = [
   ["corner", "navy"], ["corner", "teal"], ["corner", "crimson"], ["corner", "forest"],
   ["split", "indigo"], ["split", "teal"], ["split", "crimson"], ["split", "orange"],
   ["stripe", "navy"], ["stripe", "forest"], ["stripe", "violet"], ["stripe", "slate"],
-  ["frame", "crimson"], ["frame", "navy"], ["frame", "forest"], ["frame", "indigo"],
-  ["classic", "teal"], ["modern", "forest"], ["ribbon", "crimson"], ["minimal", "violet"],
+  ["frame", "crimson"], ["frame", "navy"], ["frame", "forest"],
 ];
+
+// Template Free lama yang tidak lagi ditampilkan di galeri (galeri Free kini 20), tetap bisa dirender.
+const LEGACY_FREE: [string, string][] = [["classic", "teal"], ["modern", "forest"], ["ribbon", "crimson"], ["minimal", "violet"], ["frame", "indigo"]];
 
 // Template Pro lama (bergaris): tidak ditampilkan di galeri, tetap bisa dipakai program yang sudah ada.
 const LEGACY_PRO: [string, string][] = [
@@ -62,7 +64,7 @@ const THEMED: CertTemplate[] = [...THEMES_A, ...THEMES_B, ...THEMES_C].map((t) =
 
 export const TEMPLATES: CertTemplate[] = [...FREE.map(([f, p]) => make(f, p, "free")), ...THEMED];
 
-const LEGACY: CertTemplate[] = LEGACY_PRO.map(([f, p]) => make(f, p, "pro"));
+const LEGACY: CertTemplate[] = [...LEGACY_FREE.map(([f, p]) => make(f, p, "free")), ...LEGACY_PRO.map(([f, p]) => make(f, p, "pro"))];
 
 export const DEFAULT_TEMPLATE_ID = "classic-navy";
 

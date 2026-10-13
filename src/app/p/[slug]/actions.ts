@@ -50,6 +50,7 @@ export async function submitRegistration(slug: string, _: RegisterState, fd: For
 
   const code = randomCode(6);
   const { data: row, error } = await admin.from("participants").insert({ program_id: program.id, code, data }).select("id").single();
+  if (error?.message.includes("PLAN_LIMIT_PARTICIPANTS")) return { error: "Kuota peserta untuk kegiatan ini sudah penuh. Hubungi penyelenggara." };
   if (error || !row) return { error: "Gagal menyimpan pendaftaran, silakan coba lagi." };
 
   if (program.approval_mode === "auto") await approveParticipants(program, [row.id]);

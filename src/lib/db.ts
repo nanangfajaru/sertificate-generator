@@ -80,7 +80,8 @@ export type Participant = {
   revoked_reason: string | null;
 };
 
-export const FREE_PROGRAM_LIMIT = 5;
+export const FREE_PROGRAM_LIMIT = 10;
+export const FREE_PARTICIPANT_LIMIT = 100;
 
 export function isProProfile(p: Pick<Profile, "plan" | "plan_expires_at"> | null | undefined) {
   if (!p || p.plan !== "pro") return false;

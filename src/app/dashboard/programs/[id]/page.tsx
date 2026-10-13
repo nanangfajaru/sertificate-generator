@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import CopyButton from "@/components/CopyButton";
 import { getOwnedProgram } from "@/lib/program-server";
+import { FREE_PARTICIPANT_LIMIT } from "@/lib/db";
 import { siteUrl } from "@/lib/util";
 import { deleteProgram, updateProgram } from "../../actions";
 import ProgramForm from "../../ProgramForm";
@@ -10,7 +11,7 @@ export const metadata = { title: "Ringkasan program" };
 
 export default async function ProgramOverview({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { program, supabase } = await getOwnedProgram(id);
+  const { program, supabase, isPro } = await getOwnedProgram(id);
   const link = `${siteUrl()}/p/${program.slug}`;
   const { data: rows } = await supabase.from("participants").select("status").eq("program_id", id);
   const stat = { total: rows?.length ?? 0, pending: 0, approved: 0 };
@@ -36,6 +37,11 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
         </div>
         <div className="card">
           <h2 className="font-semibold">Peserta</h2>
+          {!isPro && (
+            <p className={`mt-1 text-xs ${stat.total >= FREE_PARTICIPANT_LIMIT ? "text-amber-700" : "text-slate-500"}`}>
+              Kuota paket Free: {stat.total} / {FREE_PARTICIPANT_LIMIT} peserta{stat.total >= FREE_PARTICIPANT_LIMIT ? " (penuh)" : ""}
+            </p>
+          )}
           <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
             {[["Total", stat.total], ["Menunggu", stat.pending], ["Disetujui", stat.approved]].map(([l, v]) => (
               <div key={l as string} className="rounded-lg bg-slate-50 p-2">
@@ -48,8 +54,14 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
         </div>
         <div className="card">
           <h2 className="font-semibold text-red-700">Zona berbahaya</h2>
-          <p className="mt-1 text-xs text-slate-500">Menghapus program juga menghapus seluruh peserta dan tidak dapat dibatalkan.</p>
-          <DeleteButton action={deleteProgram.bind(null, id)} />
+          {isPro ? (
+            <>
+              <p className="mt-1 text-xs text-slate-500">Menghapus program juga menghapus seluruh peserta dan tidak dapat dibatalkan.</p>
+              <DeleteButton action={deleteProgram.bind(null, id)} />
+            </>
+          ) : (
+            <p className="mt-1 text-xs text-slate-500">Penghapusan program hanya tersedia di paket Pro. Anda dapat menutup pendaftaran kapan saja.</p>
+          )}
         </div>
       </div>
     </div>
