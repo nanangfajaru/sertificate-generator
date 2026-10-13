@@ -4,6 +4,7 @@ import { Check, Download, Lock, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
+import LazyMount from "@/components/LazyMount";
 import type { CertContext } from "@/lib/certificate/sources";
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
@@ -98,7 +99,7 @@ export default function DesignClient(p: Props) {
                 return (
                   <div key={t.id} className={`overflow-hidden rounded-xl border bg-white ${active ? "border-brand-600 ring-2 ring-brand-100" : "border-slate-200"}`}>
                     <button type="button" className={`block w-full text-left ${locked ? "opacity-60" : "cursor-zoom-in"}`} onClick={() => setPreview(t)} aria-label={`Lihat ${t.name}`}>
-                      <CertificateSvg layout={t.layout} className="block h-auto w-full" />
+                      <LazyMount><CertificateSvg layout={t.layout} className="block h-auto w-full" /></LazyMount>
                     </button>
                     <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-3 py-2.5">
                       <div className="min-w-0">

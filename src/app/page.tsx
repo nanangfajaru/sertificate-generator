@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Award, BadgeCheck, CalendarDays, Check, FileSpreadsheet, FileUp, Link2, ListChecks, QrCode, SlidersHorizontal } from "lucide-react";
+import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import { formatDateRange } from "@/lib/certificate/sources";
@@ -154,7 +155,7 @@ export default function Landing() {
         <div className="mt-10 grid grid-cols-2 gap-5 lg:grid-cols-4">
           {showcaseTemplates.map((id) => (
             <div key={id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <SampleCert templateId={id} />
+              <LazyMount><SampleCert templateId={id} /></LazyMount>
             </div>
           ))}
         </div>
