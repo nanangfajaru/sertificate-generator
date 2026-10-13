@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import type { Participant, Program, ProgramField } from "@/lib/db";
-import { formatExpiry, linkState } from "@/lib/link-validity";
 import { siteUrl } from "@/lib/util";
 
-const STATUS = { pending: "Menunggu", approved: "Disetujui", rejected: "Ditolak" };
+const STATUS = { pending: "Menunggu", approved: "Disetujui", rejected: "Ditolak", revoked: "Dicabut" };
 
 // Cegah CSV/formula injection saat dibuka di Excel.
 function cell(v: unknown) {
@@ -31,7 +30,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     if (!data || data.length < 1000) break;
   }
 
-  const head = ["No", "Waktu daftar", ...fields.map((x) => x.label), "Status", "No. sertifikat", "Link sertifikat", "Tautan berlaku sampai"];
+  const head = ["No", "Waktu daftar", ...fields.map((x) => x.label), "Status", "No. sertifikat", "Link sertifikat"];
   const lines = [head.map(cell).join(",")];
   rows.forEach((r, i) => {
     lines.push(
@@ -41,11 +40,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
         ...fields.map((x) => r.data[x.id] ?? ""),
         STATUS[r.status],
         r.cert_number ?? "",
-        (() => (linkState(r, p.link_valid_days).state === "valid" ? `${siteUrl()}/c/${r.code}` : r.status === "approved" ? "(kedaluwarsa)" : ""))(),
-        (() => {
-          const { state, expiry } = linkState(r, p.link_valid_days);
-          return state !== "pending" && state !== "rejected" && expiry ? formatExpiry(expiry) : "";
-        })(),
+        r.status === "approved" ? `${siteUrl()}/c/${r.code}` : "",
       ].map(cell).join(","),
     );
   });

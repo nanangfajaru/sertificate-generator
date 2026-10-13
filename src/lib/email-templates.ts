@@ -108,13 +108,12 @@ export function resetEmail(email: string, url: string) {
   };
 }
 
-export function certificateIssuedEmail(o: { name: string | null; eventName: string; org: string; certType: string; certNumber: string | null; url: string; validUntil?: string | null }) {
+export function certificateIssuedEmail(o: { name: string | null; eventName: string; org: string; certType: string; certNumber: string | null; url: string }) {
   const rows = [
     ["Kegiatan", o.eventName],
     ["Penyelenggara", o.org],
     ["Jenis sertifikat", o.certType],
     ...(o.certNumber ? [["Nomor sertifikat", o.certNumber]] : []),
-    ...(o.validUntil ? [["Tautan berlaku sampai", o.validUntil]] : []),
   ];
   const table = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0 0;border:1px solid ${C.line};border-radius:8px">
     ${rows
@@ -133,10 +132,8 @@ export function certificateIssuedEmail(o: { name: string | null; eventName: stri
         body: `<p style="margin:0 0 14px">${o.name ? `Yth. <b>${escapeHtml(o.name)}</b>,` : "Halo,"}</p>
           <p style="margin:0">Pendaftaran Anda telah disetujui dan sertifikat Anda sudah dapat diunduh dalam format PDF.</p>${table}`,
         button: { label: "Lihat & Unduh Sertifikat", url: o.url },
-        note: o.validUntil
-          ? { heading: "Masa berlaku tautan", text: `Tautan sertifikat ini berlaku sampai <b>${escapeHtml(o.validUntil)}</b>. Unduh dan simpan PDF Anda sebelum tanggal tersebut; setelah itu tautan tidak dapat dibuka lagi.` }
-          : { heading: "Verifikasi keaslian", text: "Setiap sertifikat memuat nomor unik dan kode QR. Siapa pun dapat memeriksa keasliannya melalui halaman sertifikat pada tautan di atas." },
-        plain: `${o.name ? `Yth. ${o.name},` : "Halo,"}\n\nPendaftaran Anda telah disetujui dan sertifikat Anda sudah dapat diunduh.\n\nKegiatan: ${o.eventName}\nPenyelenggara: ${o.org}\nJenis sertifikat: ${o.certType}${o.certNumber ? `\nNomor sertifikat: ${o.certNumber}` : ""}${o.validUntil ? `\nTautan berlaku sampai: ${o.validUntil}` : ""}`,
+        note: { heading: "Verifikasi keaslian", text: "Setiap sertifikat memuat nomor unik dan kode QR. Siapa pun dapat memeriksa keasliannya melalui halaman sertifikat pada tautan di atas." },
+        plain: `${o.name ? `Yth. ${o.name},` : "Halo,"}\n\nPendaftaran Anda telah disetujui dan sertifikat Anda sudah dapat diunduh.\n\nKegiatan: ${o.eventName}\nPenyelenggara: ${o.org}\nJenis sertifikat: ${o.certType}${o.certNumber ? `\nNomor sertifikat: ${o.certNumber}` : ""}`,
       },
       host(),
     ),

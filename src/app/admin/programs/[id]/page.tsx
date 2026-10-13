@@ -4,10 +4,9 @@ import { Download } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { formatDateRange } from "@/lib/certificate/sources";
 import type { Participant, Program, ProgramField } from "@/lib/db";
-import { linkState } from "@/lib/link-validity";
 import { siteUrl } from "@/lib/util";
 
-const STATUS = { pending: ["Menunggu", "badge-warn"], approved: ["Disetujui", "badge-ok"], rejected: ["Ditolak", "badge-bad"] } as const;
+const STATUS = { pending: ["Menunggu", "badge-warn"], approved: ["Disetujui", "badge-ok"], rejected: ["Ditolak", "badge-bad"], revoked: ["Dicabut", "badge-revoked"] } as const;
 
 export default async function AdminProgram({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -68,7 +67,7 @@ export default async function AdminProgram({ params }: { params: Promise<{ id: s
                   <td className="whitespace-nowrap px-3 py-2 text-slate-500">{new Date(r.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
                   {fields.map((x) => <td key={x.id} className="max-w-56 truncate px-3 py-2">{r.data[x.id] ?? ""}</td>)}
                   <td className="px-3 py-2"><span className={`badge ${STATUS[r.status][1]}`}>{STATUS[r.status][0]}</span></td>
-                  <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{r.status !== "approved" ? "—" : linkState(r, program.link_valid_days).state === "valid" ? <a className="hover:text-brand-700" target="_blank" href={`/c/${r.code}`}>{r.cert_number}</a> : <span className="text-red-700" title="Tautan kedaluwarsa">{r.cert_number} (kedaluwarsa)</span>}</td>
+                  <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{r.status === "approved" ? <a className="hover:text-brand-700" target="_blank" href={`/c/${r.code}`}>{r.cert_number}</a> : "—"}</td>
                 </tr>
               ))}
             </tbody>

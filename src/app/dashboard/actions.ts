@@ -25,7 +25,6 @@ const eventSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tanggal mulai wajib diisi"),
   end_date: z.preprocess((v) => (v === "" ? null : v), z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()),
   location: opt(100),
-  link_valid_days: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().int().min(1, "Masa berlaku minimal 1 hari").max(3650, "Masa berlaku maksimal 3650 hari").nullable()),
   signer1_name: opt(80),
   signer1_title: opt(80),
   signer2_name: opt(80),
@@ -263,7 +262,7 @@ export async function setParticipantStatus(programId: string, ids: string[], sta
   const ownedIds = (owned ?? []).map((r) => r.id);
 
   if (status === "approved") await approveParticipants(program as Program, ownedIds);
-  else await supabase.from("participants").update({ status }).in("id", ownedIds);
+  else await supabase.from("participants").update({ status, revoked_at: null, revoked_reason: null }).in("id", ownedIds);
 
   revalidatePath(`/dashboard/programs/${programId}/participants`);
   return { ok: true };
@@ -291,4 +290,24 @@ export async function resendCertificateEmails(programId: string, ids: string[]):
   if (!r.sent && r.failed) return { error: "Email gagal dikirim. Periksa konfigurasi SMTP." };
   if (!r.sent) return { error: "Tidak ada email terkirim. Pastikan form memiliki field bertipe Email dan SMTP sudah dikonfigurasi." };
   return { ok: true, message: `${r.sent} email terkirim${r.failed ? `, ${r.failed} gagal` : ""}${r.skipped ? `, ${r.skipped} dilewati (tanpa email)` : ""}.` };
+}
+
+/** Mencabut sertifikat yang sudah terbit: catatan tetap ada, tautan/QR menampilkan "dicabut". */
+export async function revokeParticipants(programId: string, ids: string[], reason: string): Promise<ActionState & { message?: string }> {
+  const { supabase } = await requireUser();
+  if (!ids.length) return { error: "Pilih peserta terlebih dahulu" };
+  if (ids.length > 500) return { error: "Maksimal 500 peserta sekali proses" };
+  const note = reason.trim().slice(0, 200) || null;
+
+  const { data, error } = await supabase
+    .from("participants")
+    .update({ status: "revoked", revoked_at: new Date().toISOString(), revoked_reason: note })
+    .eq("program_id", programId)
+    .eq("status", "approved")
+    .in("id", ids)
+    .select("id");
+  if (error) return { error: dbError(error.message) };
+  if (!data?.length) return { error: "Hanya sertifikat yang sudah terbit (status Disetujui) yang dapat dicabut" };
+  revalidatePath(`/dashboard/programs/${programId}/participants`);
+  return { ok: true, message: `${data.length} sertifikat dicabut. Tautan dan QR-nya kini menampilkan status "dicabut".` };
 }

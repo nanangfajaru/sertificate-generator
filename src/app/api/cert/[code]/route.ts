@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { Participant, Program } from "@/lib/db";
 import { loadBackground, resolvedFor } from "@/lib/certificate/load";
 import { renderCertificatePdf } from "@/lib/certificate/pdf";
-import { linkState } from "@/lib/link-validity";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -12,13 +11,11 @@ export async function GET(_: Request, { params }: { params: Promise<{ code: stri
   if (!/^[a-z0-9]{6,32}$/.test(code)) return new NextResponse("Not found", { status: 404 });
   const admin = createAdminClient();
   const { data: part } = await admin.from("participants").select("*").eq("code", code).maybeSingle();
+  if (part?.status === "revoked") return new NextResponse("Sertifikat ini telah dicabut oleh penyelenggara.", { status: 410 });
   if (!part || part.status !== "approved") return new NextResponse("Not found", { status: 404 });
   const participant = part as Participant;
   const { data: prog } = await admin.from("programs").select("*").eq("id", participant.program_id).single();
   const program = prog as Program;
-  if (linkState(participant, program.link_valid_days).state === "expired") {
-    return new NextResponse("Tautan sertifikat telah kedaluwarsa.", { status: 410 });
-  }
 
   const layout = resolvedFor(program, participant);
   const bytes = await renderCertificatePdf(layout, await loadBackground(admin, program));

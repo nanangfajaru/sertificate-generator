@@ -11,7 +11,7 @@ export async function approveParticipants(program: Pick<Program, "id" | "number_
   const admin = createAdminClient();
   const { data: rows } = await admin
     .from("participants")
-    .select("id, cert_number")
+    .select("id, cert_number, approved_at")
     .eq("program_id", program.id)
     .in("id", ids)
     .order("created_at");
@@ -22,7 +22,7 @@ export async function approveParticipants(program: Pick<Program, "id" | "number_
       const { data: seq } = await admin.rpc("next_cert_seq", { p_program: program.id });
       cert_number = formatCertNumber(program.number_format, Number(seq));
     }
-    await admin.from("participants").update({ status: "approved", cert_number, approved_at: new Date().toISOString() }).eq("id", r.id);
+    await admin.from("participants").update({ status: "approved", cert_number, approved_at: r.approved_at ?? new Date().toISOString(), revoked_at: null, revoked_reason: null }).eq("id", r.id);
     approvedIds.push(r.id);
   }
 

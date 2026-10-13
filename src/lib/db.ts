@@ -36,7 +36,6 @@ export type Program = {
   mapping: Record<string, string | null>;
   show_qr: boolean;
   notify_email: boolean;
-  link_valid_days: number | null;
   design_path: string | null;
   design_preview_path: string | null;
   design_kind: "pdf" | "png" | "jpg" | null;
@@ -71,11 +70,13 @@ export type Participant = {
   program_id: string;
   code: string;
   data: Record<string, string>;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "revoked";
   cert_number: string | null;
   created_at: string;
   approved_at: string | null;
   emailed_at: string | null;
+  revoked_at: string | null;
+  revoked_reason: string | null;
 };
 
 export const FREE_PROGRAM_LIMIT = 5;

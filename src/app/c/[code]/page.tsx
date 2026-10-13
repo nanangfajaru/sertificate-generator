@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
-import { BadgeCheck, CalendarClock, Download, Mail } from "lucide-react";
+import { BadgeCheck, Download, Mail } from "lucide-react";
 import CertificateSvg from "@/components/CertificateSvg";
 import type { Participant, Program } from "@/lib/db";
 import { previewUrl, resolvedFor } from "@/lib/certificate/load";
 import { mailConfigured } from "@/lib/mailer";
 import { emailFieldOf } from "@/lib/notify";
-import { formatExpiry, linkState } from "@/lib/link-validity";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ExpiredCard, PendingCard, RejectedCard, maskEmail } from "./StatusCards";
+import { PendingCard, RejectedCard, RevokedCard, maskEmail } from "./StatusCards";
 
 export const metadata = { title: "Sertifikat", robots: { index: false } };
 
@@ -30,13 +29,16 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
   const emailValue = emailField ? participant.data[emailField.id]?.trim() : "";
   const maskedEmail = program.notify_email && mailConfigured() && emailValue ? maskEmail(emailValue) : null;
 
-  const { state, expiry } = linkState(participant, program.link_valid_days);
-
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
       <div className="mx-auto max-w-3xl space-y-4">
-        {state === "expired" ? (
-          <ExpiredCard org={program.org_name} event={program.name} expiredOn={formatExpiry(expiry!)} />
+        {participant.status === "revoked" ? (
+          <RevokedCard
+            org={program.org_name}
+            event={program.name}
+            certNumber={participant.cert_number}
+            revokedOn={participant.revoked_at ? new Date(participant.revoked_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" }) : null}
+          />
         ) : participant.status === "approved" ? (
           <>
             <div className="card flex flex-wrap items-center justify-between gap-3">
@@ -50,12 +52,6 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
               </div>
               <a href={`/api/cert/${code}`} className="btn btn-primary"><Download className="h-4 w-4" /> Unduh PDF</a>
             </div>
-            {expiry && (
-              <p className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                <CalendarClock className="h-4 w-4 shrink-0" />
-                Tautan sertifikat ini berlaku sampai <b>{formatExpiry(expiry)}</b>. Unduh dan simpan PDF Anda sebelum tanggal tersebut.
-              </p>
-            )}
             {maskedEmail && (
               <p className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
                 <Mail className="h-4 w-4 shrink-0 text-brand-600" />
@@ -67,7 +63,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
             </div>
           </>
         ) : participant.status === "pending" ? (
-          <PendingCard who={who} event={program.name} maskedEmail={maskedEmail} validDays={program.link_valid_days} />
+          <PendingCard who={who} event={program.name} maskedEmail={maskedEmail} />
         ) : (
           <RejectedCard org={program.org_name} />
         )}
