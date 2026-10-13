@@ -98,7 +98,7 @@ export default async function DashboardPage() {
             </div>
             <p className="mt-2 text-xs text-slate-500">Maksimal {FREE_PARTICIPANT_LIMIT} peserta per program. Upgrade ke Pro untuk program tanpa batas, template bertema, desain sendiri, dan tanpa watermark.</p>
           </div>
-          <span className="btn btn-sm cursor-default gap-1.5 border-brand-200 bg-brand-50 text-brand-700"><Sparkles className="h-3.5 w-3.5" /> Upgrade ke Pro segera hadir</span>
+          <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Lihat paket Pro</Link>
         </div>
       )}
 

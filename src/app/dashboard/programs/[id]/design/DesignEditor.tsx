@@ -142,7 +142,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
           ) : isPro ? (
             <button className="btn btn-primary btn-sm" disabled={pending} onClick={useIt}>Gunakan untuk sertifikat</button>
           ) : (
-            <Link href="/#harga" className="btn btn-sm" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan (Pro)</Link>
+            <Link href="/dashboard/upgrade" className="btn btn-sm" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan untuk sertifikat</Link>
           )}
         </div>
       </div>

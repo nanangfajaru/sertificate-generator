@@ -7,8 +7,10 @@ Stack: Next.js 16 (App Router) · Supabase (Auth Google, Postgres, Storage) · V
 
 | | Free | Pro |
 |---|---|---|
-| Program | maks. 5 | tanpa batas |
-| Template | 25 | semua (45, bisa ditambah) |
+| Program | maks. 10, tidak bisa dihapus | tanpa batas |
+| Peserta per program | maks. 100 | tanpa batas |
+| Template | 20 | semua (42, bisa ditambah) |
+| Watermark sertifikatku.com | ada | tanpa watermark |
 | Membuat & menyimpan desain sendiri (PDF/PNG/JPG, atur posisi teks) | ✔ (maks. 3 per program) | ✔ (maks. 20) |
 | **Menggunakan** desain sendiri untuk sertifikat | – | ✔ |
 
@@ -72,3 +74,5 @@ Tambahkan baris di `PRO` pada `src/lib/certificate/templates/index.ts` (kombinas
 - [ ] (Opsional) Provider Google aktif di Supabase dengan OAuth Client dari Google Cloud Console
 - [ ] `npm run seed` dijalankan sekali untuk membuat admin owner dan 20 contoh program
 - [ ] SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM terisi di Vercel (email konfirmasi & reset password), lalu redeploy
+
+Harga (halaman `/dashboard/upgrade`): Pro Rp49.000/bulan atau Rp499.000/tahun. Isi `NEXT_PUBLIC_UPGRADE_URL` (mailto/WhatsApp/checkout) agar tombol beli aktif; sebelum payment gateway terpasang, aktivasi Pro dilakukan admin di `/admin/users`.

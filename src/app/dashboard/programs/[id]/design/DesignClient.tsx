@@ -111,7 +111,7 @@ export default function DesignClient(p: Props) {
                       {active ? (
                         <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
                       ) : locked ? (
-                        <span className="btn btn-sm cursor-not-allowed opacity-60"><Lock className="h-3.5 w-3.5" /> Pro</span>
+                        <Link href="/dashboard/upgrade" className="btn btn-sm"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
                       ) : (
                         <button className="btn btn-primary btn-sm" disabled={busyId !== null} onClick={() => use(t)}>
                           {busyId === t.id ? "Memproses…" : "Gunakan"}
@@ -163,7 +163,7 @@ export default function DesignClient(p: Props) {
                 {mode === "template" && preview.id === activeId ? (
                   <span className="btn cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
                 ) : preview.tier === "pro" && !p.isPro ? (
-                  <span className="btn cursor-not-allowed opacity-60"><Lock className="h-4 w-4" /> Khusus Pro</span>
+                  <Link href="/dashboard/upgrade" className="btn"><Lock className="h-4 w-4" /> Gunakan template ini</Link>
                 ) : (
                   <button className="btn btn-primary" disabled={busyId !== null} onClick={() => use(preview)}>{busyId === preview.id ? "Memproses…" : "Gunakan template ini"}</button>
                 )}

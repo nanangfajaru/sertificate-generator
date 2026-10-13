@@ -94,7 +94,7 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
           <p>
             <b>Paket Free:</b> Anda bisa membuat dan menyimpan hingga {DESIGN_LIMITS.free} desain untuk dicoba. <b>Menggunakannya untuk sertifikat khusus paket Pro.</b>
           </p>
-          <Link href="/#harga" className="btn btn-sm shrink-0">Lihat paket Pro</Link>
+          <Link href="/dashboard/upgrade" className="btn btn-sm shrink-0">Lihat paket Pro</Link>
         </div>
       )}
 
@@ -140,7 +140,7 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
                     ) : isPro ? (
                       <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan</button>
                     ) : (
-                      <span className="btn btn-sm flex-1 cursor-not-allowed opacity-60" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Pro</span>
+                      <Link href="/dashboard/upgrade" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
                     )}
                     <button className="btn btn-danger btn-sm !px-2" onClick={() => remove(d)} aria-label={`Hapus ${d.name}`}><Trash2 className="h-4 w-4" /></button>
                   </div>
