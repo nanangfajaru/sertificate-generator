@@ -10,7 +10,7 @@ export type Highlight = { color: string; n: string };
 type Props = {
   layout: Layout;
   /** tandai teks tertentu (mis. kolom yang dipetakan dari formulir) dengan kotak berwarna + nomor */
-  highlight?: (item: TextItem) => Highlight | null;
+  highlight?: (item: TextItem | QrItem) => Highlight | null;
   /** gambar latar (desain sendiri) */
   backgroundUrl?: string | null;
   className?: string;
@@ -159,15 +159,23 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, class
             <g key={id}>{child}</g>
           );
         if (item.type === "text") return wrap(<FitText item={item} interactive={interactive} selected={selectedId === id} hl={highlight?.(item) ?? null} />, item.x, item.y);
-        if (item.type === "qr")
+        if (item.type === "qr") {
+          const hl = highlight?.(item);
           return wrap(
             <>
-              <rect x={item.x - 2} y={item.y - 2} width={item.size + 4} height={item.size + 4} fill="#fff" stroke={selectedId === id ? "#2563eb" : "none"} strokeWidth={1} />
+              <rect x={item.x - 2} y={item.y - 2} width={item.size + 4} height={item.size + 4} fill="#fff" stroke={hl ? hl.color : selectedId === id ? "#2563eb" : "none"} strokeWidth={hl ? 2 : 1} strokeDasharray={hl ? "5 3" : undefined} />
               <Qr item={item} />
+              {hl && (
+                <g pointerEvents="none">
+                  <circle cx={item.x - 2} cy={item.y - 2} r={13} fill={hl.color} />
+                  <text x={item.x - 2} y={item.y + 3} textAnchor="middle" fontSize={15} fontWeight={700} fill="#fff" style={{ fontFamily: "CertInter, sans-serif" }}>{hl.n}</text>
+                </g>
+              )}
             </>,
             item.x,
             item.y,
           );
+        }
         return <Shape key={id} item={item} />;
       })}
     </svg>

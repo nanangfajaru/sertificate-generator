@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import CertificateSvg, { type Highlight } from "@/components/CertificateSvg";
 import { resolveLayout, type ProgramLike } from "@/lib/certificate/sources";
-import type { Layout, TextItem } from "@/lib/certificate/types";
+import type { Layout, QrItem, TextItem } from "@/lib/certificate/types";
 import { FIELD_TYPES, type FieldType } from "@/lib/db";
 import { saveFields } from "../../../actions";
 
@@ -74,7 +74,8 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, custom,
     });
   }, [layout, program, rows, nameRow?.id, extraRow?.id]);
 
-  const highlight = (item: TextItem): Highlight | null => {
+  const highlight = (item: TextItem | QrItem): Highlight | null => {
+    if (item.type !== "text") return null;
     const b = bindings.find((x) => x.source === item.source);
     return b ? { color: b.color, n: b.n } : null;
   };
