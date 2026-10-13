@@ -60,3 +60,12 @@ Tambahkan baris di `PRO` pada `src/lib/certificate/templates/index.ts` (kombinas
 2. Isi Environment Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API Keys → service_role / secret), `NEXT_PUBLIC_SITE_URL` (URL produksi, tanpa slash di akhir).
 3. Tambahkan URL produksi ke Supabase → Authentication → URL Configuration → Redirect URLs (`https://<domain>/**`).
 4. Matikan Vercel Authentication (Settings → Deployment Protection) agar halaman publik peserta bisa dibuka tanpa login Vercel.
+
+## Checklist setelah deploy
+
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` terisi di Vercel (Production + Preview), lalu redeploy
+- [ ] Vercel Authentication nonaktif (Settings → Deployment Protection)
+- [ ] Supabase → Authentication → URL Configuration: Site URL dan Redirect URLs berisi domain produksi
+- [ ] (Opsional) Provider Google aktif di Supabase dengan OAuth Client dari Google Cloud Console
+- [ ] `npm run seed` dijalankan sekali untuk membuat admin owner dan 20 contoh program
+- [ ] (Disarankan) SMTP sendiri di Supabase untuk email konfirmasi dan reset password
