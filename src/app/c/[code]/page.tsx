@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
-import { BadgeCheck, Clock, Download, XCircle } from "lucide-react";
+import { BadgeCheck, Download, Mail } from "lucide-react";
 import CertificateSvg from "@/components/CertificateSvg";
 import type { Participant, Program } from "@/lib/db";
 import { previewUrl, resolvedFor } from "@/lib/certificate/load";
+import { mailConfigured } from "@/lib/mailer";
+import { emailFieldOf } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { PendingCard, RejectedCard, maskEmail } from "./StatusCards";
 
 export const metadata = { title: "Sertifikat", robots: { index: false } };
 
@@ -19,6 +22,12 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
 
   const nameId = program.mapping?.name;
   const who = (nameId && participant.data[nameId]) || "Peserta";
+
+  // Apakah peserta akan menerima email? (opsi program aktif, SMTP siap, dan ada alamat email)
+  const { data: f } = await admin.from("program_fields").select("id, type").eq("program_id", program.id);
+  const emailField = emailFieldOf((f ?? []) as { id: string; type: "email" }[]);
+  const emailValue = emailField ? participant.data[emailField.id]?.trim() : "";
+  const maskedEmail = program.notify_email && mailConfigured() && emailValue ? maskEmail(emailValue) : null;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
@@ -36,22 +45,20 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
               </div>
               <a href={`/api/cert/${code}`} className="btn btn-primary"><Download className="h-4 w-4" /> Unduh PDF</a>
             </div>
+            {maskedEmail && (
+              <p className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
+                <Mail className="h-4 w-4 shrink-0 text-brand-600" />
+                Tautan sertifikat ini juga dikirim ke email Anda ({maskedEmail}). Periksa folder spam bila belum masuk.
+              </p>
+            )}
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <CertificateSvg layout={resolvedFor(program, participant)} backgroundUrl={await previewUrl(admin, program)} className="block h-auto w-full" />
             </div>
           </>
         ) : participant.status === "pending" ? (
-          <div className="card text-center">
-            <Clock className="mx-auto h-10 w-10 text-amber-500" />
-            <h1 className="mt-3 text-xl font-semibold">Pendaftaran diterima</h1>
-            <p className="mt-1 text-sm text-slate-600">Sertifikat untuk <b>{who}</b> menunggu persetujuan penyelenggara. Simpan halaman ini dan buka lagi nanti.</p>
-          </div>
+          <PendingCard who={who} event={program.name} maskedEmail={maskedEmail} />
         ) : (
-          <div className="card text-center">
-            <XCircle className="mx-auto h-10 w-10 text-red-500" />
-            <h1 className="mt-3 text-xl font-semibold">Pendaftaran tidak disetujui</h1>
-            <p className="mt-1 text-sm text-slate-600">Hubungi penyelenggara ({program.org_name}) untuk informasi lebih lanjut.</p>
-          </div>
+          <RejectedCard org={program.org_name} />
         )}
       </div>
     </main>
