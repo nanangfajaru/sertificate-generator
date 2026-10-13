@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { CERT_TYPES, CUSTOM_TYPE, isPresetType, presetDescription } from "@/lib/cert-types";
 import type { Program } from "@/lib/db";
 import type { ActionState } from "./actions";
 
@@ -13,6 +14,21 @@ type Props = {
 export default function ProgramForm({ action, program: p, submitLabel }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const edit = !!p;
+
+  // Jenis sertifikat: pilihan bawaan atau teks sendiri. Kalimat deskripsi ikut menyesuaikan
+  // selama belum diubah manual.
+  const initialType = p?.cert_type ?? "Peserta";
+  const [typeSel, setTypeSel] = useState(isPresetType(initialType) ? initialType : CUSTOM_TYPE);
+  const [customType, setCustomType] = useState(isPresetType(initialType) ? "" : initialType);
+  const [desc, setDesc] = useState(p?.description ?? presetDescription(initialType) ?? "atas partisipasinya dalam kegiatan");
+  const [descEdited, setDescEdited] = useState(() => !!p && p.description !== presetDescription(initialType));
+  const certType = typeSel === CUSTOM_TYPE ? customType : typeSel;
+
+  function onTypeChange(v: string) {
+    setTypeSel(v);
+    const next = presetDescription(v);
+    if (next && !descEdited) setDesc(next);
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -28,11 +44,15 @@ export default function ProgramForm({ action, program: p, submitLabel }: Props) 
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label" htmlFor="cert_type">Jenis sertifikat</label>
-            <input id="cert_type" name="cert_type" list="cert-types" className="input" required defaultValue={p?.cert_type ?? "Peserta"} />
-            <datalist id="cert-types">
-              {["Peserta", "Panitia", "Pembicara", "Narasumber", "Moderator", "Juara 1", "Juara 2", "Juara 3", "Relawan"].map((v) => <option key={v} value={v} />)}
-            </datalist>
+            <label className="label" htmlFor="cert_type_sel">Jenis sertifikat</label>
+            <select id="cert_type_sel" className="input" value={typeSel} onChange={(e) => onTypeChange(e.target.value)}>
+              {CERT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.value}</option>)}
+              <option value={CUSTOM_TYPE}>Lainnya (tulis sendiri)…</option>
+            </select>
+            {typeSel === CUSTOM_TYPE && (
+              <input className="input mt-2" placeholder="mis. Peserta Terbaik" maxLength={60} required value={customType} onChange={(e) => setCustomType(e.target.value)} />
+            )}
+            <input type="hidden" name="cert_type" value={certType} />
           </div>
           <div>
             <label className="label" htmlFor="location">Lokasi</label>
@@ -51,8 +71,8 @@ export default function ProgramForm({ action, program: p, submitLabel }: Props) 
         </div>
         <div>
           <label className="label" htmlFor="description">Kalimat sebelum nama kegiatan</label>
-          <input id="description" name="description" className="input" required defaultValue={p?.description ?? "atas partisipasinya dalam kegiatan"} />
-          <p className="hint">Contoh: &quot;atas partisipasinya dalam kegiatan&quot;, &quot;sebagai pembicara dalam kegiatan&quot;.</p>
+          <input id="description" name="description" className="input" required maxLength={150} value={desc} onChange={(e) => { setDesc(e.target.value); setDescEdited(true); }} />
+          <p className="hint">Terisi otomatis sesuai jenis sertifikat dan boleh diubah. Tampil di atas nama kegiatan.</p>
         </div>
       </section>
 

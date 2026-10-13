@@ -5,8 +5,12 @@ import { CSS_FONT } from "@/lib/certificate/fonts";
 import { qrMatrix } from "@/lib/certificate/qr";
 import type { Item, Layout, QrItem, TextItem } from "@/lib/certificate/types";
 
+export type Highlight = { color: string; n: string };
+
 type Props = {
   layout: Layout;
+  /** tandai teks tertentu (mis. kolom yang dipetakan dari formulir) dengan kotak berwarna + nomor */
+  highlight?: (item: TextItem) => Highlight | null;
   /** gambar latar (desain sendiri) */
   backgroundUrl?: string | null;
   className?: string;
@@ -16,45 +20,65 @@ type Props = {
   onMove?: (id: string, x: number, y: number) => void;
 };
 
-function FitText({ item, interactive, selected }: { item: TextItem; interactive: boolean; selected: boolean }) {
+function FitText({ item, interactive, selected, hl }: { item: TextItem; interactive: boolean; selected: boolean; hl?: Highlight | null }) {
   const ref = useRef<SVGTextElement>(null);
   const [scale, setScale] = useState(1);
+  const [box, setBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const f = CSS_FONT[item.font];
   const text = item.text ?? "";
+  const hasHl = !!hl;
 
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || !item.maxWidth) return setScale(1);
+    if (!el) return;
     const measure = () => {
-      el.style.fontSize = `${item.size}px`;
-      const len = el.getComputedTextLength();
-      setScale(len > item.maxWidth! ? item.maxWidth! / len : 1);
+      let k = 1;
+      if (item.maxWidth) {
+        el.style.fontSize = `${item.size}px`;
+        const len = el.getComputedTextLength();
+        k = len > item.maxWidth ? item.maxWidth / len : 1;
+        setScale(k);
+        el.style.fontSize = `${item.size * k}px`;
+      }
+      if (hasHl) {
+        const b = el.getBBox();
+        setBox((o) => (o && o.x === b.x && o.y === b.y && o.width === b.width && o.height === b.height ? o : { x: b.x, y: b.y, width: b.width, height: b.height }));
+      }
     };
     measure();
     document.fonts?.ready.then(measure);
-  }, [text, item.size, item.font, item.maxWidth, item.spacing]);
+  }, [text, item.size, item.font, item.maxWidth, item.spacing, item.align, item.x, item.y, hasHl]);
 
   return (
-    <text
-      ref={ref}
-      x={item.x}
-      y={item.y}
-      fontSize={item.size * scale}
-      fill={item.color}
-      fillOpacity={item.opacity}
-      textAnchor={item.align === "left" ? "start" : item.align === "right" ? "end" : "middle"}
-      style={{
-        fontFamily: f.family,
-        fontWeight: f.weight,
-        letterSpacing: item.spacing ? `${item.spacing}px` : undefined,
-        cursor: interactive ? "move" : undefined,
-        userSelect: "none",
-      }}
-      stroke={selected ? "#2563eb" : "none"}
-      strokeWidth={selected ? 0.4 : 0}
-    >
-      {text}
-    </text>
+    <>
+      {hl && box && (
+        <g pointerEvents="none">
+          <rect x={box.x - 6} y={box.y - 3} width={box.width + 12} height={box.height + 6} rx={4} fill={hl.color} fillOpacity={0.14} stroke={hl.color} strokeWidth={1.4} strokeDasharray="5 3" />
+          <circle cx={box.x - 6} cy={box.y - 3} r={13} fill={hl.color} />
+          <text x={box.x - 6} y={box.y - 3 + 5} textAnchor="middle" fontSize={15} fontWeight={700} fill="#fff" style={{ fontFamily: "CertInter, sans-serif" }}>{hl.n}</text>
+        </g>
+      )}
+      <text
+        ref={ref}
+        x={item.x}
+        y={item.y}
+        fontSize={item.size * scale}
+        fill={item.color}
+        fillOpacity={item.opacity}
+        textAnchor={item.align === "left" ? "start" : item.align === "right" ? "end" : "middle"}
+        style={{
+          fontFamily: f.family,
+          fontWeight: f.weight,
+          letterSpacing: item.spacing ? `${item.spacing}px` : undefined,
+          cursor: interactive ? "move" : undefined,
+          userSelect: "none",
+        }}
+        stroke={selected ? "#2563eb" : "none"}
+        strokeWidth={selected ? 0.4 : 0}
+      >
+        {text}
+      </text>
+    </>
   );
 }
 
@@ -84,7 +108,7 @@ function Shape({ item }: { item: Exclude<Item, TextItem | QrItem> }) {
   }
 }
 
-export default function CertificateSvg({ layout, backgroundUrl, className, selectedId, onSelect, onMove }: Props) {
+export default function CertificateSvg({ layout, highlight, backgroundUrl, className, selectedId, onSelect, onMove }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; dx: number; dy: number } | null>(null);
   const interactive = !!onMove;
@@ -134,7 +158,7 @@ export default function CertificateSvg({ layout, backgroundUrl, className, selec
           ) : (
             <g key={id}>{child}</g>
           );
-        if (item.type === "text") return wrap(<FitText item={item} interactive={interactive} selected={selectedId === id} />, item.x, item.y);
+        if (item.type === "text") return wrap(<FitText item={item} interactive={interactive} selected={selectedId === id} hl={highlight?.(item) ?? null} />, item.x, item.y);
         if (item.type === "qr")
           return wrap(
             <>

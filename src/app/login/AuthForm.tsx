@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { registerWithEmail, requestPasswordReset, resendConfirmation } from "./actions";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -26,6 +27,7 @@ export default function AuthForm({ next }: { next?: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,34 +38,26 @@ export default function AuthForm({ next }: { next?: string }) {
     const password = String(fd.get("password") ?? "");
     const name = String(fd.get("name") ?? "").trim();
     const supabase = createClient();
-    const origin = window.location.origin;
-    setBusy(true);
+        setBusy(true);
     try {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return setError(translate(error.message));
+        if (error) {
+          setUnconfirmed(error.message.toLowerCase().includes("not confirmed") ? email : null);
+          return setError(translate(error.message));
+        }
         router.replace(safeNext(next));
         router.refresh();
       } else if (mode === "register") {
         if (password.length < 8) return setError("Password minimal 8 karakter.");
         if (password !== String(fd.get("confirm") ?? "")) return setError("Konfirmasi password tidak sama.");
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: name }, emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(safeNext(next))}` },
-        });
-        if (error) return setError(translate(error.message));
-        if (data.session) {
-          router.replace(safeNext(next));
-          router.refresh();
-        } else {
-          // Supabase mengembalikan user tanpa identitas bila email sudah terdaftar (anti-enumerasi).
-          setInfo("Pendaftaran berhasil. Kami mengirim tautan konfirmasi ke email Anda. Buka tautan itu untuk mengaktifkan akun.");
-        }
+        const r = await registerWithEmail({ name, email, password, next });
+        if (r.error) return setError(r.error);
+        setInfo(r.info ?? null);
       } else {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/auth/callback?next=/auth/reset` });
-        if (error) return setError(translate(error.message));
-        setInfo("Jika email terdaftar, tautan untuk mengatur ulang password sudah dikirim.");
+        const r = await requestPasswordReset({ email });
+        if (r.error) return setError(r.error);
+        setInfo(r.info ?? null);
       }
     } finally {
       setBusy(false);
@@ -75,7 +69,7 @@ export default function AuthForm({ next }: { next?: string }) {
       {mode !== "forgot" && (
         <div className="mb-4 grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
           {(["login", "register"] as const).map((m) => (
-            <button key={m} type="button" onClick={() => { setMode(m); setError(null); setInfo(null); }} className={`rounded-md py-1.5 font-medium ${mode === m ? "bg-white shadow-sm" : "text-slate-500"}`}>
+            <button key={m} type="button" onClick={() => { setMode(m); setError(null); setInfo(null); setUnconfirmed(null); }} className={`rounded-md py-1.5 font-medium ${mode === m ? "bg-white shadow-sm" : "text-slate-500"}`}>
               {m === "login" ? "Masuk" : "Daftar"}
             </button>
           ))}
@@ -107,6 +101,21 @@ export default function AuthForm({ next }: { next?: string }) {
           </div>
         )}
         {error && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{error}</p>}
+        {unconfirmed && mode === "login" && (
+          <button
+            type="button"
+            className="text-sm text-brand-700 hover:underline"
+            onClick={async () => {
+              setBusy(true);
+              const r = await resendConfirmation({ email: unconfirmed, next });
+              setBusy(false);
+              setError(r.error ?? null);
+              setInfo(r.info ?? null);
+            }}
+          >
+            Kirim ulang email konfirmasi
+          </button>
+        )}
         {info && <p className="rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">{info}</p>}
         <button className="btn btn-primary w-full py-2.5" disabled={busy}>
           {busy ? "Memproses…" : mode === "login" ? "Masuk" : mode === "register" ? "Daftar" : "Kirim tautan reset"}

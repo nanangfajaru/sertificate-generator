@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </Link>
         <h1 className="text-xl font-semibold">Masuk atau daftar</h1>
         <p className="mt-1 text-sm text-slate-500">Masuk atau daftar dengan Google maupun email.</p>
-        {error && <p className="mt-4 rounded-lg bg-red-50 p-2 text-sm text-red-700">Login gagal. Silakan coba lagi.</p>}
+        {error && <p className="mt-4 rounded-lg bg-red-50 p-2 text-sm text-red-700">{error === "link" ? "Tautan tidak valid atau sudah kedaluwarsa. Minta tautan baru." : "Login gagal. Silakan coba lagi."}</p>}
         <div className="mt-6 space-y-4">
           <GoogleButton next={next} />
           <div className="flex items-center gap-3 text-xs text-slate-400">

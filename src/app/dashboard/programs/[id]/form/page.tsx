@@ -1,4 +1,7 @@
 import { getOwnedProgram } from "@/lib/program-server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { previewUrl, programLayout } from "@/lib/certificate/load";
+import { getTemplate } from "@/lib/certificate/templates";
 import FormBuilder from "./FormBuilder";
 
 export const metadata = { title: "Form pendaftaran" };
@@ -14,5 +17,31 @@ export default async function FormPage({ params }: { params: Promise<{ id: strin
     options: (f.options ?? []).join("\n"),
     slot: (program.mapping?.name === f.id ? "name" : program.mapping?.extra === f.id ? "extra" : "") as "" | "name" | "extra",
   }));
-  return <FormBuilder programId={id} initial={initial} />;
+  const custom = program.cert_mode === "custom" && !!program.design_layout;
+  const bgUrl = custom ? await previewUrl(createAdminClient(), program) : null;
+
+  return (
+    <FormBuilder
+      programId={id}
+      initial={initial}
+      layout={programLayout(program)}
+      bgUrl={bgUrl}
+      custom={custom}
+      templateName={custom ? "Desain sendiri" : getTemplate(program.template_id).name}
+      program={{
+        org_name: program.org_name,
+        name: program.name,
+        cert_type: program.cert_type,
+        description: program.description,
+        start_date: program.start_date,
+        end_date: program.end_date,
+        location: program.location,
+        signer1_name: program.signer1_name,
+        signer1_title: program.signer1_title,
+        signer2_name: program.signer2_name,
+        signer2_title: program.signer2_title,
+        mapping: null,
+      }}
+    />
+  );
 }

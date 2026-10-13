@@ -19,8 +19,9 @@ Batas diterapkan di database (trigger `enforce_program_rules`) dan storage polic
 2. **Google login**: Google Cloud Console → OAuth Client (Web). Authorized redirect URI: `https://<project>.supabase.co/auth/v1/callback`.
    Supabase → Authentication → Providers → Google → isi Client ID & Secret.
    Authentication → URL Configuration: Site URL = URL aplikasi, tambahkan `http://localhost:3000/**` dan URL Vercel ke Redirect URLs.
-3. **Env**: salin `.env.example` ke `.env.local` dan isi (di Vercel isi di Project Settings → Environment Variables).
-4. `npm install && npm run dev`.
+3. **Email sistem (SMTP sendiri)**: konfirmasi pendaftaran dan reset password dikirim langsung oleh aplikasi lewat SMTP (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`), bukan mailer bawaan Supabase. Tautan dibuat server (`auth.admin.generateLink`) dan diverifikasi di `/auth/confirm`. Bisa memakai penyedia SMTP apa pun (Resend, Brevo, Mailgun, Gmail App Password). Jalankan juga `supabase/migrations/0003_auth_email.sql`. Biarkan *Confirm email* di Supabase tetap aktif agar akun belum terkonfirmasi tidak bisa masuk.
+4. **Env**: salin `.env.example` ke `.env.local` dan isi (di Vercel isi di Project Settings → Environment Variables).
+5. `npm install && npm run dev`.
 
 ### Admin owner & seeder
 
@@ -69,4 +70,4 @@ Tambahkan baris di `PRO` pada `src/lib/certificate/templates/index.ts` (kombinas
 - [ ] Supabase → Authentication → URL Configuration: Site URL dan Redirect URLs berisi domain produksi
 - [ ] (Opsional) Provider Google aktif di Supabase dengan OAuth Client dari Google Cloud Console
 - [ ] `npm run seed` dijalankan sekali untuk membuat admin owner dan 20 contoh program
-- [ ] (Disarankan) SMTP sendiri di Supabase untuk email konfirmasi dan reset password
+- [ ] SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM terisi di Vercel (email konfirmasi & reset password), lalu redeploy
