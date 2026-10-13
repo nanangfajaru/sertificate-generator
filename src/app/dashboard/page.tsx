@@ -33,13 +33,13 @@ export default async function DashboardPage() {
 
       {atLimit && (
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-          Kamu sudah memakai {FREE_PROGRAM_LIMIT} program. Upgrade ke Pro untuk program tanpa batas, 25 template, dan upload desain sendiri.
+          Anda sudah memakai {FREE_PROGRAM_LIMIT} program. Upgrade ke Pro untuk program tanpa batas, seluruh template, dan unggah desain sendiri.
         </div>
       )}
 
       {programs.length === 0 ? (
         <div className="card mt-8 text-center">
-          <p className="text-slate-600">Belum ada program. Buat program pertamamu dan bagikan link pendaftarannya.</p>
+          <p className="text-slate-600">Belum ada program. Buat program pertama Anda dan bagikan tautan pendaftarannya.</p>
           <Link href="/dashboard/programs/new" className="btn btn-primary mt-4">Buat program</Link>
         </div>
       ) : (

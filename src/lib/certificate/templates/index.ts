@@ -9,6 +9,10 @@ const FAMILY_LABEL: Record<string, string> = {
   geometric: "Geometris",
   dark: "Elegan Gelap",
   seal: "Stempel",
+  corner: "Siku",
+  split: "Panel",
+  stripe: "Garis",
+  frame: "Bingkai",
 };
 
 function make(family: string, palette: string, tier: "free" | "pro"): CertTemplate {
@@ -20,16 +24,21 @@ function make(family: string, palette: string, tier: "free" | "pro"): CertTempla
   };
 }
 
-// 5 template gratis
+// Template yang tersedia untuk semua pengguna (25)
 const FREE: [string, string][] = [
   ["classic", "navy"],
   ["modern", "teal"],
   ["ribbon", "slate"],
   ["minimal", "forest"],
   ["geometric", "crimson"],
+  ["corner", "navy"], ["corner", "teal"], ["corner", "crimson"], ["corner", "forest"],
+  ["split", "indigo"], ["split", "teal"], ["split", "crimson"], ["split", "orange"],
+  ["stripe", "navy"], ["stripe", "forest"], ["stripe", "violet"], ["stripe", "slate"],
+  ["frame", "crimson"], ["frame", "navy"], ["frame", "forest"], ["frame", "indigo"],
+  ["classic", "teal"], ["modern", "forest"], ["ribbon", "crimson"], ["minimal", "violet"],
 ];
 
-// 20 template khusus Pro. Tambah baris di sini untuk menambah template baru.
+// Template khusus paket berbayar (20). Tambah baris di sini untuk menambah template baru.
 const PRO: [string, string][] = [
   ["classic", "crimson"], ["classic", "forest"], ["classic", "violet"],
   ["modern", "navy"], ["modern", "crimson"], ["modern", "violet"],

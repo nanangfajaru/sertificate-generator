@@ -85,7 +85,7 @@ export default function DesignClient(p: Props) {
         <div className="card text-center">
           <Lock className="mx-auto h-8 w-8 text-slate-400" />
           <h3 className="mt-2 font-semibold">Upload desain sendiri khusus paket Pro</h3>
-          <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">Upload PDF/PNG/JPG desainmu, lalu geser posisi nama, tanggal, dan nomor sertifikat sesuka hati.</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">Upload PDF/PNG/JPG desain Anda, lalu atur posisi nama, tanggal, dan nomor sertifikat.</p>
           <Link href="/#harga" className="btn btn-primary mt-4">Lihat paket Pro</Link>
         </div>
       )}

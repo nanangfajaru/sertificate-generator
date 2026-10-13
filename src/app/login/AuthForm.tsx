@@ -13,7 +13,7 @@ function safeNext(next?: string) {
 function translate(message: string) {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials")) return "Email atau password salah.";
-  if (m.includes("email not confirmed")) return "Email belum dikonfirmasi. Cek kotak masuk kamu.";
+  if (m.includes("email not confirmed")) return "Email belum dikonfirmasi. Periksa kotak masuk Anda.";
   if (m.includes("already registered") || m.includes("already been registered")) return "Email ini sudah terdaftar. Silakan masuk.";
   if (m.includes("password should be at least")) return "Password minimal 8 karakter.";
   if (m.includes("rate limit") || m.includes("too many")) return "Terlalu banyak percobaan. Coba lagi beberapa menit lagi.";
@@ -58,7 +58,7 @@ export default function AuthForm({ next }: { next?: string }) {
           router.refresh();
         } else {
           // Supabase mengembalikan user tanpa identitas bila email sudah terdaftar (anti-enumerasi).
-          setInfo("Pendaftaran berhasil. Kami mengirim tautan konfirmasi ke email kamu. Buka tautan itu untuk mengaktifkan akun.");
+          setInfo("Pendaftaran berhasil. Kami mengirim tautan konfirmasi ke email Anda. Buka tautan itu untuk mengaktifkan akun.");
         }
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/auth/callback?next=/auth/reset` });
@@ -81,7 +81,7 @@ export default function AuthForm({ next }: { next?: string }) {
           ))}
         </div>
       )}
-      {mode === "forgot" && <p className="mb-3 text-sm text-slate-600">Masukkan email akunmu, kami kirim tautan untuk mengatur ulang password.</p>}
+      {mode === "forgot" && <p className="mb-3 text-sm text-slate-600">Masukkan email akun Anda, kami kirim tautan untuk mengatur ulang password.</p>}
 
       <form onSubmit={onSubmit} className="space-y-3">
         {mode === "register" && (

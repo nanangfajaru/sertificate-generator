@@ -9,6 +9,7 @@ export type Profile = {
   avatar_url: string | null;
   plan: Plan;
   plan_expires_at: string | null;
+  is_admin: boolean;
 };
 
 export type Program = {

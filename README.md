@@ -8,7 +8,7 @@ Stack: Next.js 16 (App Router) · Supabase (Auth Google, Postgres, Storage) · V
 | | Free | Pro |
 |---|---|---|
 | Program | maks. 5 | tanpa batas |
-| Template | 5 | semua (25, bisa ditambah) |
+| Template | 25 | semua (45, bisa ditambah) |
 | Upload desain sendiri (PDF/PNG/JPG) + atur posisi teks | – | ✔ |
 
 Batas diterapkan di database (trigger `enforce_program_rules`) dan storage policy, bukan hanya di UI.
@@ -22,12 +22,21 @@ Batas diterapkan di database (trigger `enforce_program_rules`) dan storage polic
 3. **Env**: salin `.env.example` ke `.env.local` dan isi (di Vercel isi di Project Settings → Environment Variables).
 4. `npm install && npm run dev`.
 
-### Menjadikan user Pro (sementara, sebelum payment gateway)
+### Admin owner & seeder
 
-```sql
-update public.profiles set plan = 'pro' where email = 'user@example.com';
--- opsional masa aktif: plan_expires_at = now() + interval '1 year'
+Jalankan migration `0002_admin.sql` (sudah termasuk di folder `supabase/migrations`). Lalu buat admin owner + 20 contoh program:
+
+```bash
+# .env.local harus berisi NEXT_PUBLIC_SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY
+SEED_ADMIN_EMAIL=owner@domain.com SEED_ADMIN_PASSWORD='password-kuat' npm run seed
+npm run seed -- --dry     # lihat rencana tanpa menyentuh database
+npm run seed -- --reset   # hapus contoh program lama (slug contoh-*) lalu buat ulang
 ```
+
+- Email belum terdaftar → akun dibuat (email terkonfirmasi). Sudah terdaftar (mis. lewat Google) → langsung dijadikan admin, password tidak diubah. Tanpa `SEED_ADMIN_PASSWORD`, password acak dicetak sekali di terminal.
+- Admin otomatis Pro tanpa kedaluwarsa dan dapat membuka `/admin`: ringkasan, seluruh pengguna (ubah paket Free/Pro + masa berlaku), seluruh program, dan peserta tiap program.
+- Alternatif tanpa script (akun sudah ada): `update public.profiles set is_admin = true, plan = 'pro', plan_expires_at = null where email = 'owner@domain.com';`
+- Seeder aman dijalankan ulang (program yang sudah ada dilewati).
 
 ## Struktur singkat
 

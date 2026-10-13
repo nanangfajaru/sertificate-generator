@@ -77,7 +77,7 @@ export default function ProgramForm({ action, program: p, submitLabel }: Props) 
         <div className="grid gap-3 sm:grid-cols-2">
           {[
             ["auto", "Otomatis", "Sertifikat langsung terbit setelah peserta mengisi form."],
-            ["manual", "Perlu approval", "Sertifikat terbit setelah kamu menyetujui peserta (bisa massal)."],
+            ["manual", "Perlu approval", "Sertifikat terbit setelah Anda menyetujui peserta (bisa massal)."],
           ].map(([v, t, d]) => (
             <label key={v} className="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
               <input type="radio" name="approval_mode" value={v} defaultChecked={(p?.approval_mode ?? "auto") === v} className="mt-1" />

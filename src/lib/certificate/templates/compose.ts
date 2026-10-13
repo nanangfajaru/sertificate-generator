@@ -24,6 +24,8 @@ type Opts = {
   maxW?: number;
   yShift?: number;
   qrPos?: [number, number];
+  /** x tengah nomor sertifikat (default: tengah halaman) */
+  numX?: number;
   sign?: { xs: [number, number]; lineW: number };
 };
 
@@ -66,7 +68,7 @@ export function compose(o: Opts): Item[] {
     );
   });
   items.push(
-    t({ x: align === "center" ? W / 2 : ax, y: 556, size: 9.5, font: bodyFont, color: p.muted, align: align === "center" ? "center" : "left", source: "event:cert_number", prefix: "No. " }),
+    t({ x: o.numX ?? (align === "center" ? W / 2 : ax), y: 556, size: 9.5, font: bodyFont, color: p.muted, align: align === "center" ? "center" : "left", source: "event:cert_number", prefix: "No. " }),
     { type: "qr", x: o.qrPos?.[0] ?? 728, y: o.qrPos?.[1] ?? 470, size: 56, color: isLight(p.ink) ? p.bg : p.ink },
   );
   return items;

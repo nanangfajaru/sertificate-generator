@@ -14,7 +14,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <Award className="h-6 w-6 text-brand-600" /> Sertifikat Online
         </Link>
         <h1 className="text-xl font-semibold">Masuk atau daftar</h1>
-        <p className="mt-1 text-sm text-slate-500">Daftar dengan Google atau email. Akun baru otomatis berstatus Free.</p>
+        <p className="mt-1 text-sm text-slate-500">Masuk atau daftar dengan Google maupun email.</p>
         {error && <p className="mt-4 rounded-lg bg-red-50 p-2 text-sm text-red-700">Login gagal. Silakan coba lagi.</p>}
         <div className="mt-6 space-y-4">
           <GoogleButton next={next} />
@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           <AuthForm next={next} />
         </div>
-        <p className="mt-6 text-xs text-slate-400">Dengan masuk, kamu menyetujui penggunaan layanan ini.</p>
+        <p className="mt-6 text-xs text-slate-400">Dengan masuk, Anda menyetujui ketentuan penggunaan layanan.</p>
       </div>
     </main>
   );

@@ -9,6 +9,7 @@ export const PALETTES: Record<string, Palette> = {
   violet: { name: "Violet", primary: "#5b21b6", accent: "#d97706", bg: "#fdfcff", ink: "#1e1b2e", muted: "#6b6880" },
   slate: { name: "Slate", primary: "#334155", accent: "#0284c7", bg: "#ffffff", ink: "#0f172a", muted: "#64748b" },
   orange: { name: "Orange", primary: "#c2410c", accent: "#0f172a", bg: "#fffdfb", ink: "#1c1917", muted: "#78716c" },
+  indigo: { name: "Indigo", primary: "#3730a3", accent: "#d97706", bg: "#fcfcff", ink: "#1e1b4b", muted: "#6b7280" },
   gold: { name: "Gold", primary: "#d4af37", accent: "#d4af37", bg: "#0f172a", ink: "#f8fafc", muted: "#94a3b8" },
   emerald: { name: "Emerald", primary: "#e5c76b", accent: "#e5c76b", bg: "#064e3b", ink: "#ecfdf5", muted: "#a7c4b8" },
 };
@@ -102,6 +103,65 @@ export const FAMILIES: Record<string, Family> = {
         { type: "circle", cx: W / 2, cy: 478, r: 26, stroke: p.primary, sw: 1 },
         ...compose({ palette: p, ax: W / 2, align: "center", sign: { xs: [190, 652], lineW: 170 }, qrPos: [760, 520] }).map((i): Item =>
           i.type === "qr" ? { ...i, size: 44 } : i),
+      ],
+      p.bg,
+    ),
+
+  // Siku di empat sudut
+  corner: (p) => {
+    const arm = 74, t = 5;
+    const L = (x: number, y: number, dx: 1 | -1, dy: 1 | -1): Item[] => [
+      rect(dx > 0 ? x : x - arm, dy > 0 ? y : y - t, arm, t, { fill: p.primary }),
+      rect(dx > 0 ? x : x - t, dy > 0 ? y : y - arm, t, arm, { fill: p.primary }),
+      rect(dx > 0 ? x + 14 : x - 14 - 10, dy > 0 ? y + 14 : y - 14 - 10, 10, 10, { fill: p.accent }),
+    ];
+    return layout(
+      [
+        ...L(28, 28, 1, 1), ...L(W - 28, 28, -1, 1), ...L(28, H - 28, 1, -1), ...L(W - 28, H - 28, -1, -1),
+        rect(52, 52, W - 104, H - 104, { stroke: p.muted, sw: 0.6, opacity: 0.5 }),
+        ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold", nameFont: "script" }),
+      ],
+      p.bg,
+    );
+  },
+
+  // Panel warna di sisi kanan
+  split: (p) =>
+    layout(
+      [
+        rect(W - 150, 0, 150, H, { fill: p.primary }),
+        rect(W - 156, 0, 6, H, { fill: p.accent }),
+        { type: "circle", cx: W - 75, cy: 110, r: 42, stroke: p.accent, sw: 2 },
+        { type: "circle", cx: W - 75, cy: 110, r: 30, fill: p.accent, opacity: 0.25 },
+        { type: "circle", cx: W - 75, cy: 300, r: 6, fill: p.accent },
+        ...compose({ palette: p, ax: 346, align: "center", maxW: 520, numX: 346, sign: { xs: [190, 502], lineW: 150 }, qrPos: [W - 103, 470], titleFont: "sans-bold" }),
+      ],
+      p.bg,
+    ),
+
+  // Pita bergaris di atas dan bawah
+  stripe: (p) =>
+    layout(
+      [
+        rect(0, 0, W, 14, { fill: p.primary }),
+        rect(0, 14, W, 4, { fill: p.accent }),
+        rect(0, H - 52, W, 8, { fill: p.accent }),
+        rect(0, H - 44, W, 44, { fill: p.primary }),
+        ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold" }).map((i): Item =>
+          i.type === "text" && i.source === "event:cert_number" ? { ...i, y: 577, color: "#ffffff", size: 10.5 } : i),
+      ],
+      p.bg,
+    ),
+
+  // Bingkai tebal berwarna
+  frame: (p) =>
+    layout(
+      [
+        rect(18, 18, W - 36, H - 36, { stroke: p.primary, sw: 36 }),
+        rect(46, 46, W - 92, H - 92, { stroke: p.accent, sw: 1.5 }),
+        ...[[40, 40], [W - 52, 40], [40, H - 52], [W - 52, H - 52]].map(([x, y]): Item => rect(x, y, 12, 12, { fill: p.accent })),
+        ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold", nameFont: "script" }).map((i): Item =>
+          i.type === "text" && i.source === "event:cert_number" ? { ...i, y: 539, size: 9 } : i),
       ],
       p.bg,
     ),
