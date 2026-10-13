@@ -24,9 +24,29 @@ function getTransport() {
   return transport;
 }
 
+const DEFAULT_NAME = "Sertifikat Online";
+
+/**
+ * Pengirim selalu memakai nama tampilan: dari SMTP_FROM ("Nama <alamat>"), atau SMTP_FROM_NAME,
+ * atau "Sertifikat Online" bila SMTP_FROM hanya berisi alamat. Dengan begitu inbox menampilkan
+ * nama merek, bukan bagian depan alamat Gmail.
+ */
+export function parseFrom(raw: string | undefined): { name: string; address: string } {
+  const value = (raw ?? "").trim();
+  const m = value.match(/^"?([^"<]*?)"?\s*<([^>]+)>$/);
+  const address = (m ? m[2] : value).trim();
+  const name = (m?.[1] ?? "").trim() || process.env.SMTP_FROM_NAME?.trim() || DEFAULT_NAME;
+  return { name, address };
+}
+
 export async function sendMail(msg: { to: string; subject: string; html: string; text: string }) {
   if (!mailConfigured()) throw new Error("SMTP_NOT_CONFIGURED");
-  await getTransport().sendMail({ from: process.env.SMTP_FROM, ...msg });
+  await getTransport().sendMail({
+    from: parseFrom(process.env.SMTP_FROM),
+    ...msg,
+    // Penanda surel transaksional otomatis (mengurangi balasan otomatis, membantu klasifikasi).
+    headers: { "Auto-Submitted": "auto-generated", "X-Auto-Response-Suppress": "All" },
+  });
 }
 
 /** Memeriksa koneksi + login SMTP tanpa mengirim email. */
@@ -45,7 +65,7 @@ export function mailSummary() {
     port: process.env.SMTP_PORT ?? null,
     secure: Number(String(process.env.SMTP_PORT ?? "").trim()) === 465,
     user: domain ? `${local.slice(0, 2)}***@${domain}` : user ? "***" : null,
-    from: process.env.SMTP_FROM ?? null,
+    from: process.env.SMTP_FROM ? (({ name, address }) => `${name} <${address}>`)(parseFrom(process.env.SMTP_FROM)) : null,
     hasPass: !!process.env.SMTP_PASS,
   };
 }

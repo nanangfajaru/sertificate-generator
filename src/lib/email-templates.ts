@@ -33,7 +33,7 @@ function shell(o: Shell, siteHost: string) {
 <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
 <title>${escapeHtml(o.title)}</title></head>
 <body style="margin:0;padding:0;background:${C.bg};-webkit-text-size-adjust:100%">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:${C.bg}">${escapeHtml(o.preheader)}&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:${C.bg}">${escapeHtml(o.preheader)}${"&#8199;&#847;&zwnj;&nbsp;".repeat(90)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bg}"><tr><td align="center" style="padding:32px 12px">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid ${C.line};border-radius:12px;overflow:hidden">
     <tr><td style="height:4px;line-height:4px;font-size:0;background:${C.brand}">&nbsp;</td></tr>
