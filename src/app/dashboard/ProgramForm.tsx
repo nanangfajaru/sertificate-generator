@@ -1,5 +1,7 @@
 "use client";
 
+import { CalendarDays, PenLine, Workflow } from "lucide-react";
+import SectionTitle from "@/components/SectionTitle";
 import SignatureUpload from "./SignatureUpload";
 import { useActionState, useState } from "react";
 import { CERT_TYPES, CUSTOM_TYPE, isPresetType, presetDescription } from "@/lib/cert-types";
@@ -36,7 +38,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
   return (
     <form action={formAction} className="space-y-6">
       <section className="card space-y-4">
-        <h2 className="font-semibold">Data acara</h2>
+        <SectionTitle icon={CalendarDays} title="Data acara" hint="Informasi kegiatan yang tampil di formulir dan sertifikat." />
         <div>
           <label className="label" htmlFor="org_name">Nama instansi / penyelenggara</label>
           <input id="org_name" name="org_name" className="input" required defaultValue={p?.org_name ?? defaultOrg} placeholder="mis. Universitas Contoh Nusantara" />
@@ -80,7 +82,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
       </section>
 
       <section className="card space-y-4">
-        <h2 className="font-semibold">Penandatangan</h2>
+        <SectionTitle icon={PenLine} title="Penandatangan" hint="Nama, jabatan, dan tanda tangan yang muncul di sertifikat." />
         {[1, 2].map((n) => (
           <div key={n} className={`grid gap-4 sm:grid-cols-2 ${n === 2 ? "mt-8 border-t border-slate-200 pt-8" : ""}`}>
             <p className="text-sm font-semibold text-brand-700 sm:col-span-2">Penandatangan {n}{n === 2 && <span className="font-normal text-slate-400"> (opsional)</span>}</p>
@@ -98,7 +100,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
       </section>
 
       <section className="card space-y-4">
-        <h2 className="font-semibold">Alur sertifikat</h2>
+        <SectionTitle icon={Workflow} title="Alur sertifikat" hint="Atur kapan sertifikat terbit dan siapa yang diberi tahu." />
         <div className="grid gap-3 sm:grid-cols-2">
           {[
             ["auto", "Otomatis", "Sertifikat langsung terbit setelah peserta mengisi form."],

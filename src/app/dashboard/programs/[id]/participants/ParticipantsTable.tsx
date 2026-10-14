@@ -74,7 +74,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="card flex flex-wrap items-center gap-2 !p-3">
         <select className="input !w-auto" value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
           <option value="all">Semua status</option>
           <option value="pending">Menunggu</option>
@@ -82,8 +82,8 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
           <option value="rejected">Ditolak</option>
           <option value="revoked">Dicabut</option>
         </select>
-        <input className="input !w-56" placeholder="Cari…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <span className="text-sm text-slate-500">{shown.length} peserta</span>
+        <input className="input !w-64" placeholder="Cari nama, email, atau nomor…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <span className="ml-auto text-sm text-slate-500">{shown.length} peserta</span>
       </div>
 
       {sel.size > 0 && (
@@ -101,9 +101,9 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
       {msg && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{msg}</p>}
       {okMsg && <p className="rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">{okMsg}</p>}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+          <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               <th className="w-10 px-3 py-2"><input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Pilih semua" /></th>
               <th className="px-3 py-2">Waktu</th>
@@ -116,10 +116,10 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
           </thead>
           <tbody className="divide-y divide-slate-100">
             {shown.length === 0 && (
-              <tr><td colSpan={fields.length + 6} className="px-3 py-8 text-center text-slate-500">Belum ada peserta.</td></tr>
+              <tr><td colSpan={fields.length + 6} className="px-3 py-14 text-center"><p className="font-medium text-slate-700">Belum ada peserta</p><p className="mt-1 text-sm text-slate-500">Bagikan link atau QR pendaftaran dari tab Ringkasan agar peserta mulai mengisi.</p></td></tr>
             )}
             {shown.map((r) => (
-              <tr key={r.id} className={sel.has(r.id) ? "bg-brand-50/50" : undefined}>
+              <tr key={r.id} className={`transition hover:bg-slate-50/70 ${sel.has(r.id) ? "bg-brand-50/50" : ""}`}>
                 <td className="px-3 py-2"><input type="checkbox" checked={sel.has(r.id)} onChange={() => toggle(r.id)} /></td>
                 <td className="whitespace-nowrap px-3 py-2 text-slate-500">{new Date(r.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
                 {fields.map((f) => <td key={f.id} className="max-w-56 truncate px-3 py-2">{r.data[f.id] ?? ""}</td>)}

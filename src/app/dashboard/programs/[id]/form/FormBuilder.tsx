@@ -94,9 +94,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, custom,
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
     <div className="min-w-0 space-y-4">
-      <p className="text-sm text-slate-600">
-        Atur data yang diisi peserta. Pada kolom <b>Tampil di sertifikat</b>, pilih field mana yang menjadi nama peserta dan (opsional) keterangan tambahan seperti instansi atau peran.
-      </p>
+      <SectionTitle icon={ClipboardList} title="Formulir pendaftaran" hint="Atur data yang diisi peserta. Pada kolom Tampil di sertifikat, pilih field untuk nama peserta dan (opsional) keterangan tambahan seperti instansi atau peran." />
       {rows.map((r, i) => (
         <div key={r.id} className="card space-y-3">
           <div className="flex items-start gap-2">

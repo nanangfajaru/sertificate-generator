@@ -39,7 +39,7 @@ function shell(o: Shell, siteHost: string) {
     <tr><td style="height:4px;line-height:4px;font-size:0;background:${C.brand}">&nbsp;</td></tr>
     <tr><td style="padding:28px 40px 4px">
       <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-        <td width="36" height="36" align="center" valign="middle" style="width:36px;height:36px;background:${C.brand};border-radius:8px;font-family:${FONT};font-size:18px;font-weight:700;color:#ffffff;line-height:36px">S</td>
+        <td width="36" valign="middle"><img src="https://${siteHost}/logo-192.png" width="36" height="36" alt="${BRAND}" style="display:block;width:36px;height:36px;border:0;border-radius:8px"></td>
         <td style="padding-left:12px;font-family:${FONT};font-size:17px;font-weight:700;color:${C.ink};letter-spacing:-0.2px">${BRAND}</td>
       </tr></table>
     </td></tr>

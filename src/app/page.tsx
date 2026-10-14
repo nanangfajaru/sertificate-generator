@@ -1,6 +1,7 @@
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { BadgeCheck, CalendarDays, Check, FileSpreadsheet, FileUp, Link2, ListChecks, QrCode, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, FileSpreadsheet, FileUp, Link2, ListChecks, Mail, QrCode, Send, SlidersHorizontal, X } from "lucide-react";
+import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
@@ -18,11 +19,16 @@ const features = [
 ];
 
 const steps = [
-  ["Buat program", "Isi data kegiatan dan penandatangan, lalu pilih template."],
-  ["Bagikan tautan", "Peserta mendaftar melalui formulir yang telah Anda atur."],
-  ["Setujui", "Sertifikat terbit otomatis atau setelah persetujuan Anda."],
-  ["Unduh sertifikat", "Peserta mengunduh PDF lengkap dengan nomor dan QR."],
+  { icon: ClipboardList, t: "Buat program", d: "Isi data kegiatan dan penandatangan, lalu pilih template." },
+  { icon: Send, t: "Bagikan tautan", d: "Peserta mendaftar lewat link atau QR formulir yang Anda atur." },
+  { icon: ListChecks, t: "Setujui", d: "Sertifikat terbit otomatis atau setelah persetujuan Anda." },
+  { icon: Mail, t: "Terima sertifikat", d: "Peserta mengunduh PDF lengkap dengan nomor dan QR." },
 ];
+
+const compare = {
+  manual: ["Mengetik nama peserta satu per satu", "Ekspor PDF dan kirim lewat WhatsApp manual", "Salah ketik nama, harus ulang", "Sulit membuktikan keaslian sertifikat"],
+  ours: ["Peserta mengisi data sendiri lewat satu link", "Sertifikat PDF langsung terbit dan bisa diunduh", "Nama sesuai isian peserta, tanpa salah ketik", "QR dan nomor unik untuk verifikasi keaslian"],
+};
 
 const faqs = [
   ["Apakah peserta perlu membuat akun?", "Tidak. Peserta cukup membuka tautan dan mengisi formulir."],
@@ -108,39 +114,94 @@ export default function Landing() {
         </dl>
       </section>
 
-      {/* Fitur */}
-      <section id="fitur" className="mx-auto max-w-6xl scroll-mt-16 px-5 py-24">
+      {/* Sorotan fitur dengan mockup */}
+      <section id="fitur" className="mx-auto max-w-6xl scroll-mt-16 space-y-28 px-5 py-24">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Fitur</p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight">Seluruh proses penerbitan, dalam satu tempat.</h2>
         </div>
-        <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+
+        <div className="grid items-center gap-14 lg:grid-cols-2">
+          <div>
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600"><Link2 className="h-5 w-5" /></span>
+            <h3 className="mt-4 text-2xl font-bold tracking-tight">Satu tautan, peserta mengisi sendiri.</h3>
+            <p className="mt-3 text-slate-600">Bagikan link atau QR formulir di grup dan layar acara. Peserta mengisi dari ponsel tanpa membuat akun, dan data langsung masuk ke daftar Anda.</p>
+            <ul className="mt-5 space-y-2.5 text-slate-700">
+              {["Link pendek yang bisa Anda beri nama sendiri", "QR siap unduh untuk poster dan layar", "Atur isian formulir sesuai kebutuhan"].map((t) => (<li key={t} className="flex gap-2.5"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {t}</li>))}
+            </ul>
+          </div>
+          <FormMockup />
+        </div>
+
+        <div className="grid items-center gap-14 lg:grid-cols-2">
+          <div className="lg:order-2">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600"><ListChecks className="h-5 w-5" /></span>
+            <h3 className="mt-4 text-2xl font-bold tracking-tight">Terbit otomatis atau setelah Anda setujui.</h3>
+            <p className="mt-3 text-slate-600">Pilih langsung terbit, atau tinjau dulu siapa yang benar-benar hadir lalu setujui sekaligus. Peserta bisa diberi tahu lewat email begitu sertifikatnya siap.</p>
+            <ul className="mt-5 space-y-2.5 text-slate-700">
+              {["Persetujuan massal dalam satu klik", "Cabut sertifikat bila terjadi kesalahan", "Unduh rekap kehadiran dalam CSV"].map((t) => (<li key={t} className="flex gap-2.5"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {t}</li>))}
+            </ul>
+          </div>
+          <div className="lg:order-1"><ApprovalMockup /></div>
+        </div>
+
+        <div className="grid items-center gap-14 lg:grid-cols-2">
+          <div>
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600"><QrCode className="h-5 w-5" /></span>
+            <h3 className="mt-4 text-2xl font-bold tracking-tight">Keaslian sertifikat bisa diverifikasi.</h3>
+            <p className="mt-3 text-slate-600">Setiap sertifikat memiliki nomor unik dan QR yang mengarah ke halaman verifikasi, sehingga pihak ketiga dapat memeriksa keasliannya dalam hitungan detik.</p>
+            <ul className="mt-5 space-y-2.5 text-slate-700">
+              {["Nomor sertifikat berurutan sesuai format Anda", "Gambar tanda tangan penandatangan", "Desain sendiri dengan posisi data yang bisa diatur"].map((t) => (<li key={t} className="flex gap-2.5"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {t}</li>))}
+            </ul>
+          </div>
+          <VerifyMockup />
+        </div>
+
+        <div className="grid gap-x-10 gap-y-8 border-t border-slate-100 pt-16 sm:grid-cols-2 lg:grid-cols-3">
           {features.map(({ icon: Icon, title, text }) => (
-            <div key={title}>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></div>
-              <h3 className="mt-4 font-semibold">{title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{text}</p>
+            <div key={title} className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></div>
+              <div><h3 className="font-semibold">{title}</h3><p className="mt-1 text-sm leading-relaxed text-slate-600">{text}</p></div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Alur kerja */}
+      {/* Manual vs SertifikatKu */}
       <section className="border-y border-slate-100 bg-slate-50/60 py-24">
-        <div className="mx-auto max-w-6xl px-5">
-          <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Alur kerja</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight">Empat langkah sederhana.</h2>
-          <ol className="mt-12 grid gap-8 md:grid-cols-4">
-            {steps.map(([t, d], i) => (
-              <li key={t} className="relative border-t-2 border-slate-200 pt-6">
-                <span className="absolute -top-[2px] left-0 h-0.5 w-12 bg-brand-600" />
-                <span className="text-sm font-semibold text-brand-600">0{i + 1}</span>
-                <h3 className="mt-2 font-semibold">{t}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{d}</p>
-              </li>
-            ))}
-          </ol>
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Perbandingan</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight">Tidak perlu lagi mengetik satu per satu.</h2>
+          </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7">
+              <p className="font-semibold text-slate-500">Cara manual</p>
+              <ul className="mt-5 space-y-3.5">{compare.manual.map((t) => (<li key={t} className="flex gap-3 text-slate-600"><X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" /> {t}</li>))}</ul>
+            </div>
+            <div className="rounded-2xl border-2 border-brand-500 bg-white p-7 shadow-lg shadow-brand-100">
+              <p className="font-semibold text-brand-700">Dengan SertifikatKu</p>
+              <ul className="mt-5 space-y-3.5">{compare.ours.map((t) => (<li key={t} className="flex gap-3 text-slate-800"><Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" /> {t}</li>))}</ul>
+            </div>
+          </div>
         </div>
+      </section>
+
+      {/* Alur kerja */}
+      <section className="mx-auto max-w-6xl px-5 py-24">
+        <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Alur kerja</p>
+        <h2 className="mt-3 text-3xl font-bold tracking-tight">Empat langkah sederhana.</h2>
+        <ol className="relative mt-14 grid gap-10 md:grid-cols-4">
+          <div className="absolute left-[12%] right-[12%] top-7 hidden h-px bg-gradient-to-r from-brand-200 via-brand-500 to-brand-200 md:block" />
+          {steps.map(({ icon: Icon, t, d }, i) => (
+            <li key={t} className="relative text-center">
+              <span className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-200"><Icon className="h-6 w-6" /></span>
+              <p className="mt-4 text-xs font-semibold text-brand-600">Langkah {i + 1}</p>
+              <h3 className="mt-1 font-semibold">{t}</h3>
+              <p className="mx-auto mt-1.5 max-w-[16rem] text-sm leading-relaxed text-slate-600">{d}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* Template */}
@@ -169,7 +230,7 @@ export default function Landing() {
             <h2 className="mt-3 text-3xl font-bold tracking-tight">Dipakai untuk beragam kegiatan.</h2>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {SHOWCASE.map((p) => (
+            {SHOWCASE.slice(0, 8).map((p) => (
               <article key={p.key} className="flex flex-col rounded-xl border border-slate-200 bg-white p-4">
                 <span className="w-fit rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">{p.category}</span>
                 <h3 className="mt-3 line-clamp-2 text-sm font-semibold leading-snug">{p.name}</h3>
@@ -223,6 +284,17 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-slate-900 px-8 py-16 text-center">
           <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white">Siap menerbitkan sertifikat pertama Anda?</h2>
           <Link href="/login" className="btn mt-8 border-white bg-white px-6 py-3 text-base text-slate-900 hover:bg-slate-100">Mulai Sekarang</Link>
+        </div>
+      </section>
+
+      {/* CTA akhir */}
+      <section className="px-5 pb-24">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-900 px-8 py-14 text-center text-white shadow-xl">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10" />
+          <div className="pointer-events-none absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-white/5" />
+          <h2 className="relative text-3xl font-bold tracking-tight sm:text-4xl">Siap menerbitkan sertifikat pertama Anda?</h2>
+          <p className="relative mx-auto mt-3 max-w-xl text-brand-100">Buat program, bagikan link, dan biarkan peserta mengambil sertifikatnya sendiri.</p>
+          <Link href="/login" className="btn relative mt-8 border-white bg-white px-7 py-3 text-base font-semibold text-brand-700 hover:bg-brand-50">Mulai Sekarang <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
 
