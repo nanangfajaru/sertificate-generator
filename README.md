@@ -75,4 +75,11 @@ Tambahkan baris di `PRO` pada `src/lib/certificate/templates/index.ts` (kombinas
 - [ ] `npm run seed` dijalankan sekali untuk membuat admin owner dan 20 contoh program
 - [ ] SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM terisi di Vercel (email konfirmasi & reset password), lalu redeploy
 
-Harga (halaman `/dashboard/upgrade`): Pro Rp49.000/bulan atau Rp499.000/tahun. Isi `NEXT_PUBLIC_UPGRADE_URL` (mailto/WhatsApp/checkout) agar tombol beli aktif; sebelum payment gateway terpasang, aktivasi Pro dilakukan admin di `/admin/users`.
+Harga (halaman `/dashboard/upgrade`): Pro Rp49.000/bulan atau Rp499.000/tahun, dibayar lewat Midtrans Snap.
+
+## Pembayaran (Midtrans)
+
+1. Env Vercel: `MIDTRANS_SERVER_KEY` (Sandbox diawali `SB-`), `MIDTRANS_IS_PRODUCTION` (`true` untuk produksi).
+2. Midtrans Dashboard → Settings → Payment → **Notification URL**: `https://<domain>/api/midtrans/notification`.
+3. Pro aktif otomatis saat pembayaran lunas (memperpanjang bila masih Pro). Status juga disinkronkan saat pengguna kembali ke `/dashboard/upgrade`.
+4. Voucher/referral dikelola admin di `/admin/vouchers`: diskon pembeli (%), komisi referrer (%), kuota, masa berlaku, dan statistik pemakaian.

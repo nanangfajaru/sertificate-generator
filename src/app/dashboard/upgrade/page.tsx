@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft, Check, Crown, Minus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
+import { PLANS, applyMidtransStatus, fetchTransactionStatus, midtransConfigured } from "@/lib/billing";
+import { createAdminClient } from "@/lib/supabase/admin";
+import Checkout from "./Checkout";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Paket Free & Pro" };
 
-const MONTHLY = 49000;
-const YEARLY = 499000;
-const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
 type Row = [feature: string, free: string | boolean, pro: string | boolean];
 const ROWS: Row[] = [
@@ -30,30 +30,26 @@ function Cell({ v }: { v: string | boolean }) {
   return <span>{v}</span>;
 }
 
-function buyHref(plan: "bulanan" | "tahunan", email: string | null | undefined) {
-  const base = process.env.NEXT_PUBLIC_UPGRADE_URL;
-  if (!base) return null;
-  if (base.startsWith("mailto:")) {
-    const subject = encodeURIComponent(`Upgrade Pro ${plan} - Sertifikat Online`);
-    const body = encodeURIComponent(`Halo, saya ingin upgrade ke paket Pro (${plan}).\nEmail akun: ${email ?? "-"}`);
-    return `${base}?subject=${subject}&body=${body}`;
-  }
-  const sep = base.includes("?") ? "&" : "?";
-  return `${base}${sep}plan=${plan}`;
-}
-
-export default async function UpgradePage() {
+export default async function UpgradePage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
+  const { order } = await searchParams;
   const { isPro, profile } = await requireUser();
-  const monthlyHref = buyHref("bulanan", profile.email);
-  const yearlyHref = buyHref("tahunan", profile.email);
-  const saving = MONTHLY * 12 - YEARLY;
+  const admin = createAdminClient();
 
-  const Buy = ({ href, children, primary }: { href: string | null; children: React.ReactNode; primary?: boolean }) =>
-    href ? (
-      <a href={href} className={`btn w-full ${primary ? "btn-primary" : ""}`}>{children}</a>
-    ) : (
-      <span className="btn w-full cursor-not-allowed opacity-60" title="Pembayaran online segera hadir">{children}</span>
-    );
+  // Kembali dari Midtrans: sinkronkan status pesanan (jika webhook belum sempat masuk).
+  let orderStatus: string | null = null;
+  let proNow = isPro;
+  if (order && /^[A-Z0-9-]{6,40}$/.test(order)) {
+    const { data: o } = await admin.from("orders").select("status, user_id").eq("order_id", order).maybeSingle();
+    if (o && o.user_id === profile.id) {
+      orderStatus = o.status;
+      if (o.status === "pending" && midtransConfigured()) {
+        const st = await fetchTransactionStatus(order);
+        if (st) orderStatus = (await applyMidtransStatus(admin, st)) ?? o.status;
+      }
+      if (orderStatus === "paid") proNow = true;
+    }
+  }
+  const saving = PLANS.monthly.price * 12 - PLANS.yearly.price;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -63,28 +59,16 @@ export default async function UpgradePage() {
         <p className="mt-2 text-slate-600">Buka seluruh template bertema, desain sendiri, program tanpa batas, dan sertifikat tanpa watermark.</p>
       </div>
 
-      {isPro ? (
+      {orderStatus === "paid" && <p className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><b>Pembayaran berhasil.</b> Paket Pro Anda sudah aktif. Terima kasih!</p>}
+      {orderStatus === "pending" && <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Pembayaran Anda sedang menunggu konfirmasi. Muat ulang halaman ini setelah beberapa saat.</p>}
+      {(orderStatus === "failed" || orderStatus === "expired") && <p className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">Pembayaran tidak berhasil atau sudah kedaluwarsa. Silakan coba lagi.</p>}
+
+      {proNow ? (
         <div className="mt-8 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <Crown className="h-5 w-5 text-amber-600" /> Paket Pro Anda sedang aktif. Terima kasih telah berlangganan!
+          <Crown className="h-5 w-5 text-amber-600" /> Paket Pro Anda sedang aktif{profile.plan_expires_at ? ` hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long" })}` : ""}. Anda bisa memperpanjang kapan saja.
         </div>
-      ) : (
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <div className="card flex flex-col">
-            <p className="text-sm font-medium text-slate-500">Pro Bulanan</p>
-            <p className="mt-2 text-4xl font-bold">{rp(MONTHLY)}<span className="text-base font-normal text-slate-500"> / bulan</span></p>
-            <p className="mt-2 flex-1 text-sm text-slate-600">Fleksibel, berhenti kapan saja.</p>
-            <div className="mt-4"><Buy href={monthlyHref}>Pilih bulanan</Buy></div>
-          </div>
-          <div className="card relative flex flex-col border-brand-500 ring-2 ring-brand-100">
-            <span className="badge badge-pro absolute -top-3 right-5">Hemat {rp(saving)}</span>
-            <p className="text-sm font-medium text-brand-700">Pro Tahunan</p>
-            <p className="mt-2 text-4xl font-bold">{rp(YEARLY)}<span className="text-base font-normal text-slate-500"> / tahun</span></p>
-            <p className="mt-2 flex-1 text-sm text-slate-600">Setara {rp(Math.round(YEARLY / 12))} per bulan — paling hemat.</p>
-            <div className="mt-4"><Buy href={yearlyHref} primary>Pilih tahunan</Buy></div>
-          </div>
-          {!monthlyHref && <p className="text-center text-xs text-slate-500 md:col-span-2">Pembayaran online segera hadir. Sementara itu, hubungi admin untuk mengaktifkan paket Pro.</p>}
-        </div>
-      )}
+      ) : null}
+      <Checkout prices={{ monthly: PLANS.monthly.price, yearly: PLANS.yearly.price }} configured={midtransConfigured()} saving={saving} />
 
       <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full min-w-[34rem] text-sm">

@@ -136,9 +136,9 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
                     {active ? (
                       <span className="btn btn-sm flex-1 cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-3.5 w-3.5" /> Dipakai</span>
                     ) : isPro ? (
-                      <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan</button>
+                      <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan untuk template</button>
                     ) : (
-                      <Link href="/dashboard/upgrade" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
+                      <Link href="/dashboard/upgrade" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan untuk template</Link>
                     )}
                     <button className="btn btn-danger btn-sm !px-2" onClick={() => remove(d)} aria-label={`Hapus ${d.name}`}><Trash2 className="h-4 w-4" /></button>
                   </div>
