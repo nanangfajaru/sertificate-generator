@@ -1,4 +1,4 @@
-import type { CertTemplate } from "../types";
+import type { CertTemplate, Layout } from "../types";
 import { FAMILIES, PALETTES } from "./families";
 import { THEMES_A } from "./themes-a";
 import { THEMES_B } from "./themes-b";
@@ -54,12 +54,25 @@ const LEGACY_PRO: [string, string][] = [
   ["seal", "navy"], ["seal", "crimson"],
 ];
 
+// Memangkas presisi angka agar layout lebih kecil (kirim ke browser & render lebih cepat).
+const r1 = (n: number) => Math.round(n * 10) / 10;
+function compact(l: Layout): Layout {
+  const walk = (v: unknown, key?: string): unknown => {
+    if (typeof v === "number") return Math.round(v * 100) / 100;
+    if (typeof v === "string" && key === "d") return v.replace(/-?\d+\.\d+/g, (m) => String(r1(Number(m))));
+    if (Array.isArray(v)) return v.map((x) => walk(x));
+    if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x, k)]));
+    return v;
+  };
+  return walk(l) as Layout;
+}
+
 // Template Pro bertema (ilustrasi): bunga, rumah sakit, olahraga, perusahaan, dll.
 const THEMED: CertTemplate[] = [...THEMES_A, ...THEMES_B, ...THEMES_C].map((t) => ({
   id: t.id,
   name: t.name,
   tier: "pro" as const,
-  layout: t.build(),
+  layout: compact(t.build()),
 }));
 
 export const TEMPLATES: CertTemplate[] = [...FREE.map(([f, p]) => make(f, p, "free")), ...THEMED];

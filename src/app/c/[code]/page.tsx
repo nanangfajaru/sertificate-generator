@@ -17,17 +17,23 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
   const { data: part } = await admin.from("participants").select("*").eq("code", code).maybeSingle();
   if (!part) notFound();
   const participant = part as Participant;
-  const { data: prog } = await admin.from("programs").select("*").eq("id", participant.program_id).single();
+  const [{ data: prog }, { data: f }] = await Promise.all([
+    admin.from("programs").select("*").eq("id", participant.program_id).single(),
+    admin.from("program_fields").select("id, type").eq("program_id", participant.program_id),
+  ]);
   const program = prog as Program;
 
   const nameId = program.mapping?.name;
   const who = (nameId && participant.data[nameId]) || "Peserta";
 
   // Apakah peserta akan menerima email? (opsi program aktif, SMTP siap, dan ada alamat email)
-  const { data: f } = await admin.from("program_fields").select("id, type").eq("program_id", program.id);
   const emailField = emailFieldOf((f ?? []) as { id: string; type: "email" }[]);
   const emailValue = emailField ? participant.data[emailField.id]?.trim() : "";
   const maskedEmail = program.notify_email && mailConfigured() && emailValue ? maskEmail(emailValue) : null;
+  const approved = participant.status === "approved";
+  const [isPro, bgUrl, sigUrls] = approved
+    ? await Promise.all([ownerIsPro(admin, program.owner_id), previewUrl(admin, program), signatureUrls(admin, program)])
+    : [true, null, {}];
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
@@ -60,7 +66,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
               </p>
             )}
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <CertificateSvg layout={withSignatures(resolvedFor(program, participant, !(await ownerIsPro(admin, program.owner_id))), program)} backgroundUrl={await previewUrl(admin, program)} images={await signatureUrls(admin, program)} className="block h-auto w-full" />
+              <CertificateSvg layout={withSignatures(resolvedFor(program, participant, !isPro), program)} backgroundUrl={bgUrl} images={sigUrls} className="block h-auto w-full" />
             </div>
           </>
         ) : participant.status === "pending" ? (

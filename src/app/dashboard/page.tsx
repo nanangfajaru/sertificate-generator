@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BadgeCheck, CalendarDays, ClipboardList, Clock, Crown, FolderOpen, Plus, Sparkles, Users } from "lucide-react";
-import CertificateSvg from "@/components/CertificateSvg";
-import LazyMount from "@/components/LazyMount";
+import TemplateThumb from "./TemplateThumb";
 import { requireUser } from "@/lib/auth";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 import { formatDateRange } from "@/lib/certificate/sources";
@@ -121,7 +120,7 @@ export default async function DashboardPage() {
                 <Link key={p.id} href={`/dashboard/programs/${p.id}`} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
                   <div className="relative border-b border-slate-100 bg-slate-100">
                     {tpl ? (
-                      <LazyMount><CertificateSvg layout={tpl.layout} className="block h-auto w-full" /></LazyMount>
+                      <TemplateThumb id={tpl.id} />
                     ) : (
                       <div className="grid aspect-[842/595] place-items-center bg-gradient-to-br from-brand-50 to-slate-100 text-xs text-slate-500">Desain sendiri</div>
                     )}

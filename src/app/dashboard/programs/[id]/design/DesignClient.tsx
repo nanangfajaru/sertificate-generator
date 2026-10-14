@@ -2,16 +2,18 @@
 
 import { Check, Download, LayoutTemplate, Lock, Palette, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
 import LazyMount from "@/components/LazyMount";
-import type { CertContext } from "@/lib/certificate/sources";
+import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
+import { TEMPLATES } from "@/lib/certificate/templates";
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
 import type { DesignDTO } from "@/lib/designs";
 import DesignsPanel from "./DesignsPanel";
 
 type Tpl = { id: string; name: string; tier: "free" | "pro"; layout: Layout };
+type TplMeta = Omit<Tpl, "layout">;
 
 type Props = {
   programId: string;
@@ -19,7 +21,7 @@ type Props = {
   isPro: boolean;
   mode: "template" | "custom";
   templateId: string;
-  templates: Tpl[];
+  templates: TplMeta[];
   designs: DesignDTO[];
   activeDesignId: string | null;
   sample: CertContext;
@@ -27,6 +29,7 @@ type Props = {
 };
 
 export default function DesignClient(p: Props) {
+  const templates = useMemo<Tpl[]>(() => TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier, layout: resolveLayout(t.layout, p.sample) })), [p.sample]);
   const [tab, setTab] = useState<"template" | "custom">(p.mode);
   const [mode, setMode] = useState(p.mode);
   const [activeId, setActiveId] = useState(p.templateId);
@@ -63,7 +66,7 @@ export default function DesignClient(p: Props) {
     });
   }
 
-  const activeName = mode === "custom" ? `Desain: ${designs.find((d) => d.id === activeDesignId)?.name ?? "sendiri"}` : p.templates.find((t) => t.id === activeId)?.name;
+  const activeName = mode === "custom" ? `Desain: ${designs.find((d) => d.id === activeDesignId)?.name ?? "sendiri"}` : templates.find((t) => t.id === activeId)?.name;
 
   return (
     <div>
@@ -97,7 +100,7 @@ export default function DesignClient(p: Props) {
           <>
             {!p.isPro && <p className="text-sm text-slate-500">Template bertanda Pro terkunci pada paket Free.</p>}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {p.templates.map((t) => {
+              {templates.map((t) => {
                 const locked = t.tier === "pro" && !p.isPro;
                 const active = mode === "template" && t.id === activeId;
                 return (

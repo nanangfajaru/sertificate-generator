@@ -2,7 +2,6 @@ import { getOwnedProgram } from "@/lib/program-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sampleContext } from "@/lib/certificate/load";
 import type { DesignDTO } from "@/lib/designs";
-import { resolveLayout } from "@/lib/certificate/sources";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import DesignClient from "./DesignClient";
 
@@ -29,13 +28,8 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
     updatedAt: r.updated_at,
   }));
 
-  // Pratinjau tiap template memakai data program yang sebenarnya.
-  const templates = TEMPLATES.map((t) => ({
-    id: t.id,
-    name: t.name,
-    tier: t.tier,
-    layout: resolveLayout(t.layout, ctx),
-  }));
+  // Daftar ringan; layout tiap template dihitung di browser (pratinjau memakai data program sebenarnya).
+  const templates = TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier }));
 
   return (
     <DesignClient

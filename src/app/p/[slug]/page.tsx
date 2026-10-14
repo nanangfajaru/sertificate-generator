@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { CalendarDays, MapPin } from "lucide-react";
 import type { Program, ProgramField } from "@/lib/db";
 import { formatDateRange } from "@/lib/certificate/sources";
@@ -6,20 +7,26 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { mailConfigured } from "@/lib/mailer";
 import RegisterForm from "./RegisterForm";
 
+// cache(): metadata dan halaman memakai satu query yang sama dalam satu permintaan.
+const loadProgram = cache(async (slug: string) => {
+  const admin = createAdminClient();
+  const { data } = await admin.from("programs").select("*").eq("slug", slug).maybeSingle();
+  if (!data) return null;
+  const { data: f } = await admin.from("program_fields").select("*").eq("program_id", data.id).order("sort");
+  return { program: data as Program, fields: (f ?? []) as ProgramField[] };
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data } = await createAdminClient().from("programs").select("name").eq("slug", slug).maybeSingle();
+  const data = (await loadProgram(slug))?.program;
   return { title: data ? `Daftar – ${data.name}` : "Pendaftaran" };
 }
 
 export default async function PublicRegisterPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const admin = createAdminClient();
-  const { data } = await admin.from("programs").select("*").eq("slug", slug).maybeSingle();
-  if (!data) notFound();
-  const program = data as Program;
-  const { data: f } = await admin.from("program_fields").select("*").eq("program_id", program.id).order("sort");
-  const fields = (f ?? []) as ProgramField[];
+  const loaded = await loadProgram(slug);
+  if (!loaded) notFound();
+  const { program, fields } = loaded;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
