@@ -136,7 +136,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
         {dirty && <span className="text-xs font-medium text-amber-600">● Belum disimpan</span>}
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {isPro && <a href={`/api/designs/${design.id}/sample`} target="_blank" className="btn btn-sm"><Download className="h-4 w-4" /> Contoh PDF</a>}
-          <button className="btn btn-sm" disabled={pending || !dirty} onClick={() => doSave()}><Save className="h-4 w-4" /> {pending ? "Menyimpan…" : "Simpan"}</button>
+          <button className={`btn btn-sm ${dirty ? "btn-primary" : ""}`} disabled={pending || !dirty} onClick={() => doSave()}><Save className="h-4 w-4" /> {pending ? "Menyimpan…" : "Simpan"}</button>
           {isActive ? (
             <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai untuk sertifikat</span>
           ) : isPro ? (
@@ -180,14 +180,14 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
           </div>
 
           <div className="card !p-3">
-            <p className={sectionTitle}>Tambah elemen</p>
+            <p className="mb-2 text-sm font-semibold">Tambah elemen</p>
             <div className="flex flex-wrap gap-1.5">
-              <button type="button" className="rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100" onClick={addStatic}><Type className="mr-1 inline h-3 w-3" />Teks tetap</button>
-              {!hasQr && <button type="button" className="rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100" onClick={addQr}><QrCode className="mr-1 inline h-3 w-3" />Kode QR</button>}
+              <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addStatic}><Type className="h-4 w-4" />Teks tetap</button>
+              {!hasQr && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addQr}><QrCode className="h-4 w-4" />Kode QR</button>}
             </div>
             <p className={`${sectionTitle} mt-3`}>Parameter data</p>
             <div className="flex flex-wrap gap-1.5">
-              {unused.map((u) => <button key={u.value} type="button" className="rounded-full border border-slate-200 px-2.5 py-1 text-xs hover:border-brand-500 hover:bg-brand-50" onClick={() => addSource(u.value)}><Plus className="mr-0.5 inline h-3 w-3" />{u.label}</button>)}
+              {unused.map((u) => <button key={u.value} type="button" className="btn btn-sm !px-2.5 hover:border-brand-500 hover:bg-brand-50" onClick={() => addSource(u.value)}><Plus className="h-3.5 w-3.5 text-brand-600" />{u.label}</button>)}
               {unused.length === 0 && <span className="text-xs text-slate-400">Semua parameter sudah dipakai.</span>}
             </div>
           </div>

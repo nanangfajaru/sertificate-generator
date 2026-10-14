@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Download, Lock, X } from "lucide-react";
+import { Check, Download, LayoutTemplate, Lock, Palette, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
@@ -70,10 +70,12 @@ export default function DesignClient(p: Props) {
       {/* Bar tetap: tetap terlihat saat menggulir daftar template */}
       <div className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1 text-sm">
-            <button className={`rounded-md px-3 py-1.5 ${tab === "template" ? "bg-brand-600 text-white" : "text-slate-600"}`} onClick={() => setTab("template")}>Template</button>
-            <button className={`flex items-center gap-1 rounded-md px-3 py-1.5 ${tab === "custom" ? "bg-brand-600 text-white" : "text-slate-600"}`} onClick={() => setTab("custom")}>
-              Desain sendiri
+          <div className="inline-flex rounded-xl border border-slate-300 bg-white p-1 text-sm font-medium shadow-sm">
+            <button className={`flex items-center gap-2 rounded-lg px-4 py-2 transition ${tab === "template" ? "bg-brand-600 text-white shadow-sm" : "text-slate-700 hover:bg-slate-100"}`} onClick={() => setTab("template")}>
+              <LayoutTemplate className="h-4 w-4" /> Template
+            </button>
+            <button className={`flex items-center gap-2 rounded-lg px-4 py-2 transition ${tab === "custom" ? "bg-brand-600 text-white shadow-sm" : "text-slate-700 hover:bg-slate-100"}`} onClick={() => setTab("custom")}>
+              <Palette className="h-4 w-4" /> Desain sendiri
             </button>
           </div>
           <p className="hidden min-w-0 flex-1 truncate text-sm text-slate-600 sm:block">

@@ -89,19 +89,17 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
 
   return (
     <div className="space-y-4">
-      {!isPro && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <p>
-            <b>Paket Free:</b> Anda bisa membuat dan menyimpan hingga {DESIGN_LIMITS.free} desain untuk dicoba. <b>Menggunakannya untuk sertifikat khusus paket Pro.</b>
-          </p>
-          <Link href="/dashboard/upgrade" className="btn btn-sm shrink-0">Lihat paket Pro</Link>
+      <div className="card flex flex-wrap items-center justify-between gap-4 !p-4">
+        <div className="min-w-[14rem] flex-1">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold">Desain sendiri</span>
+            <span className="font-medium text-slate-600">{designs.length} / {limit}</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className={`h-full rounded-full ${full ? "bg-amber-500" : "bg-brand-500"}`} style={{ width: `${Math.min(100, (designs.length / limit) * 100)}%` }} />
+          </div>
+          <p className="mt-2 text-xs text-slate-500">Unggah PDF (halaman pertama), PNG, atau JPG hingga 10 MB, lalu geser nama, tanggal, nomor, dan QR ke posisi yang diinginkan.</p>
         </div>
-      )}
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-600">
-          Unggah desain (PDF halaman pertama, PNG, atau JPG; maks. 10 MB), lalu atur posisi data. <span className="text-slate-400">{designs.length}/{limit} desain</span>
-        </p>
         <div>
           <input ref={fileRef} type="file" accept="application/pdf,image/png,image/jpeg" hidden onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
           <button className="btn btn-primary" disabled={busy || full} onClick={() => fileRef.current?.click()} title={full ? "Batas jumlah desain tercapai" : undefined}>
@@ -113,11 +111,11 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
       {msg && <p className={`rounded-lg p-3 text-sm ${msg.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{msg.text}</p>}
 
       {designs.length === 0 ? (
-        <div className="card text-center">
-          <ImagePlus className="mx-auto h-8 w-8 text-slate-300" />
-          <h3 className="mt-2 font-semibold">Belum ada desain</h3>
-          <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">Unggah desain sertifikat Anda, lalu geser nama, tanggal, nomor, dan QR ke posisi yang diinginkan.</p>
-        </div>
+        <button type="button" disabled={busy} onClick={() => fileRef.current?.click()} className="flex w-full flex-col items-center rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/50 px-4 py-12 text-center transition hover:border-brand-500 hover:bg-brand-50">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-brand-600 shadow-sm"><ImagePlus className="h-7 w-7" /></span>
+          <span className="mt-3 font-semibold">Unggah desain pertama Anda</span>
+          <span className="mt-1 text-sm text-slate-600">Klik di sini untuk memilih file PDF, PNG, atau JPG</span>
+        </button>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {designs.map((d) => {
