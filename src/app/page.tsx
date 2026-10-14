@@ -1,6 +1,6 @@
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, FileSpreadsheet, FileUp, Link2, ListChecks, Mail, QrCode, Send, SlidersHorizontal, X } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, Mail, QrCode, Send, X } from "lucide-react";
 import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
@@ -9,14 +9,6 @@ import { formatDateRange } from "@/lib/certificate/sources";
 import { SEO_PAGES } from "@/lib/seo-pages";
 import { SHOWCASE } from "@/lib/showcase";
 
-const features = [
-  { icon: Link2, title: "Satu tautan pendaftaran", text: "Peserta mengisi formulir dari perangkat apa pun, tanpa membuat akun." },
-  { icon: SlidersHorizontal, title: "Formulir yang fleksibel", text: "Tentukan isian peserta dan petakan ke kolom pada sertifikat." },
-  { icon: ListChecks, title: "Otomatis atau dengan persetujuan", text: "Terbitkan langsung, atau setujui peserta terlebih dahulu secara massal." },
-  { icon: QrCode, title: "Verifikasi keaslian", text: "Nomor unik dan QR pada setiap sertifikat untuk pemeriksaan keaslian." },
-  { icon: FileUp, title: "Desain sendiri", text: "Unggah PDF atau gambar, lalu atur posisi nama, tanggal, dan nomor." },
-  { icon: FileSpreadsheet, title: "Rekap kehadiran", text: "Unduh data peserta dan kehadiran dalam format CSV kapan saja." },
-];
 
 const steps = [
   { icon: ClipboardList, t: "Buat program", d: "Isi data kegiatan dan penandatangan, lalu pilih template." },
@@ -169,12 +161,51 @@ export default function Landing() {
           <VerifyMockup />
         </div>
 
-        <div className="grid gap-x-10 gap-y-8 border-t border-slate-100 pt-16 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></div>
-              <div><h3 className="font-semibold">{title}</h3><p className="mt-1 text-sm leading-relaxed text-slate-600">{text}</p></div>
-            </div>
+      </section>
+
+      {/* Alur kerja */}
+      <section className="mx-auto max-w-6xl px-5 py-24">
+        <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Alur kerja</p>
+        <h2 className="mt-3 text-3xl font-bold tracking-tight">Empat langkah sederhana.</h2>
+        <ol className="relative mt-14 grid gap-10 md:grid-cols-4">
+          <div className="absolute left-[12%] right-[12%] top-7 hidden h-px bg-gradient-to-r from-brand-200 via-brand-500 to-brand-200 md:block" />
+          {steps.map(({ icon: Icon, t, d }, i) => (
+            <li key={t} className="relative text-center">
+              <span className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-200"><Icon className="h-6 w-6" /></span>
+              <p className="mt-4 text-xs font-semibold text-brand-600">Langkah {i + 1}</p>
+              <h3 className="mt-1 font-semibold">{t}</h3>
+              <p className="mx-auto mt-1.5 max-w-[16rem] text-sm leading-relaxed text-slate-600">{d}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Kegunaan (tautan ke halaman SEO) */}
+      <section id="kegunaan" className="mx-auto max-w-6xl scroll-mt-16 px-5 py-24">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Kegunaan</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight">Untuk kegiatan apa sertifikatnya?</h2>
+          <p className="mt-3 text-slate-600">Pilih jenis kegiatan Anda dan lihat contoh sertifikat yang sesuai.</p>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {SEO_PAGES.map((p) => (
+            <Link key={p.slug} href={`/sertifikat/${p.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:border-brand-500 hover:shadow-lg">
+              <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand-50 via-slate-50 to-white">
+                <LazyMount aspect="auto" className="absolute inset-0">
+                  <div className="absolute left-[30%] top-6 w-[58%] rotate-[7deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg transition duration-300 group-hover:rotate-[10deg] group-hover:translate-x-1">
+                    <SampleCert templateId={p.templates[1]} name="Citra Lestari" event={p.sampleEvent} />
+                  </div>
+                  <div className="absolute left-[8%] top-9 w-[58%] -rotate-[6deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-xl transition duration-300 group-hover:-rotate-[9deg] group-hover:-translate-x-1">
+                    <SampleCert templateId={p.templates[0]} name="Aisyah Putri" event={p.sampleEvent} />
+                  </div>
+                </LazyMount>
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-semibold group-hover:text-brand-700">{p.title.replace(/^Sertifikat /, "")}</h3>
+                <p className="mt-2 line-clamp-3 text-sm text-slate-600">{p.intro}</p>
+                <span className="mt-auto pt-3 text-sm font-medium text-brand-700">Lihat contoh →</span>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -197,23 +228,6 @@ export default function Landing() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Alur kerja */}
-      <section className="mx-auto max-w-6xl px-5 py-24">
-        <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Alur kerja</p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight">Empat langkah sederhana.</h2>
-        <ol className="relative mt-14 grid gap-10 md:grid-cols-4">
-          <div className="absolute left-[12%] right-[12%] top-7 hidden h-px bg-gradient-to-r from-brand-200 via-brand-500 to-brand-200 md:block" />
-          {steps.map(({ icon: Icon, t, d }, i) => (
-            <li key={t} className="relative text-center">
-              <span className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-200"><Icon className="h-6 w-6" /></span>
-              <p className="mt-4 text-xs font-semibold text-brand-600">Langkah {i + 1}</p>
-              <h3 className="mt-1 font-semibold">{t}</h3>
-              <p className="mx-auto mt-1.5 max-w-[16rem] text-sm leading-relaxed text-slate-600">{d}</p>
-            </li>
-          ))}
-        </ol>
       </section>
 
       {/* Template */}
@@ -254,36 +268,6 @@ export default function Landing() {
               </article>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Kegunaan (tautan ke halaman SEO) */}
-      <section id="kegunaan" className="mx-auto max-w-6xl scroll-mt-16 px-5 py-24">
-        <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Kegunaan</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight">Untuk kegiatan apa sertifikatnya?</h2>
-          <p className="mt-3 text-slate-600">Pilih jenis kegiatan Anda dan lihat contoh sertifikat yang sesuai.</p>
-        </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {SEO_PAGES.map((p) => (
-            <Link key={p.slug} href={`/sertifikat/${p.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:border-brand-500 hover:shadow-lg">
-              <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand-50 via-slate-50 to-white">
-                <LazyMount aspect="auto" className="absolute inset-0">
-                  <div className="absolute left-[30%] top-6 w-[58%] rotate-[7deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg transition duration-300 group-hover:rotate-[10deg] group-hover:translate-x-1">
-                    <SampleCert templateId={p.templates[1]} name="Citra Lestari" event={p.sampleEvent} />
-                  </div>
-                  <div className="absolute left-[8%] top-9 w-[58%] -rotate-[6deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-xl transition duration-300 group-hover:-rotate-[9deg] group-hover:-translate-x-1">
-                    <SampleCert templateId={p.templates[0]} name="Aisyah Putri" event={p.sampleEvent} />
-                  </div>
-                </LazyMount>
-              </div>
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="font-semibold group-hover:text-brand-700">{p.title.replace(/^Sertifikat /, "")}</h3>
-                <p className="mt-2 line-clamp-3 text-sm text-slate-600">{p.intro}</p>
-                <span className="mt-auto pt-3 text-sm font-medium text-brand-700">Lihat contoh →</span>
-              </div>
-            </Link>
-          ))}
         </div>
       </section>
 
