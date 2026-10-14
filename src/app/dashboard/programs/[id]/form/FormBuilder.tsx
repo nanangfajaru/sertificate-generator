@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ClipboardList, Plus, Trash2 } from "lucide-react";
+import SectionTitle from "@/components/SectionTitle";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import CertificateSvg, { type Highlight } from "@/components/CertificateSvg";

@@ -16,7 +16,10 @@ export default async function NewProgramPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-800">← Kembali</Link>
-      <h1 className="mt-2 mb-6 text-2xl font-bold">Program baru</h1>
+      <div className="mb-6 mt-3 rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-900 p-6 text-white shadow-md">
+        <h1 className="text-2xl font-bold">Program baru</h1>
+        <p className="mt-1 text-sm text-brand-100">Isi data kegiatan, lalu atur formulir dan desain sertifikatnya di langkah berikutnya.</p>
+      </div>
       <ProgramForm action={createProgram} submitLabel="Buat program" defaultOrg={profile.organization ?? ""} />
     </div>
   );
