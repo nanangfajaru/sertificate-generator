@@ -5,6 +5,7 @@ import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import { formatDateRange } from "@/lib/certificate/sources";
+import { SEO_PAGES } from "@/lib/seo-pages";
 import { SHOWCASE } from "@/lib/showcase";
 
 const features = [
@@ -42,6 +43,7 @@ export default function Landing() {
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#template" className="hover:text-slate-900">Template</a>
+            <a href="#kegunaan" className="hover:text-slate-900">Kegunaan</a>
             <a href="#contoh" className="hover:text-slate-900">Contoh Program</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
           </nav>
@@ -182,6 +184,24 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Kegunaan (tautan ke halaman SEO) */}
+      <section id="kegunaan" className="mx-auto max-w-6xl scroll-mt-16 px-5 py-24">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Kegunaan</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight">Untuk kegiatan apa sertifikatnya?</h2>
+          <p className="mt-3 text-slate-600">Pilih jenis kegiatan Anda dan lihat contoh sertifikat yang sesuai.</p>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {SEO_PAGES.map((p) => (
+            <Link key={p.slug} href={`/sertifikat/${p.slug}`} className="group rounded-xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
+              <h3 className="font-semibold group-hover:text-brand-700">{p.title.replace(/^Sertifikat /, "")}</h3>
+              <p className="mt-2 line-clamp-3 text-sm text-slate-600">{p.intro}</p>
+              <span className="mt-3 inline-block text-sm font-medium text-brand-700">Lihat contoh →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* FAQ */}
       <section id="faq" className="mx-auto max-w-3xl scroll-mt-16 px-5 py-24">
         <h2 className="text-center text-3xl font-bold tracking-tight">Pertanyaan umum</h2>
@@ -213,13 +233,15 @@ export default function Landing() {
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
             <Link href="/login" className="hover:text-slate-900">Masuk</Link>
-            <Link href="/sertifikat/seminar" className="hover:text-slate-900">Sertifikat Seminar</Link>
-            <Link href="/sertifikat/webinar" className="hover:text-slate-900">Sertifikat Webinar</Link>
+            <a href="#kegunaan" className="hover:text-slate-900">Kegunaan</a>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>
           <p>© {new Date().getFullYear()} SertifikatKu</p>
         </div>
+        <nav aria-label="Jenis sertifikat" className="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-2 border-t border-slate-100 px-5 py-5 text-xs text-slate-500">
+          {SEO_PAGES.map((p) => (<Link key={p.slug} href={`/sertifikat/${p.slug}`} className="hover:text-slate-900">{p.title}</Link>))}
+        </nav>
       </footer>
     </div>
   );
