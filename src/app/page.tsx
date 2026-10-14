@@ -26,8 +26,20 @@ const steps = [
 ];
 
 const compare = {
-  manual: ["Mengetik nama peserta satu per satu", "Ekspor PDF dan kirim lewat WhatsApp manual", "Salah ketik nama, harus ulang", "Sulit membuktikan keaslian sertifikat"],
-  ours: ["Peserta mengisi data sendiri lewat satu link", "Sertifikat PDF langsung terbit dan bisa diunduh", "Nama sesuai isian peserta, tanpa salah ketik", "QR dan nomor unik untuk verifikasi keaslian"],
+  manual: [
+    "Buat formulir di Google Form, lalu tunggu peserta mengisi",
+    "Ekspor jawaban ke spreadsheet dan rapikan nama satu per satu",
+    "Impor ke Canva, Word, atau alat lain untuk membuat sertifikat",
+    "Unduh PDF lalu kirim ke peserta secara manual, tidak langsung (tidak real-time)",
+    "Salah data atau nama? Ulangi dari awal",
+  ],
+  ours: [
+    "Satu link atau QR untuk pendaftaran",
+    "Sertifikat PDF terbit otomatis dari data yang diisi peserta",
+    "Peserta mengunduh sendiri saat itu juga, tanpa menunggu panitia",
+    "Nomor unik dan QR di setiap sertifikat untuk memeriksa keasliannya",
+    "Salah data? Perbaiki sekali, sertifikat ikut berubah",
+  ],
 };
 
 const faqs = [
@@ -172,11 +184,11 @@ export default function Landing() {
         <div className="mx-auto max-w-5xl px-5">
           <div className="text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Perbandingan</p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight">Tidak perlu lagi mengetik satu per satu.</h2>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight">Dari 5 alat berbeda menjadi satu.</h2>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-white p-7">
-              <p className="font-semibold text-slate-500">Cara manual</p>
+              <p className="font-semibold text-slate-500">Cara biasa</p>
               <ul className="mt-5 space-y-3.5">{compare.manual.map((t) => (<li key={t} className="flex gap-3 text-slate-600"><X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" /> {t}</li>))}</ul>
             </div>
             <div className="rounded-2xl border-2 border-brand-500 bg-white p-7 shadow-lg shadow-brand-100">
