@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import type { Program, ProgramField } from "@/lib/db";
-import { loadBackground, programLayout, sampleContext } from "@/lib/certificate/load";
+import { loadBackground, programLayout, sampleContext, signatureImages, withSignatures } from "@/lib/certificate/load";
 import { withWatermark } from "@/lib/certificate/watermark";
 import { renderCertificatePdf } from "@/lib/certificate/pdf";
 import { resolveLayout } from "@/lib/certificate/sources";
@@ -19,8 +19,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const { data: f } = await s.supabase.from("program_fields").select("*").eq("program_id", id).order("sort");
 
   const resolved = resolveLayout(programLayout(program), sampleContext(program, (f ?? []) as ProgramField[]));
-  const layout = s.isPro ? resolved : withWatermark(resolved);
-  const bytes = await renderCertificatePdf(layout, await loadBackground(createAdminClient(), program));
+  const layout = withSignatures(s.isPro ? resolved : withWatermark(resolved), program);
+  const bytes = await renderCertificatePdf(layout, await loadBackground(createAdminClient(), program), await signatureImages(createAdminClient(), program));
   return new NextResponse(Buffer.from(bytes), {
     headers: { "Content-Type": "application/pdf", "Content-Disposition": 'inline; filename="contoh-sertifikat.pdf"' },
   });

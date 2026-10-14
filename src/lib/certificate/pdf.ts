@@ -79,7 +79,9 @@ function drawText(page: PDFPage, font: PDFFont, it: TextItem, s: number, H: numb
 }
 
 /** Menggambar layout yang sudah di-resolve ke PDF. Satu halaman. */
-export async function renderCertificatePdf(layout: Layout, bg: Background): Promise<Uint8Array> {
+export type ImageMap = Record<string, { kind: "png" | "jpg"; bytes: Uint8Array }>;
+
+export async function renderCertificatePdf(layout: Layout, bg: Background, images: ImageMap = {}): Promise<Uint8Array> {
   let doc: PDFDocument;
   let page: PDFPage;
 
@@ -115,6 +117,16 @@ export async function renderCertificatePdf(layout: Layout, bg: Background): Prom
 
   for (const it of layout.items) {
     switch (it.type) {
+      case "image": {
+        const im = images[it.src];
+        if (!im) break;
+        const emb = im.kind === "png" ? await doc.embedPng(im.bytes) : await doc.embedJpg(im.bytes);
+        const k = Math.min((it.w * s) / emb.width, (it.h * s) / emb.height);
+        const w = emb.width * k;
+        const h = emb.height * k;
+        page.drawImage(emb, { x: (it.x + it.w / 2) * s - w / 2, y: PH - (it.y + it.h) * s, width: w, height: h });
+        break;
+      }
       case "rect":
         page.drawRectangle({
           x: it.x * s,

@@ -29,6 +29,8 @@ export type Program = {
   signer1_title: string | null;
   signer2_name: string | null;
   signer2_title: string | null;
+  signer1_sig_path: string | null;
+  signer2_sig_path: string | null;
   approval_mode: "auto" | "manual";
   is_open: boolean;
   cert_mode: "template" | "custom";

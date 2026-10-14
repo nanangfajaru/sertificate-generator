@@ -13,6 +13,8 @@ type Props = {
   highlight?: (item: TextItem | QrItem) => Highlight | null;
   /** gambar latar (desain sendiri) */
   backgroundUrl?: string | null;
+  /** URL gambar untuk item bertipe image, berdasarkan `src` */
+  images?: Record<string, string>;
   className?: string;
   /** mode editor */
   selectedId?: string | null;
@@ -96,8 +98,10 @@ function Qr({ item }: { item: QrItem }) {
   return <path d={d} fill={item.color} />;
 }
 
-function Shape({ item }: { item: Exclude<Item, TextItem | QrItem> }) {
+function Shape({ item, images }: { item: Exclude<Item, TextItem | QrItem>; images?: Record<string, string> }) {
   switch (item.type) {
+    case "image":
+      return images?.[item.src] ? <image href={images[item.src]} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio="xMidYMax meet" /> : null;
     case "rect":
       return <rect x={item.x} y={item.y} width={item.w} height={item.h} fill={item.fill ?? "none"} stroke={item.stroke} strokeWidth={item.sw} opacity={item.opacity} />;
     case "line":
@@ -111,7 +115,7 @@ function Shape({ item }: { item: Exclude<Item, TextItem | QrItem> }) {
   }
 }
 
-export default function CertificateSvg({ layout, highlight, backgroundUrl, className, selectedId, onSelect, onMove }: Props) {
+export default function CertificateSvg({ layout, highlight, backgroundUrl, images, className, selectedId, onSelect, onMove }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; dx: number; dy: number } | null>(null);
   const interactive = !!onMove;
@@ -179,7 +183,7 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, class
             item.y,
           );
         }
-        return <Shape key={id} item={item} />;
+        return <Shape key={id} item={item} images={images} />;
       })}
     </svg>
   );

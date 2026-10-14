@@ -52,7 +52,10 @@ export type PathItem = Common & { type: "path"; d: string; fill?: string; stroke
 export type PolygonItem = Common & { type: "polygon"; points: [number, number][]; fill: string; opacity?: number };
 export type QrItem = Common & { type: "qr"; x: number; y: number; size: number; color: string; url?: string };
 
-export type Item = TextItem | RectItem | LineItem | CircleItem | PolygonItem | PathItem | QrItem;
+/** gambar (mis. tanda tangan); `src` = kunci gambar yang diberikan ke renderer */
+export type ImageItem = Common & { type: "image"; x: number; y: number; w: number; h: number; src: string };
+
+export type Item = ImageItem | TextItem | RectItem | LineItem | CircleItem | PolygonItem | PathItem | QrItem;
 
 /** Koordinat dalam "unit desain"; renderer menskalakan ke ukuran halaman. Titik (0,0) kiri-atas. */
 export type Layout = {

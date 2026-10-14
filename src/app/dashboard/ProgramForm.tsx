@@ -1,17 +1,19 @@
 "use client";
 
+import SignatureUpload from "./SignatureUpload";
 import { useActionState, useState } from "react";
 import { CERT_TYPES, CUSTOM_TYPE, isPresetType, presetDescription } from "@/lib/cert-types";
 import type { Program } from "@/lib/db";
 import type { ActionState } from "./actions";
 
 type Props = {
+  sigUrls?: [string | null, string | null];
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
   program?: Program;
   submitLabel: string;
 };
 
-export default function ProgramForm({ action, program: p, submitLabel }: Props) {
+export default function ProgramForm({ action, program: p, submitLabel, sigUrls }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const edit = !!p;
 
@@ -88,6 +90,7 @@ export default function ProgramForm({ action, program: p, submitLabel }: Props) 
               <label className="label" htmlFor={`signer${n}_title`}>Jabatan</label>
               <input id={`signer${n}_title`} name={`signer${n}_title`} className="input" defaultValue={(p?.[`signer${n}_title` as "signer1_title"] ?? "") as string} placeholder={n === 1 ? "Ketua Panitia" : "Dekan"} />
             </div>
+            {p ? <SignatureUpload programId={p.id} n={n as 1 | 2} initialUrl={sigUrls?.[n - 1] ?? null} /> : n === 1 && <p className="hint sm:col-span-2">Tanda tangan (gambar) dapat diunggah setelah program dibuat.</p>}
           </div>
         ))}
       </section>

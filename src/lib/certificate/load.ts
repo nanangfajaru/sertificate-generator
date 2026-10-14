@@ -6,8 +6,8 @@ import { resolveLayout, type CertContext } from "./sources";
 import { getTemplate } from "./templates";
 import { isProProfile } from "../db";
 import { withWatermark } from "./watermark";
-import type { Layout } from "./types";
-import type { Background } from "./pdf";
+import type { ImageItem, Item, Layout } from "./types";
+import type { Background, ImageMap } from "./pdf";
 
 export function programLayout(program: Program): Layout {
   const base = program.cert_mode === "custom" && program.design_layout ? program.design_layout : getTemplate(program.template_id).layout;
@@ -46,4 +46,48 @@ export async function previewUrl(admin: SupabaseClient, program: Program): Promi
   if (program.cert_mode !== "custom" || !program.design_preview_path) return null;
   const { data } = await admin.storage.from("designs").createSignedUrl(program.design_preview_path, 3600);
   return data?.signedUrl ?? null;
+}
+
+// ───────────────────────── tanda tangan (opsional) ─────────────────────────
+
+const sigPath = (program: Program, n: 1 | 2) => program[`signer${n}_sig_path` as "signer1_sig_path"];
+
+/** Menyisipkan gambar tanda tangan tepat di atas teks nama penandatangan. */
+export function withSignatures(layout: Layout, program: Program): Layout {
+  const k = layout.width / 842;
+  const items: Item[] = [];
+  for (const it of layout.items) {
+    for (const n of [1, 2] as const) {
+      if (it.type === "text" && it.source === `event:signer${n}_name` && sigPath(program, n)) {
+        const w = 150 * k;
+        const h = 56 * k;
+        const cx = it.align === "center" ? it.x : it.align === "left" ? it.x + w / 2 : it.x - w / 2;
+        items.push({ type: "image", x: cx - w / 2, y: it.y - it.size - 2 * k - h, w, h, src: `sig${n}` } satisfies ImageItem);
+      }
+    }
+    items.push(it);
+  }
+  return { ...layout, items };
+}
+
+export async function signatureUrls(admin: SupabaseClient, program: Program): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  for (const n of [1, 2] as const) {
+    const p = sigPath(program, n);
+    if (!p) continue;
+    const { data } = await admin.storage.from("signatures").createSignedUrl(p, 3600);
+    if (data?.signedUrl) out[`sig${n}`] = data.signedUrl;
+  }
+  return out;
+}
+
+export async function signatureImages(admin: SupabaseClient, program: Program): Promise<ImageMap> {
+  const out: ImageMap = {};
+  for (const n of [1, 2] as const) {
+    const p = sigPath(program, n);
+    if (!p) continue;
+    const { data } = await admin.storage.from("signatures").download(p);
+    if (data) out[`sig${n}`] = { kind: /\.png$/i.test(p) ? "png" : "jpg", bytes: new Uint8Array(await data.arrayBuffer()) };
+  }
+  return out;
 }
