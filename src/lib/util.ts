@@ -25,6 +25,11 @@ export function formatCertNumber(format: string, seq: number, now = new Date()) 
     .replaceAll("{tahun}", String(now.getFullYear()));
 }
 
+/** Tautan pendaftaran publik; memakai alias (link pendek) bila ada. */
+export function publicLink(p: { slug: string; alias?: string | null }) {
+  return `${siteUrl()}/p/${p.alias || p.slug}`;
+}
+
 export function siteUrl() {
   return (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 }

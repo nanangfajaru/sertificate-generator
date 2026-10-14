@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowLeft, Check, Crown, Minus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
@@ -68,7 +69,7 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
           <Crown className="h-5 w-5 text-amber-600" /> Paket Pro Anda sedang aktif{profile.plan_expires_at ? ` hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long" })}` : ""}. Anda bisa memperpanjang kapan saja.
         </div>
       ) : null}
-      <Checkout prices={{ monthly: PLANS.monthly.price, yearly: PLANS.yearly.price }} configured={midtransConfigured()} saving={saving} />
+      <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} prices={{ monthly: PLANS.monthly.price, yearly: PLANS.yearly.price }} configured={midtransConfigured()} saving={saving} />
 
       <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full min-w-[34rem] text-sm">

@@ -1,5 +1,6 @@
 import { Download } from "lucide-react";
-import CopyButton from "@/components/CopyButton";
+import Link from "next/link";
+import LinkCard from "./LinkCard";
 import { getOwnedProgram } from "@/lib/program-server";
 import { FREE_PARTICIPANT_LIMIT } from "@/lib/db";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,7 +19,6 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
     const p = program[`signer${n}_sig_path` as "signer1_sig_path"];
     return p ? (await admin.storage.from("signatures").createSignedUrl(p, 3600)).data?.signedUrl ?? null : null;
   }));
-  const link = `${siteUrl()}/p/${program.slug}`;
   const { data: rows } = await supabase.from("participants").select("status").eq("program_id", id);
   const stat = { total: rows?.length ?? 0, pending: 0, approved: 0 };
   rows?.forEach((r) => {
@@ -32,15 +32,14 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
         <ProgramForm action={updateProgram.bind(null, id)} program={program} sigUrls={[sigUrls[0], sigUrls[1]]} submitLabel="Simpan perubahan" />
       </div>
       <div className="space-y-6">
-        <div className="card">
-          <h2 className="font-semibold">Link pendaftaran</h2>
-          <p className="mt-2 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
-          <div className="mt-3 flex gap-2">
-            <CopyButton text={link} />
-            <a href={link} target="_blank" className="btn btn-sm">Buka</a>
+        {!isPro && stat.total >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8) && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-semibold">{stat.total >= FREE_PARTICIPANT_LIMIT ? "Kuota peserta penuh" : "Kuota peserta hampir penuh"} ({stat.total}/{FREE_PARTICIPANT_LIMIT})</p>
+            <p className="mt-1">Upgrade ke Pro agar peserta tak terbatas dan sertifikat tanpa watermark.</p>
+            <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3">Lihat paket Pro</Link>
           </div>
-          {!program.is_open && <p className="mt-3 text-xs text-amber-700">Pendaftaran sedang ditutup.</p>}
-        </div>
+        )}
+        <LinkCard programId={id} origin={siteUrl()} slug={program.slug} alias={program.alias} isOpen={program.is_open} fileBase={(program.alias || program.slug).slice(0, 40)} />
         <div className="card">
           <h2 className="font-semibold">Peserta</h2>
           {!isPro && (

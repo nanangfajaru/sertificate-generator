@@ -132,7 +132,7 @@ export default async function DashboardPage() {
                     <p className="mt-0.5 truncate text-sm text-slate-500">{p.org_name}</p>
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
                       <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> {formatDateRange(p.start_date, p.end_date)}</span>
-                      <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {count}{!isPro ? ` / ${FREE_PARTICIPANT_LIMIT}` : ""} peserta</span>
+                      <span className={`flex items-center gap-1 ${!isPro && count >= FREE_PARTICIPANT_LIMIT * 0.8 ? "font-medium text-amber-700" : ""}`}><Users className="h-3.5 w-3.5" /> {count}{!isPro ? ` / ${FREE_PARTICIPANT_LIMIT}` : ""} peserta</span>
                       <span>{p.approval_mode === "auto" ? "Otomatis" : "Perlu approval"}</span>
                     </div>
                   </div>

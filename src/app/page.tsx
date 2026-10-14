@@ -213,6 +213,8 @@ export default function Landing() {
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
             <Link href="/login" className="hover:text-slate-900">Masuk</Link>
+            <Link href="/sertifikat/seminar" className="hover:text-slate-900">Sertifikat Seminar</Link>
+            <Link href="/sertifikat/webinar" className="hover:text-slate-900">Sertifikat Webinar</Link>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>

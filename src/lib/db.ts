@@ -13,12 +13,14 @@ export type Profile = {
   plan: Plan;
   plan_expires_at: string | null;
   is_admin: boolean;
+  signup_source: string | null;
 };
 
 export type Program = {
   id: string;
   owner_id: string;
   slug: string;
+  alias: string | null;
   name: string;
   org_name: string;
   cert_type: string;

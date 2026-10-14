@@ -4,7 +4,7 @@ import { Download } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { formatDateRange } from "@/lib/certificate/sources";
 import type { Participant, Program, ProgramField } from "@/lib/db";
-import { siteUrl } from "@/lib/util";
+import { publicLink, siteUrl } from "@/lib/util";
 
 const STATUS = { pending: ["Menunggu", "badge-warn"], approved: ["Disetujui", "badge-ok"], rejected: ["Ditolak", "badge-bad"], revoked: ["Dicabut", "badge-revoked"] } as const;
 
@@ -41,9 +41,9 @@ export default async function AdminProgram({ params }: { params: Promise<{ id: s
         </div>
         <div className="card text-sm md:col-span-2">
           <h2 className="mb-2 font-semibold">Tautan</h2>
-          <p className="break-all font-mono text-xs">{siteUrl()}/p/{program.slug}</p>
+          <p className="break-all font-mono text-xs">{publicLink(program)}</p>
           <div className="mt-3 flex gap-2">
-            <a className="btn btn-sm" target="_blank" href={`/p/${program.slug}`}>Buka form publik</a>
+            <a className="btn btn-sm" target="_blank" href={`/p/${program.alias || program.slug}`}>Buka form publik</a>
             <a className="btn btn-sm" href={`/api/programs/${id}/export`}><Download className="h-4 w-4" /> Kehadiran (CSV)</a>
             <a className="btn btn-sm" target="_blank" href={`/api/programs/${id}/sample`}>Contoh PDF</a>
           </div>

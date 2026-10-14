@@ -1,9 +1,16 @@
 import Logo from "@/components/Logo";
+import { cookies } from "next/headers";
 import { requireUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import UserMenu from "./UserMenu";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { profile, isPro } = await requireUser();
+  if (!profile.signup_source) {
+    // Catat sumber pendaftar sekali (dari cookie ?ref / ?utm_source).
+    const src = (await cookies()).get("sk_src")?.value;
+    await createAdminClient().from("profiles").update({ signup_source: src ? decodeURIComponent(src).slice(0, 60) : "langsung" }).eq("id", profile.id);
+  }
   const name = profile.full_name ?? profile.email ?? "Pengguna";
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50/70 via-slate-50 to-slate-50">

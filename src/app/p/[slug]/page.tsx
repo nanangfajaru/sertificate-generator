@@ -4,16 +4,17 @@ import { CalendarDays, MapPin } from "lucide-react";
 import type { Program, ProgramField } from "@/lib/db";
 import { formatDateRange } from "@/lib/certificate/sources";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { findProgramByKey } from "@/lib/program-lookup";
 import { mailConfigured } from "@/lib/mailer";
 import RegisterForm from "./RegisterForm";
 
 // cache(): metadata dan halaman memakai satu query yang sama dalam satu permintaan.
 const loadProgram = cache(async (slug: string) => {
   const admin = createAdminClient();
-  const { data } = await admin.from("programs").select("*").eq("slug", slug).maybeSingle();
-  if (!data) return null;
-  const { data: f } = await admin.from("program_fields").select("*").eq("program_id", data.id).order("sort");
-  return { program: data as Program, fields: (f ?? []) as ProgramField[] };
+  const program = await findProgramByKey(admin, slug);
+  if (!program) return null;
+  const { data: f } = await admin.from("program_fields").select("*").eq("program_id", program.id).order("sort");
+  return { program, fields: (f ?? []) as ProgramField[] };
 });
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

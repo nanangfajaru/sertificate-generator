@@ -1,5 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import CopyButton from "@/components/CopyButton";
+import { siteUrl } from "@/lib/util";
 import ToggleButton from "./ToggleButton";
 import VoucherForm from "./VoucherForm";
 
@@ -8,7 +10,7 @@ export const metadata = { title: "Voucher · Admin" };
 const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 const date = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
 
-type Voucher = { id: string; code: string; label: string | null; discount_percent: number; commission_percent: number; max_uses: number | null; expires_at: string | null; active: boolean; created_at: string };
+type Voucher = { id: string; code: string; label: string | null; discount_percent: number; commission_percent: number; partner_token: string | null; max_uses: number | null; expires_at: string | null; active: boolean; created_at: string };
 type Order = { id: string; order_id: string; plan: string; amount: number; discount_amount: number; commission_amount: number; voucher_id: string | null; voucher_code: string | null; status: string; paid_at: string | null; created_at: string; profiles: { email: string | null } | null };
 
 export default async function VouchersPage() {
@@ -53,11 +55,11 @@ export default async function VouchersPage() {
               <th className="px-3 py-2">Kode</th><th className="px-3 py-2">Pemilik</th>
               <th className="px-3 py-2 text-right">Diskon</th><th className="px-3 py-2 text-right">Komisi</th>
               <th className="px-3 py-2 text-right">Dipakai</th><th className="px-3 py-2 text-right">Pendapatan</th>
-              <th className="px-3 py-2 text-right">Komisi terutang</th><th className="px-3 py-2">Status</th><th className="px-3 py-2" />
+              <th className="px-3 py-2 text-right">Komisi terutang</th><th className="px-3 py-2">Status</th><th className="px-3 py-2">Link</th><th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {vouchers.length === 0 && <tr><td colSpan={9} className="px-3 py-6 text-center text-slate-500">Belum ada voucher.</td></tr>}
+            {vouchers.length === 0 && <tr><td colSpan={10} className="px-3 py-6 text-center text-slate-500">Belum ada voucher.</td></tr>}
             {vouchers.map((v) => {
               const s = stat.get(v.id) ?? { uses: 0, revenue: 0, commission: 0 };
               const expired = v.expires_at && new Date(v.expires_at) < new Date();
@@ -74,6 +76,12 @@ export default async function VouchersPage() {
                   <td className="px-3 py-2">
                     <span className={`badge ${!v.active || expired || full ? "badge-bad" : "badge-ok"}`}>{!v.active ? "Nonaktif" : expired ? "Kedaluwarsa" : full ? "Kuota habis" : "Aktif"}</span>
                     {v.expires_at && <div className="mt-0.5 text-[11px] text-slate-500">s.d. {date(v.expires_at)}</div>}
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex gap-1.5">
+                      <CopyButton text={`${siteUrl()}/?ref=${v.code}`} label="Referral" />
+                      {v.partner_token && <CopyButton text={`${siteUrl()}/mitra/${v.partner_token}`} label="Mitra" />}
+                    </div>
                   </td>
                   <td className="px-3 py-2 text-right"><ToggleButton id={v.id} active={v.active} /></td>
                 </tr>

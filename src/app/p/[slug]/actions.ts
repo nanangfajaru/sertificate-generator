@@ -1,5 +1,6 @@
 "use server";
 
+import { findProgramByKey } from "@/lib/program-lookup";
 import { redirect } from "next/navigation";
 import { approveParticipants } from "@/lib/approve";
 import type { Program, ProgramField } from "@/lib/db";
@@ -14,7 +15,7 @@ export async function submitRegistration(slug: string, _: RegisterState, fd: For
   if (String(fd.get("website") ?? "") !== "") return { error: "Permintaan ditolak." }; // honeypot
 
   const admin = createAdminClient();
-  const { data: prog } = await admin.from("programs").select("*").eq("slug", slug).maybeSingle();
+  const prog = await findProgramByKey(admin, slug);
   if (!prog) return { error: "Program tidak ditemukan." };
   const program = prog as Program;
   if (!program.is_open) return { error: "Pendaftaran sudah ditutup." };

@@ -74,6 +74,11 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
         ) : (
           <RejectedCard org={program.org_name} />
         )}
+        {!isPro && (
+          <p className="pt-2 text-center text-xs text-slate-500">
+            Dibuat dengan <a href="/?utm_source=sertifikat" className="font-semibold text-brand-700 hover:underline">SertifikatKu</a> · <a href="/?utm_source=sertifikat" className="hover:underline">Buat sertifikat untuk kegiatan Anda</a>
+          </p>
+        )}
       </div>
     </main>
   );

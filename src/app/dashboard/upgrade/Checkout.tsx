@@ -7,8 +7,8 @@ import { checkVoucher, startCheckout, type VoucherCheck } from "./actions";
 type Plans = { monthly: number; yearly: number };
 const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
-export default function Checkout({ prices, configured, saving }: { prices: Plans; configured: boolean; saving: number }) {
-  const [code, setCode] = useState("");
+export default function Checkout({ prices, configured, saving, initialCode = "" }: { prices: Plans; configured: boolean; saving: number; initialCode?: string }) {
+  const [code, setCode] = useState(initialCode);
   const [v, setV] = useState<VoucherCheck | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
