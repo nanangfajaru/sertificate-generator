@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Award, Crown, LogOut } from "lucide-react";
+import { Crown, LogOut } from "lucide-react";
+import Logo from "@/components/Logo";
 import { requireUser } from "@/lib/auth";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -9,12 +10,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="min-h-screen bg-gradient-to-b from-brand-50/70 via-slate-50 to-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm">
-              <Award className="h-4 w-4" />
-            </span>
-            Sertifikat Online
-          </Link>
+          <Logo href="/dashboard" size={32} />
           <div className="flex items-center gap-3 text-sm">
             {profile.is_admin && <Link href="/admin" className="btn btn-sm">Admin</Link>}
             <span className={`badge gap-1 ${isPro ? "badge-pro" : ""}`}>{isPro && <Crown className="h-3 w-3" />}{isPro ? "Pro" : "Free"}</span>

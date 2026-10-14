@@ -5,10 +5,10 @@ export const metadata = { title: "Syarat & Ketentuan" };
 export default function TermsPage() {
   return (
     <LegalPage title="Syarat & Ketentuan" updated="14 Oktober 2026">
-      <p>Dengan menggunakan Sertifikat Online (sertifikatku.com), Anda menyetujui syarat berikut.</p>
+      <p>Dengan menggunakan SertifikatKu (sertifikatku.com), Anda menyetujui syarat berikut.</p>
       <section>
         <h2>Layanan</h2>
-        <p>Sertifikat Online adalah layanan untuk mengumpulkan data peserta, mengelola persetujuan, dan menerbitkan sertifikat digital berformat PDF dengan QR verifikasi.</p>
+        <p>SertifikatKu adalah layanan untuk mengumpulkan data peserta, mengelola persetujuan, dan menerbitkan sertifikat digital berformat PDF dengan QR verifikasi.</p>
       </section>
       <section>
         <h2>Akun dan tanggung jawab penyelenggara</h2>

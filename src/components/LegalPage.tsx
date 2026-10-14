@@ -1,12 +1,11 @@
-import Link from "next/link";
-import { Award } from "lucide-react";
+import Logo from "./Logo";
 
 export default function LegalPage({ title, updated, children }: { title: string; updated: string; children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-14 max-w-3xl items-center px-5">
-          <Link href="/" className="flex items-center gap-2 font-semibold"><Award className="h-5 w-5 text-brand-600" /> Sertifikat Online</Link>
+          <Logo size={30} />
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-5 py-10">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Award } from "lucide-react";
+import Logo from "@/components/Logo";
 import { requireAdmin } from "@/lib/auth";
 import AdminNav from "./AdminNav";
 
@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <Link href="/admin" className="flex items-center gap-2 font-semibold"><Award className="h-5 w-5 text-brand-600" /> Admin</Link>
+            <Logo href="/admin" size={28} /><span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">Admin</span>
             <AdminNav />
           </div>
           <div className="flex items-center gap-3 text-sm">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Sertifikat Online – penerbitan sertifikat digital untuk setiap kegiatan", template: "%s · Sertifikat Online" },
+  title: { default: "SertifikatKu – penerbitan sertifikat digital untuk setiap kegiatan", template: "%s · SertifikatKu" },
   description: "Kumpulkan data peserta melalui satu tautan, setujui, lalu terbitkan sertifikat PDF lengkap dengan QR verifikasi.",
 };
 

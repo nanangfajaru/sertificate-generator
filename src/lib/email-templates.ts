@@ -1,4 +1,4 @@
-const BRAND = "Sertifikat Online";
+const BRAND = "SertifikatKu";
 
 const C = { brand: "#4f46e5", ink: "#0f172a", body: "#334155", muted: "#64748b", faint: "#94a3b8", line: "#e2e8f0", bg: "#f1f5f9", panel: "#f8fafc" };
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
@@ -66,7 +66,7 @@ function shell(o: Shell, siteHost: string) {
 }
 
 function host() {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/^https?:\/\//, "").replace(/\/$/, "") || "sertifikat-online.vercel.app";
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/^https?:\/\//, "").replace(/\/$/, "") || "sertifikatku.com";
 }
 
 export function confirmEmail(name: string | null, email: string, url: string) {

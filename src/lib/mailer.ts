@@ -24,18 +24,17 @@ function getTransport() {
   return transport;
 }
 
-const DEFAULT_NAME = "Sertifikat Online";
+const DEFAULT_NAME = "SertifikatKu";
 
 /**
- * Pengirim selalu memakai nama tampilan: dari SMTP_FROM ("Nama <alamat>"), atau SMTP_FROM_NAME,
- * atau "Sertifikat Online" bila SMTP_FROM hanya berisi alamat. Dengan begitu inbox menampilkan
- * nama merek, bukan bagian depan alamat Gmail.
+ * Nama pengirim selalu nama merek ("SertifikatKu", atau SMTP_FROM_NAME bila diisi), sehingga inbox
+ * menampilkan merek, bukan bagian depan alamat Gmail. Hanya alamat dari SMTP_FROM yang dipakai.
  */
 export function parseFrom(raw: string | undefined): { name: string; address: string } {
   const value = (raw ?? "").trim();
   const m = value.match(/^"?([^"<]*?)"?\s*<([^>]+)>$/);
   const address = (m ? m[2] : value).trim();
-  const name = (m?.[1] ?? "").trim() || process.env.SMTP_FROM_NAME?.trim() || DEFAULT_NAME;
+  const name = process.env.SMTP_FROM_NAME?.trim() || DEFAULT_NAME; // nama merek tetap, abaikan nama lama di SMTP_FROM
   return { name, address };
 }
 

@@ -1,5 +1,6 @@
+import Logo from "@/components/Logo";
 import Link from "next/link";
-import { Award, BadgeCheck, CalendarDays, Check, FileSpreadsheet, FileUp, Link2, ListChecks, QrCode, SlidersHorizontal } from "lucide-react";
+import { BadgeCheck, CalendarDays, Check, FileSpreadsheet, FileUp, Link2, ListChecks, QrCode, SlidersHorizontal } from "lucide-react";
 import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
@@ -37,10 +38,7 @@ export default function Landing() {
     <div className="text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white"><Award className="h-4.5 w-4.5" /></span>
-            Sertifikat Online
-          </Link>
+          <Logo size={34} />
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#template" className="hover:text-slate-900">Template</a>
@@ -210,7 +208,7 @@ export default function Landing() {
 
       <footer className="border-t border-slate-200">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500">
-          <div className="flex items-center gap-2 font-medium text-slate-700"><Award className="h-4 w-4 text-brand-600" /> Sertifikat Online</div>
+          <Logo size={26} />
           <nav className="flex gap-6">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
@@ -218,7 +216,7 @@ export default function Landing() {
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>
-          <p>© {new Date().getFullYear()} Sertifikat Online</p>
+          <p>© {new Date().getFullYear()} SertifikatKu</p>
         </div>
       </footer>
     </div>

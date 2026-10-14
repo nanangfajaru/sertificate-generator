@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
     "/c/**": ["./src/fonts/**"],
   },
   serverExternalPackages: ["pdf-lib", "@pdf-lib/fontkit"],
+  // Alamat lama (vercel.app) dialihkan ke domain utama.
+  async redirects() {
+    return [{ source: "/:path*", has: [{ type: "host", value: "sertifikat-online.vercel.app" }], destination: "https://sertifikatku.com/:path*", permanent: true }];
+  },
 };
 
 export default nextConfig;

@@ -1,4 +1,4 @@
-# Sertifikat Online
+# SertifikatKu
 
 SaaS e-sertifikat: buat program → bagikan link pendaftaran → sertifikat PDF terbit otomatis (atau setelah approval).
 Stack: Next.js 16 (App Router) · Supabase (Auth Google, Postgres, Storage) · Vercel.

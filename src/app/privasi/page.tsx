@@ -5,7 +5,7 @@ export const metadata = { title: "Kebijakan Privasi" };
 export default function PrivacyPage() {
   return (
     <LegalPage title="Kebijakan Privasi" updated="14 Oktober 2026">
-      <p>Sertifikat Online (sertifikatku.com) membantu penyelenggara kegiatan menerbitkan sertifikat digital. Halaman ini menjelaskan data apa yang kami kumpulkan dan bagaimana kami menggunakannya.</p>
+      <p>SertifikatKu (sertifikatku.com) membantu penyelenggara kegiatan menerbitkan sertifikat digital. Halaman ini menjelaskan data apa yang kami kumpulkan dan bagaimana kami menggunakannya.</p>
       <section>
         <h2>Data yang kami kumpulkan</h2>
         <ul>

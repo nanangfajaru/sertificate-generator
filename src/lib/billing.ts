@@ -60,7 +60,7 @@ export async function createSnapTransaction(o: { orderId: string; amount: number
     headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: auth() },
     body: JSON.stringify({
       transaction_details: { order_id: o.orderId, gross_amount: o.amount },
-      item_details: [{ id: o.plan, price: o.amount, quantity: 1, name: `Sertifikat Online ${PLANS[o.plan].label}` }],
+      item_details: [{ id: o.plan, price: o.amount, quantity: 1, name: `SertifikatKu ${PLANS[o.plan].label}` }],
       customer_details: { email: o.email ?? undefined, first_name: o.name ?? undefined },
       callbacks: { finish: `${siteUrl()}/dashboard/upgrade?order=${o.orderId}` },
       expiry: { unit: "hours", duration: 24 },
