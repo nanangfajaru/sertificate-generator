@@ -81,9 +81,10 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls }
       <section className="card space-y-4">
         <h2 className="font-semibold">Penandatangan</h2>
         {[1, 2].map((n) => (
-          <div key={n} className="grid gap-4 sm:grid-cols-2">
+          <div key={n} className={`grid gap-4 sm:grid-cols-2 ${n === 2 ? "mt-8 border-t border-slate-200 pt-8" : ""}`}>
+            <p className="text-sm font-semibold text-brand-700 sm:col-span-2">Penandatangan {n}{n === 2 && <span className="font-normal text-slate-400"> (opsional)</span>}</p>
             <div>
-              <label className="label" htmlFor={`signer${n}_name`}>Nama {n === 2 && <span className="font-normal text-slate-400">(opsional)</span>}</label>
+              <label className="label" htmlFor={`signer${n}_name`}>Nama</label>
               <input id={`signer${n}_name`} name={`signer${n}_name`} className="input" defaultValue={(p?.[`signer${n}_name` as "signer1_name"] ?? "") as string} />
             </div>
             <div>
