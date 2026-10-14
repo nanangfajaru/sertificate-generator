@@ -7,6 +7,9 @@ export type Profile = {
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  phone: string | null;
+  organization: string | null;
+  job_title: string | null;
   plan: Plan;
   plan_expires_at: string | null;
   is_admin: boolean;

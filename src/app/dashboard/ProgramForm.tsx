@@ -7,13 +7,14 @@ import type { Program } from "@/lib/db";
 import type { ActionState } from "./actions";
 
 type Props = {
+  defaultOrg?: string;
   sigUrls?: [string | null, string | null];
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
   program?: Program;
   submitLabel: string;
 };
 
-export default function ProgramForm({ action, program: p, submitLabel, sigUrls }: Props) {
+export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const edit = !!p;
 
@@ -38,7 +39,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls }
         <h2 className="font-semibold">Data acara</h2>
         <div>
           <label className="label" htmlFor="org_name">Nama instansi / penyelenggara</label>
-          <input id="org_name" name="org_name" className="input" required defaultValue={p?.org_name} placeholder="mis. Universitas Contoh Nusantara" />
+          <input id="org_name" name="org_name" className="input" required defaultValue={p?.org_name ?? defaultOrg} placeholder="mis. Universitas Contoh Nusantara" />
         </div>
         <div>
           <label className="label" htmlFor="name">Nama kegiatan</label>

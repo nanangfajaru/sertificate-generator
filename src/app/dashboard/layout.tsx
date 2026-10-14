@@ -14,10 +14,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="flex items-center gap-3 text-sm">
             {profile.is_admin && <Link href="/admin" className="btn btn-sm">Admin</Link>}
             <span className={`badge gap-1 ${isPro ? "badge-pro" : ""}`}>{isPro && <Crown className="h-3 w-3" />}{isPro ? "Pro" : "Free"}</span>
-            <span className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-100 text-xs font-semibold uppercase text-brand-700">{name.trim().charAt(0)}</span>
-              <span className="hidden max-w-[10rem] truncate text-slate-600 sm:inline">{name}</span>
-            </span>
+            <Link href="/dashboard/profile" className="flex items-center gap-2 rounded-full py-0.5 pl-0.5 pr-2 transition hover:bg-slate-100" title="Profil saya">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {profile.avatar_url ? <img src={profile.avatar_url} alt="" referrerPolicy="no-referrer" className="h-8 w-8 rounded-full object-cover" /> : <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-100 text-xs font-semibold uppercase text-brand-700">{name.trim().charAt(0)}</span>}
+              <span className="hidden max-w-[10rem] truncate text-slate-700 sm:inline">{name}</span>
+            </Link>
             <form action="/auth/signout" method="post">
               <button className="btn btn-sm" title="Keluar"><LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Keluar</span></button>
             </form>

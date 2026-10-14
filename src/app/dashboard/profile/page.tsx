@@ -1,0 +1,36 @@
+import Link from "next/link";
+import { ArrowLeft, Crown, Mail } from "lucide-react";
+import { requireUser } from "@/lib/auth";
+import { InfoForm, PasswordForm } from "./ProfileForm";
+
+export const metadata = { title: "Profil" };
+
+export default async function ProfilePage() {
+  const { profile, isPro } = await requireUser();
+  const name = profile.full_name ?? profile.email ?? "Pengguna";
+  const date = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" });
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-6">
+      <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Kembali</Link>
+
+      <div className="card flex items-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {profile.avatar_url ? <img src={profile.avatar_url} alt="" referrerPolicy="no-referrer" className="h-16 w-16 rounded-full object-cover" /> : <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-brand-100 text-2xl font-semibold uppercase text-brand-700">{name.trim().charAt(0)}</span>}
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-bold">{name}</h1>
+          <p className="flex items-center gap-1.5 truncate text-sm text-slate-500"><Mail className="h-4 w-4 shrink-0" /> {profile.email}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className={`badge gap-1 ${isPro ? "badge-pro" : ""}`}>{isPro && <Crown className="h-3 w-3" />}{isPro ? "Pro" : "Free"}</span>
+            {isPro && profile.plan_expires_at && <span>aktif hingga {date(profile.plan_expires_at)}</span>}
+            {!isPro && <Link href="/dashboard/upgrade" className="font-medium text-brand-700 hover:underline">Lihat paket Pro</Link>}
+          </p>
+        </div>
+      </div>
+
+      <InfoForm p={{ full_name: profile.full_name ?? "", phone: profile.phone ?? "", organization: profile.organization ?? "", job_title: profile.job_title ?? "" }} />
+      <PasswordForm />
+      <p className="text-center text-xs text-slate-400">Email akun tidak dapat diubah di sini.</p>
+    </div>
+  );
+}
