@@ -254,10 +254,22 @@ export default function Landing() {
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SEO_PAGES.map((p) => (
-            <Link key={p.slug} href={`/sertifikat/${p.slug}`} className="group rounded-xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
-              <h3 className="font-semibold group-hover:text-brand-700">{p.title.replace(/^Sertifikat /, "")}</h3>
-              <p className="mt-2 line-clamp-3 text-sm text-slate-600">{p.intro}</p>
-              <span className="mt-3 inline-block text-sm font-medium text-brand-700">Lihat contoh →</span>
+            <Link key={p.slug} href={`/sertifikat/${p.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:border-brand-500 hover:shadow-lg">
+              <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand-50 via-slate-50 to-white">
+                <LazyMount aspect="auto" className="absolute inset-0">
+                  <div className="absolute left-[30%] top-6 w-[58%] rotate-[7deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg transition duration-300 group-hover:rotate-[10deg] group-hover:translate-x-1">
+                    <SampleCert templateId={p.templates[1]} name="Citra Lestari" event={p.sampleEvent} />
+                  </div>
+                  <div className="absolute left-[8%] top-9 w-[58%] -rotate-[6deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-xl transition duration-300 group-hover:-rotate-[9deg] group-hover:-translate-x-1">
+                    <SampleCert templateId={p.templates[0]} name="Aisyah Putri" event={p.sampleEvent} />
+                  </div>
+                </LazyMount>
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-semibold group-hover:text-brand-700">{p.title.replace(/^Sertifikat /, "")}</h3>
+                <p className="mt-2 line-clamp-3 text-sm text-slate-600">{p.intro}</p>
+                <span className="mt-auto pt-3 text-sm font-medium text-brand-700">Lihat contoh →</span>
+              </div>
             </Link>
           ))}
         </div>
@@ -276,14 +288,6 @@ export default function Landing() {
               <p className="mt-3 text-sm leading-relaxed text-slate-600">{a}</p>
             </details>
           ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="px-5 pb-24">
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-slate-900 px-8 py-16 text-center">
-          <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white">Siap menerbitkan sertifikat pertama Anda?</h2>
-          <Link href="/login" className="btn mt-8 border-white bg-white px-6 py-3 text-base text-slate-900 hover:bg-slate-100">Mulai Sekarang</Link>
         </div>
       </section>
 

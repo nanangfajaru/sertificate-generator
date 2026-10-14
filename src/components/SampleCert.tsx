@@ -17,9 +17,9 @@ export const SAMPLE_PROGRAM = {
   mapping: { name: "n", extra: "e" },
 };
 
-export default function SampleCert({ templateId, name = "Nama Peserta", className }: { templateId: string; name?: string; className?: string }) {
+export default function SampleCert({ templateId, name = "Nama Peserta", className, event }: { templateId: string; name?: string; className?: string; event?: { name: string; certType: string } }) {
   const layout = resolveLayout(getTemplate(templateId).layout, {
-    program: SAMPLE_PROGRAM,
+    program: event ? { ...SAMPLE_PROGRAM, name: event.name, cert_type: event.certType } : SAMPLE_PROGRAM,
     data: { n: name, e: "" },
     certNumber: "001/SERT/X/2026",
     verifyUrl: "https://sertifikat.example/c/contoh",
