@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
 import LazyMount from "@/components/LazyMount";
 import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
-import { addLogoItem } from "@/lib/certificate/logo";
+import { brandLayout } from "@/lib/certificate/branding";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
@@ -18,6 +18,8 @@ type TplMeta = Omit<Tpl, "layout">;
 
 type Props = {
   logoUrl: string | null;
+  /** URL gambar bertanda waktu: logo, sig1, sig2 */
+  images: Record<string, string>;
   programId: string;
   userId: string;
   isPro: boolean;
@@ -31,7 +33,7 @@ type Props = {
 };
 
 export default function DesignClient(p: Props) {
-  const templates = useMemo<Tpl[]>(() => TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier, layout: addLogoItem(resolveLayout(t.layout, p.sample), t.id) })), [p.sample]);
+  const templates = useMemo<Tpl[]>(() => TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier, layout: brandLayout(resolveLayout(t.layout, p.sample), { certMode: "template", templateId: t.id, logo: true, sig1: !!p.images.sig1, sig2: !!p.images.sig2 }) })), [p.sample, p.images.sig1, p.images.sig2]);
   const [tab, setTab] = useState<"template" | "custom">(p.mode);
   const [mode, setMode] = useState(p.mode);
   const [activeId, setActiveId] = useState(p.templateId);
@@ -60,7 +62,7 @@ export default function DesignClient(p: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);
 
-  const logoImages = useMemo(() => (p.logoUrl ? { logo: p.logoUrl } : undefined), [p.logoUrl]);
+  const logoImages = p.images;
   function step(d: number) {
     setPreview((cur) => {
       if (!cur) return cur;

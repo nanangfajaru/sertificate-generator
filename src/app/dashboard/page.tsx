@@ -2,9 +2,10 @@ import Link from "next/link";
 import { BadgeCheck, CalendarDays, ClipboardList, Clock, Crown, FolderOpen, Plus, Sparkles, Users } from "lucide-react";
 import TemplateThumb from "./TemplateThumb";
 import { requireUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 import { formatDateRange } from "@/lib/certificate/sources";
-import { getTemplate } from "@/lib/certificate/templates";
+import type { Layout } from "@/lib/certificate/types";
 
 export const metadata = { title: "Program" };
 
@@ -18,12 +19,26 @@ export default async function DashboardPage() {
   const [{ data }, approved, pendingRows] = await Promise.all([
     supabase
       .from("programs")
-      .select("id, name, org_name, start_date, end_date, approval_mode, is_open, cert_mode, template_id, participants(count)")
+      .select("id, name, org_name, cert_type, description, location, start_date, end_date, approval_mode, is_open, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, participants(count)")
       .order("created_at", { ascending: false }),
     supabase.from("participants").select("id", { count: "exact", head: true }).eq("status", "approved"),
     supabase.from("participants").select("program_id").eq("status", "pending").limit(1000),
   ]);
   const programs = data ?? [];
+
+  // Pratinjau kartu: logo, tanda tangan, dan desain sendiri aktif (satu permintaan tanda tangan per bucket).
+  const admin = createAdminClient();
+  const designIds = programs.flatMap((p) => (p.cert_mode === "custom" && p.design_id ? [p.design_id] : []));
+  const { data: designRows } = designIds.length ? await supabase.from("program_designs").select("id, layout, preview_path").in("id", designIds) : { data: [] };
+  const brandPaths = [...new Set(programs.flatMap((p) => [p.logo_path, p.signer1_sig_path, p.signer2_sig_path]).filter(Boolean) as string[])];
+  const previewPaths = (designRows ?? []).map((d) => d.preview_path as string).filter(Boolean);
+  const [brandUrls, previewUrls] = await Promise.all([
+    brandPaths.length ? admin.storage.from("signatures").createSignedUrls(brandPaths, 3600) : Promise.resolve({ data: [] }),
+    previewPaths.length ? admin.storage.from("designs").createSignedUrls(previewPaths, 3600) : Promise.resolve({ data: [] }),
+  ]);
+  const urlOf = new Map((brandUrls.data ?? []).map((x) => [x.path, x.signedUrl]));
+  const previewOf = new Map((previewUrls.data ?? []).map((x) => [x.path, x.signedUrl]));
+  const designOf = new Map((designRows ?? []).map((d) => [d.id as string, d]));
   const pendingBy = new Map<string, number>();
   pendingRows.data?.forEach((r) => pendingBy.set(r.program_id, (pendingBy.get(r.program_id) ?? 0) + 1));
   const countOf = (p: (typeof programs)[number]) => (p.participants as unknown as { count: number }[])?.[0]?.count ?? 0;
@@ -115,12 +130,24 @@ export default async function DashboardPage() {
             {programs.map((p) => {
               const count = countOf(p);
               const pending = pendingBy.get(p.id) ?? 0;
-              const tpl = p.cert_mode === "template" ? getTemplate(p.template_id) : null;
+              const design = p.cert_mode === "custom" && p.design_id ? designOf.get(p.design_id) : undefined;
+              const images: Record<string, string> = {};
+              for (const [key, path] of [["logo", p.logo_path], ["sig1", p.signer1_sig_path], ["sig2", p.signer2_sig_path]] as const) {
+                const u = path ? urlOf.get(path) : undefined;
+                if (u) images[key] = u;
+              }
               return (
                 <Link key={p.id} href={`/dashboard/programs/${p.id}`} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
                   <div className="relative border-b border-slate-100 bg-slate-100">
-                    {tpl ? (
-                      <TemplateThumb id={tpl.id} />
+                    {p.cert_mode === "template" || design ? (
+                      <TemplateThumb
+                        program={{ org_name: p.org_name, name: p.name, cert_type: p.cert_type, description: p.description, start_date: p.start_date, end_date: p.end_date, location: p.location, signer1_name: p.signer1_name, signer1_title: p.signer1_title, signer2_name: p.signer2_name, signer2_title: p.signer2_title }}
+                        certMode={p.cert_mode}
+                        templateId={p.template_id}
+                        designLayout={design ? (design.layout as Layout) : null}
+                        bgUrl={design ? previewOf.get(design.preview_path as string) ?? null : null}
+                        images={images}
+                      />
                     ) : (
                       <div className="grid aspect-[842/595] place-items-center bg-gradient-to-br from-brand-50 to-slate-100 text-xs text-slate-500">Desain sendiri</div>
                     )}

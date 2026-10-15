@@ -4,7 +4,7 @@ import type { Participant, Program, ProgramField } from "../db";
 import { siteUrl } from "../util";
 import { resolveLayout, type CertContext } from "./sources";
 import { getTemplate } from "./templates";
-import { addLogoItem } from "./logo";
+import { brandLayout } from "./branding";
 import { isProProfile } from "../db";
 import { withWatermark } from "./watermark";
 import type { ImageItem, Item, Layout } from "./types";
@@ -53,28 +53,15 @@ export async function previewUrl(admin: SupabaseClient, program: Program): Promi
 
 const sigPath = (program: Program, n: 1 | 2) => program[`signer${n}_sig_path` as "signer1_sig_path"];
 
-/** Menyisipkan logo penyelenggara dan gambar tanda tangan (tepat di atas teks nama penandatangan). */
+/** Menyisipkan logo penyelenggara dan gambar tanda tangan (opts.placeholder = tampilkan penanda "LOGO" walau belum diunggah). */
 export function withBranding(base: Layout, program: Program, opts: { placeholder?: boolean } = {}): Layout {
-  // Template: logo dipasang otomatis (opts.placeholder = tampilkan penanda "LOGO" walau belum diunggah).
-  const layout = program.cert_mode === "template" && (program.logo_path || opts.placeholder) ? addLogoItem(base, program.template_id) : base;
-  const k = layout.width / 842;
-  const items: Item[] = [];
-  for (const it of layout.items) {
-    for (const n of [1, 2] as const) {
-      if (it.type === "text" && it.source === `event:signer${n}_name` && sigPath(program, n)) {
-        // Kotak tanda tangan sebesar ruang kosong antara baris tanggal dan garis penandatangan.
-        const dateY = layout.items.find((x) => x.type === "text" && x.source === "event:date_location");
-        const bottom = it.y - it.size - 2 * k;
-        const top = dateY && dateY.type === "text" ? dateY.y + 9 * k : bottom - 70 * k;
-        const w = 210 * k;
-        const h = Math.min(76 * k, Math.max(40 * k, bottom - top));
-        const cx = it.align === "center" ? it.x : it.align === "left" ? it.x + w / 2 : it.x - w / 2;
-        items.push({ type: "image", x: cx - w / 2, y: bottom - h, w, h, src: `sig${n}`, valign: "bottom" } satisfies ImageItem);
-      }
-    }
-    items.push(it);
-  }
-  return { ...layout, items };
+  return brandLayout(base, {
+    certMode: program.cert_mode,
+    templateId: program.template_id,
+    logo: !!program.logo_path || !!opts.placeholder,
+    sig1: !!sigPath(program, 1),
+    sig2: !!sigPath(program, 2),
+  });
 }
 
 export async function signatureUrls(admin: SupabaseClient, program: Program): Promise<Record<string, string>> {
