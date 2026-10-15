@@ -15,12 +15,15 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
   const { id } = await params;
   const { program, supabase, isPro } = await getOwnedProgram(id);
   const admin = createAdminClient();
-  const logoUrl = program.logo_path ? (await admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600)).data?.signedUrl ?? null : null;
-  const sigUrls = await Promise.all(([1, 2] as const).map(async (n) => {
-    const p = program[`signer${n}_sig_path` as "signer1_sig_path"];
-    return p ? (await admin.storage.from("signatures").createSignedUrl(p, 3600)).data?.signedUrl ?? null : null;
-  }));
-  const { data: rows } = await supabase.from("participants").select("status").eq("program_id", id);
+  const signed = async (path: string | null) => (path ? (await admin.storage.from("signatures").createSignedUrl(path, 3600)).data?.signedUrl ?? null : null);
+  // Semua permintaan berjalan paralel (sebelumnya berurutan).
+  const [logoUrl, sig1, sig2, { data: rows }] = await Promise.all([
+    signed(program.logo_path),
+    signed(program.signer1_sig_path),
+    signed(program.signer2_sig_path),
+    supabase.from("participants").select("status").eq("program_id", id),
+  ]);
+  const sigUrls = [sig1, sig2];
   const stat = { total: rows?.length ?? 0, pending: 0, approved: 0 };
   rows?.forEach((r) => {
     if (r.status === "pending") stat.pending++;

@@ -11,13 +11,11 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const { program, fields, profile, isPro, supabase } = await getOwnedProgram(id);
   const ctx = sampleContext(program, fields);
-  const images = await signatureUrls(createAdminClient(), program);
+  const [images, { data: rows }] = await Promise.all([
+    signatureUrls(createAdminClient(), program),
+    supabase.from("program_designs").select("id, name, kind, layout, preview_path, updated_at").eq("program_id", id).order("created_at"),
+  ]);
   const logoUrl = images.logo ?? null;
-  const { data: rows } = await supabase
-    .from("program_designs")
-    .select("id, name, kind, layout, preview_path, updated_at")
-    .eq("program_id", id)
-    .order("created_at");
   const paths = (rows ?? []).map((r) => r.preview_path);
   const { data: signed } = paths.length ? await createAdminClient().storage.from("designs").createSignedUrls(paths, 3600) : { data: [] };
   const urlByPath = new Map((signed ?? []).map((x) => [x.path, x.signedUrl]));
