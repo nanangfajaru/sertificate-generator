@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isProProfile, type Profile } from "./db";
 import { siteUrl } from "./util";
 
 export type PlanKey = "monthly" | "yearly";
@@ -60,6 +61,9 @@ export async function findVoucher(admin: SupabaseClient, rawCode: string, userId
   if (!v || !v.active) return { error: "Kode voucher tidak valid" };
   if (v.owner_id) {
     if (v.owner_id === userId) return { error: "Anda tidak bisa memakai kode referral milik sendiri" };
+    // Kode referral hanya berlaku selama pemiliknya masih Pro.
+    const { data: owner } = await admin.from("profiles").select("plan, plan_expires_at").eq("id", v.owner_id).maybeSingle();
+    if (!isProProfile(owner as Pick<Profile, "plan" | "plan_expires_at"> | null)) return { error: "Kode voucher tidak valid" };
     // Kode buatan pengguna selalu mengikuti persentase master terbaru.
     v = { ...v, ...(await getReferralDefaults(admin)) };
   }

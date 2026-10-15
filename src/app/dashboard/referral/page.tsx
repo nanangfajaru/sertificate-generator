@@ -1,4 +1,5 @@
-import { Percent, Wallet } from "lucide-react";
+import { Crown, Lock, Percent, Wallet } from "lucide-react";
+import Link from "next/link";
 import CopyButton from "@/components/CopyButton";
 import { requireUser } from "@/lib/auth";
 import { getReferralDefaults } from "@/lib/billing";
@@ -27,7 +28,7 @@ function who(p: { full_name: string | null; email: string | null } | null) {
 }
 
 export default async function ReferralPage() {
-  const { profile } = await requireUser();
+  const { profile, isPro } = await requireUser();
   const admin = createAdminClient();
   const [d, v] = await Promise.all([getReferralDefaults(admin), ensureReferral(admin, profile)]);
   const { data: orders } = v
@@ -36,32 +37,46 @@ export default async function ReferralPage() {
   const rows = (orders ?? []) as unknown as { plan: string; amount: number; commission_amount: number; status: string; created_at: string; paid_at: string | null; profiles: { full_name: string | null; email: string | null } | null }[];
   const paidRows = rows.filter((o) => o.status === "paid");
   const earned = paidRows.reduce((a, o) => a + o.commission_amount, 0);
-  const link = v ? `${siteUrl()}/?ref=${v.code}` : "";
+  // Non-Pro: kode asli tidak dikirim ke browser (hanya placeholder yang diburamkan).
+  const code = isPro ? v?.code ?? "" : "XXXXXXXX";
+  const link = v ? `${siteUrl()}/?ref=${isPro ? v.code : "XXXXXXXX"}` : "";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Referral</h1>
-        <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari setiap pembayaran mereka.</p>
+        <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari jumlah yang dibayarkan pembeli. Contoh: pembeli membayar Rp374.250 dengan komisi 50% → Anda mendapat Rp187.125.</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="card !p-4 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><Percent className="h-5 w-5" /></span><div><p className="text-xl font-bold">{d.discount_percent}%</p><p className="text-xs text-slate-500">Diskon untuk pembeli</p></div></div>
-        <div className="card !p-4 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-700"><Wallet className="h-5 w-5" /></span><div><p className="text-xl font-bold">{d.commission_percent}%</p><p className="text-xs text-slate-500">Komisi untuk Anda</p></div></div>
+        <div className="card !p-4 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-700"><Wallet className="h-5 w-5" /></span><div><p className="text-xl font-bold">{d.commission_percent}%</p><p className="text-xs text-slate-500">Komisi untuk Anda, dari jumlah yang dibayar pembeli</p></div></div>
       </div>
 
       {!v ? (
         <p className="card text-sm text-slate-600">Kode referral belum bisa dibuat. Muat ulang halaman ini.</p>
       ) : (
         <>
-          <div className="card">
-            <p className="text-sm text-slate-500">Kode referral Anda</p>
-            <p className="mt-1 font-mono text-3xl font-bold tracking-wide">{v.code}</p>
-            {!v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
-            <p className="mt-2 text-sm text-slate-600">Pembeli yang memakai kode ini mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar (setelah diskon).</p>
-            <p className="mt-4 text-xs text-slate-500">Bagikan link ini (kode terisi otomatis saat pembeli upgrade):</p>
-            <p className="mt-1 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
-            <div className="mt-2 flex gap-2"><CopyButton text={link} label="Salin link" /><CopyButton text={v.code} label="Salin kode" /></div>
+          <div className="card relative overflow-hidden">
+            <div className={isPro ? "" : "pointer-events-none select-none blur-sm"} aria-hidden={!isPro}>
+              <p className="text-sm text-slate-500">Kode referral Anda</p>
+              <p className="mt-1 font-mono text-3xl font-bold tracking-wide">{code}</p>
+              {isPro && !v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
+              <p className="mt-2 text-sm text-slate-600">Pembeli yang memakai kode ini mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar (setelah diskon).</p>
+              <p className="mt-4 text-xs text-slate-500">Bagikan link ini (kode terisi otomatis saat pembeli upgrade):</p>
+              <p className="mt-1 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
+              {isPro && <div className="mt-2 flex gap-2"><CopyButton text={link} label="Salin link" /><CopyButton text={code} label="Salin kode" /></div>}
+            </div>
+            {!isPro && (
+              <div className="absolute inset-0 grid place-items-center bg-white/40 p-4 text-center">
+                <div>
+                  <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-amber-100 text-amber-700"><Lock className="h-5 w-5" /></span>
+                  <p className="mt-2 font-semibold text-slate-900">Khusus pengguna Pro</p>
+                  <p className="mx-auto mt-1 max-w-xs text-sm text-slate-600">Upgrade ke Pro untuk membuka kode dan link referral Anda. Kode berhenti berlaku bila paket Pro berakhir.</p>
+                  <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
