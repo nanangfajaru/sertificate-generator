@@ -124,7 +124,8 @@ export async function renderCertificatePdf(layout: Layout, bg: Background, image
         const k = Math.min((it.w * s) / emb.width, (it.h * s) / emb.height);
         const w = emb.width * k;
         const h = emb.height * k;
-        page.drawImage(emb, { x: (it.x + it.w / 2) * s - w / 2, y: PH - (it.y + it.h) * s, width: w, height: h });
+        const yBottom = PH - (it.y + it.h) * s;
+        page.drawImage(emb, { x: (it.x + it.w / 2) * s - w / 2, y: it.valign === "bottom" ? yBottom : yBottom + (it.h * s - h) / 2, width: w, height: h });
         break;
       }
       case "rect":

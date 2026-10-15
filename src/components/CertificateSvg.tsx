@@ -101,7 +101,7 @@ function Qr({ item }: { item: QrItem }) {
 function Shape({ item, images }: { item: Exclude<Item, TextItem | QrItem>; images?: Record<string, string> }) {
   switch (item.type) {
     case "image":
-      return images?.[item.src] ? <image href={images[item.src]} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio="xMidYMax meet" /> : null;
+      return images?.[item.src] ? <image href={images[item.src]} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio={item.valign === "bottom" ? "xMidYMax meet" : "xMidYMid meet"} /> : null;
     case "rect":
       return <rect x={item.x} y={item.y} width={item.w} height={item.h} fill={item.fill ?? "none"} stroke={item.stroke} strokeWidth={item.sw} opacity={item.opacity} />;
     case "line":
@@ -173,7 +173,7 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, image
           return wrap(
             <>
               {url ? (
-                <image href={url} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio="xMidYMid meet" />
+                <image href={url} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio={item.valign === "bottom" ? "xMidYMax meet" : "xMidYMid meet"} />
               ) : (
                 <g>
                   <rect x={item.x} y={item.y} width={item.w} height={item.h} fill="#eef2ff" stroke="#6366f1" strokeDasharray="6 4" strokeWidth={1.5} rx={6} />

@@ -57,19 +57,27 @@ const sigPath = (program: Program, n: 1 | 2) => program[`signer${n}_sig_path` as
 function withLogo(layout: Layout, program: Program): Layout {
   if (!program.logo_path || program.cert_mode !== "template") return layout;
   const k = layout.width / 842;
-  // Posisi mengikuti judul "SERTIFIKAT": di tengah (atau rata) judul, tepat di atasnya.
-  const title = layout.items.find((i): i is Extract<Item, { type: "text" }> => i.type === "text" && i.text === "SERTIFIKAT");
-  const base = logoSlotFor(program.template_id);
-  const w = base.w * k;
-  let cx = base.cx * k;
-  let bottom = (base.y + base.h) * k;
-  if (title) {
-    const tw = Math.min(title.size * 0.62 * 10, 330 * k); // perkiraan lebar judul untuk rata kiri/kanan
-    cx = title.align === "center" ? title.x : title.align === "left" ? title.x + tw / 2 : title.x - tw / 2;
-    bottom = title.y - title.size * 0.8 - 17 * k;
+  const slot = logoSlotFor(program.template_id);
+  const w = slot.w * k;
+  let x: number, y: number, h = slot.h * k;
+  if (slot.side === "C") {
+    // Tengah: mengikuti judul "SERTIFIKAT" dan berada tepat di atasnya.
+    const title = layout.items.find((i): i is Extract<Item, { type: "text" }> => i.type === "text" && i.text === "SERTIFIKAT");
+    let cx = layout.width / 2;
+    let bottom = (slot.y + slot.h) * k;
+    if (title) {
+      const tw = Math.min(title.size * 6.2, 330 * k);
+      cx = title.align === "center" ? title.x : title.align === "left" ? title.x + tw / 2 : title.x - tw / 2;
+      bottom = title.y - title.size * 0.8 - 17 * k;
+    }
+    h = Math.min(h, Math.max(24 * k, bottom - 14 * k));
+    x = cx - w / 2;
+    y = bottom - h;
+  } else {
+    x = slot.x != null ? slot.x * k : slot.side === "L" ? 60 * k : layout.width - 60 * k - w;
+    y = slot.y * k;
   }
-  const h = Math.min(base.h * k, Math.max(24 * k, bottom - 14 * k));
-  const img: ImageItem = { type: "image", x: cx - w / 2, y: bottom - h, w, h, src: "logo" };
+  const img: ImageItem = { type: "image", x, y, w, h, src: "logo" };
   const add: Item[] = [img];
   if (LOGO_PLATE.has(program.template_id)) {
     const pad = 6 * k, r = 8 * k;
@@ -95,7 +103,7 @@ export function withBranding(base: Layout, program: Program): Layout {
         const w = 150 * k;
         const h = 56 * k;
         const cx = it.align === "center" ? it.x : it.align === "left" ? it.x + w / 2 : it.x - w / 2;
-        items.push({ type: "image", x: cx - w / 2, y: it.y - it.size - 2 * k - h, w, h, src: `sig${n}` } satisfies ImageItem);
+        items.push({ type: "image", x: cx - w / 2, y: it.y - it.size - 2 * k - h, w, h, src: `sig${n}`, valign: "bottom" } satisfies ImageItem);
       }
     }
     items.push(it);

@@ -53,7 +53,7 @@ export type PolygonItem = Common & { type: "polygon"; points: [number, number][]
 export type QrItem = Common & { type: "qr"; x: number; y: number; size: number; color: string; url?: string };
 
 /** gambar (mis. tanda tangan); `src` = kunci gambar yang diberikan ke renderer */
-export type ImageItem = Common & { type: "image"; x: number; y: number; w: number; h: number; src: string };
+export type ImageItem = Common & { type: "image"; x: number; y: number; w: number; h: number; src: string; /** posisi gambar di dalam kotak bila proporsinya berbeda; bawaan tengah */ valign?: "bottom" | "middle" };
 
 export type Item = ImageItem | TextItem | RectItem | LineItem | CircleItem | PolygonItem | PathItem | QrItem;
 
