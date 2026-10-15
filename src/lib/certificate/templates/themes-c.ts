@@ -124,19 +124,19 @@ const islamP: Palette = { name: "Islami", primary: "#065f46", accent: "#b8860b",
 const islamicStar = (): Layout => {
   const p = islamP;
   const gold = "#d4af37";
-  const items: Item[] = [rect(0, 0, W, 72, { fill: p.primary }), rect(0, 72, W, 4, { fill: gold }), rect(0, H - 34, W, 34, { fill: p.primary }), rect(0, H - 38, W, 4, { fill: gold })];
+  const items: Item[] = [rect(0, 0, W, 46, { fill: p.primary }), rect(0, 46, W, 2.5, { fill: gold }), rect(0, H - 34, W, 34, { fill: p.primary }), rect(0, H - 38, W, 4, { fill: gold })];
   for (let i = 0; i < 12; i++) {
     const x = 35 + i * 70;
     if (Math.abs(x - W / 2) < 60) continue;
-    items.push(star(x, 36, 22, gold, 1, 8, 0.72, -22.5), star(x, 36, 12, p.primary, 1, 8, 0.72, 0));
-    items.push(polyItem([[x + 35, 36 - 9], [x + 44, 36], [x + 35, 36 + 9], [x + 26, 36]], "#ffffff", 0.3));
+    items.push(star(x, 23, 15, gold, 1, 8, 0.72, -22.5), star(x, 23, 8, p.primary, 1, 8, 0.72, 0));
+    items.push(polyItem([[x + 35, 23 - 6], [x + 41, 23], [x + 35, 23 + 6], [x + 29, 23]], "#ffffff", 0.3));
   }
   for (let i = 0; i < 16; i++) items.push(star(26 + i * 52, H - 17, 9, gold, 0.95, 8, 0.72, -22.5));
   // bulan sabit + bintang di tengah pita atas
-  items.push(circle(W / 2, 36, 24, { fill: gold }), circle(W / 2 + 9, 31, 20, { fill: p.primary }), star(W / 2 + 22, 28, 7, gold, 1, 5));
+  items.push(circle(W / 2, 23, 16, { fill: gold }), circle(W / 2 + 6, 20, 13, { fill: p.primary }), star(W / 2 + 15, 16, 5, gold, 1, 5));
   items.push(
-    rect(16, 92, W - 32, H - 144, { stroke: gold, sw: 1.2, opacity: 0.8 }),
-    ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold", nameFont: "script", maxW: 540, yShift: 10, qrPos: [722, 462] }).map((i): Item =>
+    rect(16, 66, W - 32, H - 118, { stroke: gold, sw: 1.2, opacity: 0.8 }),
+    ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold", nameFont: "script", maxW: 540, yShift: 0, qrPos: [722, 462] }).map((i): Item =>
       i.type === "text" && i.source === "event:cert_number" ? { ...i, y: 541 } : i),
   );
   return layout(items, p.bg);

@@ -18,9 +18,9 @@ export function addLogoItem(layout: Layout, templateId: string): Layout {
     if (title) {
       const tw = Math.min(title.size * 6.2, 330 * k);
       cx = title.align === "center" ? title.x : title.align === "left" ? title.x + tw / 2 : title.x - tw / 2;
-      bottom = title.y - title.size * 0.8 - 17 * k;
+      bottom = title.y - title.size * 0.8 - 14 * k;
     }
-    h = Math.min(h, Math.max(24 * k, bottom - 14 * k));
+    h = Math.min(h, Math.max(24 * k, bottom - 20 * k));
     x = cx - w / 2;
     y = bottom - h;
   } else {

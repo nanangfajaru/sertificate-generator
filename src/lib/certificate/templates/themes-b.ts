@@ -130,9 +130,9 @@ const swimP: Palette = { name: "Renang", primary: "#0369a1", accent: "#ef4444", 
 const sportSwim = (): Layout => {
   const p = swimP;
   const items: Item[] = [];
-  [20, 42, 64].forEach((y, k) => {
-    items.push(line(0, y, W, y, "#7dd3fc", 1.6, 0.9));
-    for (let x = 6 + (k % 2) * 11; x < W; x += 22) items.push(circle(x, y, 6, { fill: [p.primary, "#ffffff", p.accent][Math.floor(x / 22) % 3], stroke: "#7dd3fc", sw: 0.8 }));
+  [14, 30].forEach((y, k) => {
+    items.push(line(0, y, W, y, "#7dd3fc", 1, 0.9));
+    for (let x = 6 + (k % 2) * 8; x < W; x += 16) items.push(circle(x, y, 3.6, { fill: [p.primary, "#ffffff", p.accent][Math.floor(x / 16) % 3], stroke: "#7dd3fc", sw: 0.6 }));
   });
   items.push(
     wave(0, W, 548, 4, 260, H, "#a5e3fb", 0.75),

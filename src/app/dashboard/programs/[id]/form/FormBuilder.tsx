@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ClipboardList, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ClipboardList, Eye, Plus, Trash2, X } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg, { type Highlight } from "@/components/CertificateSvg";
 import { resolveLayout, type ProgramLike } from "@/lib/certificate/sources";
 import type { Layout, QrItem, TextItem } from "@/lib/certificate/types";
@@ -30,6 +30,13 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
   const [rows, setRows] = useState<Row[]>(initial);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
+  const [zoom, setZoom] = useState(false);
+  useEffect(() => {
+    if (!zoom) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoom(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoom]);
 
   const set = (i: number, patch: Partial<Row>) =>
     setRows((r) => r.map((x, j) => (j === i ? { ...x, ...patch } : x)));
@@ -167,9 +174,13 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
             </div>
             <Link href={`/dashboard/programs/${programId}/design`} className="btn btn-sm shrink-0">Ganti</Link>
           </div>
-          <div className="overflow-hidden rounded-lg border border-slate-200">
+          <button type="button" className="group relative block w-full overflow-hidden rounded-lg border border-slate-200 text-left" onClick={() => setZoom(true)} aria-label="Perbesar pratinjau sertifikat">
             <CertificateSvg layout={resolved} backgroundUrl={bgUrl} images={images} logoPlaceholder={logoPlaceholder} highlight={highlight} className="block h-auto w-full" />
-          </div>
+            <span className="absolute inset-0 grid place-items-center bg-slate-900/0 opacity-0 transition group-hover:bg-slate-900/25 group-hover:opacity-100">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-sm font-medium shadow"><Eye className="h-4 w-4" /> Perbesar</span>
+            </span>
+          </button>
+          <button type="button" className="btn btn-sm mt-2 w-full" onClick={() => setZoom(true)}><Eye className="h-4 w-4" /> Pratinjau sertifikat</button>
         </div>
 
         <div className="card !p-3 text-sm">
@@ -195,6 +206,29 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
         </div>
       </div>
     </aside>
+    {zoom && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-6" onClick={() => setZoom(false)} role="dialog" aria-modal="true" aria-label="Pratinjau sertifikat">
+        <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+            <div className="min-w-0">
+              <p className="truncate font-semibold">Pratinjau sertifikat</p>
+              <p className="truncate text-xs text-slate-500">{templateName} · data contoh, nama peserta diganti saat terbit</p>
+            </div>
+            <button className="btn btn-sm !px-2" onClick={() => setZoom(false)} aria-label="Tutup"><X className="h-4 w-4" /></button>
+          </div>
+          <div className="bg-slate-100 p-3 sm:p-5">
+            <div className="mx-auto max-w-3xl overflow-hidden rounded-lg bg-white shadow-md">
+              <CertificateSvg layout={resolved} backgroundUrl={bgUrl} images={images} logoPlaceholder={logoPlaceholder} className="block h-auto w-full" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 px-4 py-3">
+            <a href={`/api/programs/${programId}/sample`} target="_blank" className="btn btn-sm">Contoh PDF</a>
+            <Link href={`/dashboard/programs/${programId}/design`} className="btn btn-sm">Ganti template</Link>
+            <button className="btn btn-primary btn-sm" onClick={() => setZoom(false)}>Tutup</button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }

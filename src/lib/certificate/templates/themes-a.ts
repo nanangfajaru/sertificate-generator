@@ -85,7 +85,6 @@ const floraLeaf = (): Layout => {
     ...sprig(W - 34, 70, 250, 182, g, { berries: "#dc2626" }),
     ...sprig(W - 62, 48, 170, 194, g.slice().reverse(), { flip: true }),
     // sudut
-    ...sprig(28, 30, 120, 125, g),
     ...sprig(W - 28, H - 30, 120, 305, g),
     ...sprig(150, 22, 90, 95, g.slice().reverse(), { flip: true }),
     ...sprig(W - 150, H - 22, 90, 275, g.slice().reverse(), { flip: true }),
@@ -107,7 +106,6 @@ const floraSun = (): Layout => {
     ...sprig(W - 150, 12, 120, 190, g),
     ...sunflower(34, H - 34, 70),
     ...sunflower(W - 62, 74, 58),
-    ...sunflower(150, 66, 30),
     ...sunflower(W - 40, H - 44, 36),
     ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold", nameFont: "script", maxW: 500, qrPos: [708, 468] }),
   ];
@@ -120,19 +118,19 @@ const medP: Palette = { name: "Rumah Sakit", primary: "#0f766e", accent: "#dc262
 const medicCross = (): Layout => {
   const p = medP;
   const items: Item[] = [
-    rect(0, 0, W, 88, { fill: p.primary }),
-    rect(0, 88, W, 5, { fill: "#5eead4" }),
+    rect(0, 0, W, 50, { fill: p.primary }),
+    rect(0, 50, W, 2.5, { fill: "#5eead4" }),
     // pola plus pada pita
-    ...Array.from({ length: 16 }, (_, i) => polyItem(plusPts(150 + i * 44, i % 2 ? 26 : 62, 9, 3.4), "#ffffff", 0.16)),
-    // lencana salib medis
-    circle(80, 46, 34, { fill: "#ffffff" }),
-    circle(80, 46, 34, { stroke: "#5eead4", sw: 3 }),
-    polyItem(plusPts(80, 46, 21, 14), p.accent),
+    ...Array.from({ length: 18 }, (_, i) => polyItem(plusPts(40 + i * 46, 25, 8, 3), "#ffffff", 0.18)),
+    // lencana salib medis (di bawah pita)
+    circle(78, 108, 30, { fill: "#ffffff" }),
+    circle(78, 108, 30, { stroke: "#5eead4", sw: 2.5 }),
+    polyItem(plusPts(78, 108, 19, 12.5), p.accent),
     // plus raksasa pudar di belakang teks
     polyItem(plusPts(W / 2, 318, 170, 74), "#d9f5f0", 0.55),
     // denyut jantung
     P("M0 574 L200 574 L214 574 L226 552 L240 592 L254 540 L268 586 L280 574 L842 574", { stroke: "#0ea5e9", sw: 2.5, opacity: 0.55, cap: "round" }),
-    ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "sans-bold", nameFont: "script", maxW: 560, yShift: 14, qrPos: [726, 478] }),
+    ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "sans-bold", nameFont: "script", maxW: 560, yShift: 6, qrPos: [726, 478] }),
   ];
   return layout(items, p.bg);
 };
@@ -149,8 +147,6 @@ const medicCare = (): Layout => {
     P(heartD(86, 82, 44), { fill: p.accent }),
     P(heartD(86, 82, 44), { stroke: "#ffffff", sw: 3, opacity: 0.0 }),
     P("M20 100 L60 100 L72 82 L88 124 L102 70 L116 108 L126 100 L190 100", { stroke: "#ffffff", sw: 3, cap: "round", opacity: 0.95 }),
-    ...capsule(W - 100, 70, 74, 26, 35, "#38bdf8", "#ffffff"),
-    ...capsule(W - 52, 118, 56, 20, -25, "#fb7185", "#ffffff"),
     ...capsule(70, H - 90, 70, 24, -30, "#fbbf24", "#ffffff"),
     ...capsule(124, H - 48, 54, 20, 20, "#34d399", "#ffffff"),
     // stetoskop sederhana
