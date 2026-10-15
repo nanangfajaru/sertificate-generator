@@ -198,7 +198,6 @@ const sportMedal = (): Layout => {
     rect(28, 28, W - 56, H - 56, { stroke: p.primary, sw: 0.6, opacity: 0.6 }),
     ...sprig(44, H - 120, 300, 2, golds),
     ...sprig(W - 44, 128, 300, 182, golds),
-    ...medalBadge(96, 96, 28, ["#ef4444", "#2563eb"]),
     ...medalBadge(W - 96, 96, 28, ["#2563eb", "#ef4444"]),
     ...[0, 1, 2, 3, 4].map((i) => star(W / 2 - 100 + i * 50, 56, i === 2 ? 15 : 11, p.primary)),
     ...compose({ palette: p, ax: W / 2, align: "center", titleFont: "serif-bold", nameFont: "script", maxW: 480, qrPos: [722, 468] }),
