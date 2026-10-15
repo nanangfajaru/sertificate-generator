@@ -38,9 +38,9 @@ export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cer
 
 export async function loadBackground(admin: SupabaseClient, program: Program): Promise<Background> {
   if (program.cert_mode !== "custom" || !program.design_path || !program.design_kind) return null;
-  const { data, error } = await admin.storage.from("designs").download(program.design_path);
-  if (error || !data) throw new Error("Gagal membaca file desain");
-  return { kind: program.design_kind, bytes: new Uint8Array(await data.arrayBuffer()) } as Background;
+  const bytes = await cachedDownload(admin, "designs", program.design_path);
+  if (!bytes) throw new Error("Gagal membaca file desain");
+  return { kind: program.design_kind, bytes } as Background;
 }
 
 export async function previewUrl(admin: SupabaseClient, program: Program): Promise<string | null> {
@@ -65,31 +65,56 @@ export function withBranding(base: Layout, program: Program, opts: { placeholder
 }
 
 export async function signatureUrls(admin: SupabaseClient, program: Program): Promise<Record<string, string>> {
+  const keys = (["logo", "sig1", "sig2"] as const).map((k) => [k, k === "logo" ? program.logo_path : sigPath(program, k === "sig1" ? 1 : 2)] as const).filter(([, p]) => !!p) as [string, string][];
+  if (!keys.length) return {};
+  // Satu permintaan untuk semua URL bertanda tangan.
+  const { data } = await admin.storage.from("signatures").createSignedUrls(keys.map(([, p]) => p), 3600);
+  const byPath = new Map((data ?? []).map((x) => [x.path, x.signedUrl]));
   const out: Record<string, string> = {};
-  if (program.logo_path) {
-    const { data } = await admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600);
-    if (data?.signedUrl) out.logo = data.signedUrl;
-  }
-  for (const n of [1, 2] as const) {
-    const p = sigPath(program, n);
-    if (!p) continue;
-    const { data } = await admin.storage.from("signatures").createSignedUrl(p, 3600);
-    if (data?.signedUrl) out[`sig${n}`] = data.signedUrl;
+  for (const [k, p] of keys) {
+    const u = byPath.get(p);
+    if (u) out[k] = u;
   }
   return out;
 }
 
+// File di storage tidak pernah ditimpa (nama selalu baru saat diunggah ulang), jadi aman disimpan
+// di memori instance server. Dibatasi agar tidak membengkak.
+const fileCache = new Map<string, Uint8Array>();
+let cacheBytes = 0;
+const CACHE_MAX = 40 * 1024 * 1024;
+const ENTRY_MAX = 6 * 1024 * 1024;
+
+async function cachedDownload(admin: SupabaseClient, bucket: string, path: string): Promise<Uint8Array | null> {
+  const key = `${bucket}/${path}`;
+  const hit = fileCache.get(key);
+  if (hit) {
+    fileCache.delete(key);
+    fileCache.set(key, hit); // tandai baru dipakai (LRU)
+    return hit;
+  }
+  const { data, error } = await admin.storage.from(bucket).download(path);
+  if (error || !data) return null;
+  const bytes = new Uint8Array(await data.arrayBuffer());
+  if (bytes.byteLength <= ENTRY_MAX) {
+    fileCache.set(key, bytes);
+    cacheBytes += bytes.byteLength;
+    for (const [k, v] of fileCache) {
+      if (cacheBytes <= CACHE_MAX) break;
+      fileCache.delete(k);
+      cacheBytes -= v.byteLength;
+    }
+  }
+  return bytes;
+}
+
 export async function signatureImages(admin: SupabaseClient, program: Program): Promise<ImageMap> {
+  const keys = (["logo", "sig1", "sig2"] as const).map((k) => [k, k === "logo" ? program.logo_path : sigPath(program, k === "sig1" ? 1 : 2)] as const).filter(([, p]) => !!p) as [string, string][];
+  const files = await Promise.all(keys.map(([, p]) => cachedDownload(admin, "signatures", p)));
   const out: ImageMap = {};
-  if (program.logo_path) {
-    const { data } = await admin.storage.from("signatures").download(program.logo_path);
-    if (data) out.logo = { kind: /\.png$/i.test(program.logo_path) ? "png" : "jpg", bytes: new Uint8Array(await data.arrayBuffer()) };
-  }
-  for (const n of [1, 2] as const) {
-    const p = sigPath(program, n);
-    if (!p) continue;
-    const { data } = await admin.storage.from("signatures").download(p);
-    if (data) out[`sig${n}`] = { kind: /\.png$/i.test(p) ? "png" : "jpg", bytes: new Uint8Array(await data.arrayBuffer()) };
-  }
+  keys.forEach(([k, p], i) => {
+    const bytes = files[i];
+    if (bytes) out[k] = { kind: /\.png$/i.test(p) ? "png" : "jpg", bytes };
+  });
   return out;
 }

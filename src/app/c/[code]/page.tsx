@@ -14,13 +14,12 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
   const { code } = await params;
   if (!/^[a-z0-9]{6,32}$/.test(code)) notFound();
   const admin = createAdminClient();
-  const { data: part } = await admin.from("participants").select("*").eq("code", code).maybeSingle();
+  // Peserta + program + field dalam satu query.
+  const { data: part } = await admin.from("participants").select("*, program:programs(*, fields:program_fields(id, type))").eq("code", code).maybeSingle();
   if (!part) notFound();
-  const participant = part as Participant;
-  const [{ data: prog }, { data: f }] = await Promise.all([
-    admin.from("programs").select("*").eq("id", participant.program_id).single(),
-    admin.from("program_fields").select("id, type").eq("program_id", participant.program_id),
-  ]);
+  const { program: joined, ...rest } = part as Participant & { program: Program & { fields: { id: string; type: string }[] } };
+  const { fields: f, ...prog } = joined;
+  const participant = rest as Participant;
   const program = prog as Program;
 
   const nameId = program.mapping?.name;

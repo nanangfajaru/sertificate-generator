@@ -10,15 +10,16 @@ export async function GET(_: Request, { params }: { params: Promise<{ code: stri
   const { code } = await params;
   if (!/^[a-z0-9]{6,32}$/.test(code)) return new NextResponse("Not found", { status: 404 });
   const admin = createAdminClient();
-  const { data: part } = await admin.from("participants").select("*").eq("code", code).maybeSingle();
+  const { data: part } = await admin.from("participants").select("*, program:programs(*)").eq("code", code).maybeSingle();
   if (part?.status === "revoked") return new NextResponse("Sertifikat ini telah dicabut oleh penyelenggara.", { status: 410 });
   if (!part || part.status !== "approved") return new NextResponse("Not found", { status: 404 });
-  const participant = part as Participant;
-  const { data: prog } = await admin.from("programs").select("*").eq("id", participant.program_id).single();
-  const program = prog as Program;
+  const { program, ...rest } = part as Participant & { program: Program };
+  const participant = rest as Participant;
 
-  const layout = withBranding(resolvedFor(program, participant, !(await ownerIsPro(admin, program.owner_id))), program);
-  const bytes = await renderCertificatePdf(layout, await loadBackground(admin, program), await signatureImages(admin, program));
+  // Status paket pemilik, latar desain, dan tanda tangan diambil bersamaan.
+  const [isPro, bg, images] = await Promise.all([ownerIsPro(admin, program.owner_id), loadBackground(admin, program), signatureImages(admin, program)]);
+  const layout = withBranding(resolvedFor(program, participant, !isPro), program);
+  const bytes = await renderCertificatePdf(layout, bg, images);
 
   const nameId = program.mapping?.name;
   const who = (nameId && participant.data[nameId]) || "peserta";

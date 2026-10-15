@@ -13,8 +13,10 @@ const loadProgram = cache(async (slug: string) => {
   const admin = createAdminClient();
   const program = await findProgramByKey(admin, slug);
   if (!program) return null;
-  const { data: f } = await admin.from("program_fields").select("*").eq("program_id", program.id).order("sort");
-  const logo = program.logo_path ? (await admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600)).data?.signedUrl ?? null : null;
+  const [{ data: f }, logo] = await Promise.all([
+    admin.from("program_fields").select("*").eq("program_id", program.id).order("sort"),
+    program.logo_path ? admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600).then((r) => r.data?.signedUrl ?? null) : Promise.resolve(null),
+  ]);
   return { program, fields: (f ?? []) as ProgramField[], logo };
 });
 

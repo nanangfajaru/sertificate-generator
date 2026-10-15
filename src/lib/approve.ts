@@ -15,16 +15,30 @@ export async function approveParticipants(program: Pick<Program, "id" | "number_
     .eq("program_id", program.id)
     .in("id", ids)
     .order("created_at");
-  const approvedIds: string[] = [];
-  for (const r of rows ?? []) {
-    let cert_number = r.cert_number as string | null;
-    if (!cert_number) {
-      const { data: seq } = await admin.rpc("next_cert_seq", { p_program: program.id });
-      cert_number = formatCertNumber(program.number_format, Number(seq));
-    }
-    await admin.from("participants").update({ status: "approved", cert_number, approved_at: r.approved_at ?? new Date().toISOString(), revoked_at: null, revoked_reason: null }).eq("id", r.id);
-    approvedIds.push(r.id);
+  const list = rows ?? [];
+  // Satu kali ambil blok nomor urut untuk semua peserta yang belum bernomor (bukan satu RPC per peserta).
+  const need = list.filter((r) => !r.cert_number).length;
+  let next = 0;
+  if (need) {
+    const { data: last, error } = await admin.rpc("next_cert_seq_n", { p_program: program.id, p_n: need });
+    if (error) throw new Error(`Gagal mengambil nomor sertifikat: ${error.message}`);
+    next = Number(last) - need + 1;
   }
+  const now = new Date().toISOString();
+  const updates = list.map((r) => ({
+    id: r.id as string,
+    cert_number: (r.cert_number as string | null) ?? formatCertNumber(program.number_format, next++),
+    approved_at: (r.approved_at as string | null) ?? now,
+  }));
+  // Update paralel per kelompok kecil agar persetujuan massal cepat tanpa membanjiri koneksi.
+  for (let i = 0; i < updates.length; i += 25) {
+    await Promise.all(
+      updates.slice(i, i + 25).map((u) =>
+        admin.from("participants").update({ status: "approved", cert_number: u.cert_number, approved_at: u.approved_at, revoked_at: null, revoked_reason: null }).eq("id", u.id),
+      ),
+    );
+  }
+  const approvedIds = updates.map((u) => u.id);
 
   // Kirim email "sertifikat terbit" setelah respons selesai, agar persetujuan massal tetap cepat.
   if (program.notify_email && mailConfigured() && approvedIds.length) {
