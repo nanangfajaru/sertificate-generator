@@ -4,7 +4,7 @@ import type { Participant, Program, ProgramField } from "../db";
 import { siteUrl } from "../util";
 import { resolveLayout, type CertContext } from "./sources";
 import { getTemplate } from "./templates";
-import { LOGO_PLATE, logoSlotFor } from "./logo-slots";
+import { addLogoItem } from "./logo";
 import { isProProfile } from "../db";
 import { withWatermark } from "./watermark";
 import type { ImageItem, Item, Layout } from "./types";
@@ -53,48 +53,10 @@ export async function previewUrl(admin: SupabaseClient, program: Program): Promi
 
 const sigPath = (program: Program, n: 1 | 2) => program[`signer${n}_sig_path` as "signer1_sig_path"];
 
-/** Logo penyelenggara pada template (desain sendiri memakai elemen logo di editor). */
-function withLogo(layout: Layout, program: Program): Layout {
-  if (!program.logo_path || program.cert_mode !== "template") return layout;
-  const k = layout.width / 842;
-  const slot = logoSlotFor(program.template_id);
-  const w = slot.w * k;
-  let x: number, y: number, h = slot.h * k;
-  if (slot.side === "C") {
-    // Tengah: mengikuti judul "SERTIFIKAT" dan berada tepat di atasnya.
-    const title = layout.items.find((i): i is Extract<Item, { type: "text" }> => i.type === "text" && i.text === "SERTIFIKAT");
-    let cx = layout.width / 2;
-    let bottom = (slot.y + slot.h) * k;
-    if (title) {
-      const tw = Math.min(title.size * 6.2, 330 * k);
-      cx = title.align === "center" ? title.x : title.align === "left" ? title.x + tw / 2 : title.x - tw / 2;
-      bottom = title.y - title.size * 0.8 - 17 * k;
-    }
-    h = Math.min(h, Math.max(24 * k, bottom - 14 * k));
-    x = cx - w / 2;
-    y = bottom - h;
-  } else {
-    x = slot.x != null ? slot.x * k : slot.side === "L" ? 60 * k : layout.width - 60 * k - w;
-    y = slot.y * k;
-  }
-  const img: ImageItem = { type: "image", x, y, w, h, src: "logo" };
-  const add: Item[] = [img];
-  if (LOGO_PLATE.has(program.template_id)) {
-    const pad = 6 * k, r = 8 * k;
-    const x = img.x - pad, y = img.y - pad, pw = img.w + pad * 2, ph = img.h + pad * 2;
-    const d = `M${x + r} ${y}h${pw - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${ph - 2 * r}a${r} ${r} 0 0 1 -${r} ${r}h-${pw - 2 * r}a${r} ${r} 0 0 1 -${r} -${r}v-${ph - 2 * r}a${r} ${r} 0 0 1 ${r} -${r}z`;
-    add.unshift({ type: "path", d, fill: "#ffffff", opacity: 0.96 });
-  }
-  // Disisipkan sebelum item teks/QR pertama agar berada di atas hiasan latar.
-  const at = layout.items.findIndex((i) => i.type === "text" || i.type === "qr");
-  const items = layout.items.slice();
-  items.splice(at < 0 ? items.length : at, 0, ...add);
-  return { ...layout, items };
-}
-
 /** Menyisipkan logo penyelenggara dan gambar tanda tangan (tepat di atas teks nama penandatangan). */
-export function withBranding(base: Layout, program: Program): Layout {
-  const layout = withLogo(base, program);
+export function withBranding(base: Layout, program: Program, opts: { placeholder?: boolean } = {}): Layout {
+  // Template: logo dipasang otomatis (opts.placeholder = tampilkan penanda "LOGO" walau belum diunggah).
+  const layout = program.cert_mode === "template" && (program.logo_path || opts.placeholder) ? addLogoItem(base, program.template_id) : base;
   const k = layout.width / 842;
   const items: Item[] = [];
   for (const it of layout.items) {

@@ -15,6 +15,8 @@ type Props = {
   backgroundUrl?: string | null;
   /** URL gambar untuk item bertipe image, berdasarkan `src` */
   images?: Record<string, string>;
+  /** tampilkan tulisan "LOGO" pada posisi logo bila belum ada gambar (hanya untuk pratinjau di dalam aplikasi) */
+  logoPlaceholder?: boolean;
   className?: string;
   /** mode editor */
   selectedId?: string | null;
@@ -115,7 +117,7 @@ function Shape({ item, images }: { item: Exclude<Item, TextItem | QrItem>; image
   }
 }
 
-export default function CertificateSvg({ layout, highlight, backgroundUrl, images, className, selectedId, onSelect, onMove }: Props) {
+export default function CertificateSvg({ layout, highlight, backgroundUrl, images, logoPlaceholder, className, selectedId, onSelect, onMove }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; dx: number; dy: number } | null>(null);
   const interactive = !!onMove;
@@ -169,11 +171,13 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, image
         if (item.type === "image") {
           const url = images?.[item.src];
           const sel = selectedId === id;
-          if (!url && !interactive) return null;
+          if (!url && !interactive && !logoPlaceholder) return null;
           return wrap(
             <>
               {url ? (
                 <image href={url} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio={item.valign === "bottom" ? "xMidYMax meet" : "xMidYMid meet"} />
+              ) : !interactive ? (
+                <text x={item.x + item.w / 2} y={item.y + item.h / 2 + item.h * 0.16} textAnchor="middle" fontSize={Math.max(14, item.h * 0.48)} fontWeight={700} letterSpacing={item.h * 0.12} fill="#94a3b8" style={{ fontFamily: "CertInter, sans-serif" }}>LOGO</text>
               ) : (
                 <g>
                   <rect x={item.x} y={item.y} width={item.w} height={item.h} fill="#eef2ff" stroke="#6366f1" strokeDasharray="6 4" strokeWidth={1.5} rx={6} />

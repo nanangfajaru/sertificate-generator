@@ -25,8 +25,9 @@ export default async function FormPage({ params }: { params: Promise<{ id: strin
     <FormBuilder
       programId={id}
       initial={initial}
-      layout={withBranding(programLayout(program), program)}
+      layout={withBranding(programLayout(program), program, { placeholder: true })}
       images={images}
+      logoPlaceholder={!images.logo}
       bgUrl={bgUrl}
       custom={custom}
       templateName={custom ? "Desain sendiri" : getTemplate(program.template_id).name}

@@ -1,11 +1,12 @@
 "use client";
 
-import { Check, Download, LayoutTemplate, Lock, Palette, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Download, Eye, LayoutTemplate, Lock, Palette, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
 import LazyMount from "@/components/LazyMount";
 import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
+import { addLogoItem } from "@/lib/certificate/logo";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
@@ -30,7 +31,7 @@ type Props = {
 };
 
 export default function DesignClient(p: Props) {
-  const templates = useMemo<Tpl[]>(() => TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier, layout: resolveLayout(t.layout, p.sample) })), [p.sample]);
+  const templates = useMemo<Tpl[]>(() => TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier, layout: addLogoItem(resolveLayout(t.layout, p.sample), t.id) })), [p.sample]);
   const [tab, setTab] = useState<"template" | "custom">(p.mode);
   const [mode, setMode] = useState(p.mode);
   const [activeId, setActiveId] = useState(p.templateId);
@@ -49,10 +50,24 @@ export default function DesignClient(p: Props) {
 
   useEffect(() => {
     if (!preview) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPreview(null);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPreview(null);
+      else if (e.key === "ArrowRight") step(1);
+      else if (e.key === "ArrowLeft") step(-1);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);
+
+  const logoImages = useMemo(() => (p.logoUrl ? { logo: p.logoUrl } : undefined), [p.logoUrl]);
+  function step(d: number) {
+    setPreview((cur) => {
+      if (!cur) return cur;
+      const i = templates.findIndex((t) => t.id === cur.id);
+      return templates[(i + d + templates.length) % templates.length];
+    });
+  }
 
   function use(t: Tpl) {
     setBusyId(t.id);
@@ -106,23 +121,31 @@ export default function DesignClient(p: Props) {
                 const active = mode === "template" && t.id === activeId;
                 return (
                   <div key={t.id} className={`overflow-hidden rounded-xl border bg-white ${active ? "border-brand-600 ring-2 ring-brand-100" : "border-slate-200"}`}>
-                    <button type="button" className={`block w-full text-left ${locked ? "opacity-60" : "cursor-zoom-in"}`} onClick={() => setPreview(t)} aria-label={`Lihat ${t.name}`}>
-                      <LazyMount><CertificateSvg layout={t.layout} className="block h-auto w-full" /></LazyMount>
-                    </button>
-                    <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-3 py-2.5">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{t.name}</p>
-                        <span className={`badge mt-1 ${t.tier === "pro" ? "badge-pro" : ""}`}>{t.tier === "pro" ? "Pro" : "Free"}</span>
+                    <button type="button" className="group relative block w-full text-left" onClick={() => setPreview(t)} aria-label={`Pratinjau ${t.name}`}>
+                      <div className={locked ? "opacity-70" : undefined}>
+                        <LazyMount><CertificateSvg layout={t.layout} images={logoImages} logoPlaceholder={!p.logoUrl} className="block h-auto w-full" /></LazyMount>
                       </div>
-                      {active ? (
-                        <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
-                      ) : locked ? (
-                        <Link href="/dashboard/upgrade" className="btn btn-sm"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
-                      ) : (
-                        <button className="btn btn-primary btn-sm" disabled={busyId !== null} onClick={() => use(t)}>
-                          {busyId === t.id ? "Memproses…" : "Gunakan"}
-                        </button>
-                      )}
+                      <span className="absolute inset-0 grid place-items-center bg-slate-900/0 opacity-0 transition group-hover:bg-slate-900/25 group-hover:opacity-100">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-sm font-medium shadow"><Eye className="h-4 w-4" /> Pratinjau</span>
+                      </span>
+                    </button>
+                    <div className="space-y-2.5 border-t border-slate-100 px-3 py-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="truncate text-sm font-medium">{t.name}</p>
+                        <span className={`badge shrink-0 ${t.tier === "pro" ? "badge-pro" : ""}`}>{t.tier === "pro" ? "Pro" : "Free"}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button type="button" className="btn btn-sm" onClick={() => setPreview(t)}><Eye className="h-4 w-4" /> Pratinjau</button>
+                        {active ? (
+                          <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
+                        ) : locked ? (
+                          <Link href="/dashboard/upgrade" className="btn btn-sm"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
+                        ) : (
+                          <button className="btn btn-primary btn-sm" disabled={busyId !== null} onClick={() => use(t)}>
+                            {busyId === t.id ? "Memproses…" : "Gunakan"}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -157,20 +180,35 @@ export default function DesignClient(p: Props) {
       </div>
 
       {preview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4" onClick={() => setPreview(null)} role="dialog" aria-modal="true">
-          <div className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <CertificateSvg layout={preview.layout} className="block h-auto w-full" />
-            <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3">
-              <div>
-                <p className="font-medium">{preview.name}</p>
-                <span className={`badge ${preview.tier === "pro" ? "badge-pro" : ""}`}>{preview.tier === "pro" ? "Pro" : "Free"}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-6" onClick={() => setPreview(null)} role="dialog" aria-modal="true" aria-label={`Pratinjau ${preview.name}`}>
+          <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate font-semibold">{preview.name}</p>
+                <p className="text-xs text-slate-500">{templates.findIndex((t) => t.id === preview.id) + 1} dari {templates.length} template</p>
               </div>
+              <div className="flex items-center gap-2">
+                <span className={`badge ${preview.tier === "pro" ? "badge-pro" : ""}`}>{preview.tier === "pro" ? "Pro" : "Free"}</span>
+                <button className="btn btn-sm !px-2" onClick={() => setPreview(null)} aria-label="Tutup"><X className="h-4 w-4" /></button>
+              </div>
+            </div>
+            <div className="relative bg-slate-100 p-3 sm:p-5">
+              <button className="absolute left-2 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg ring-1 ring-slate-200 hover:bg-slate-50" onClick={() => step(-1)} aria-label="Template sebelumnya"><ChevronLeft className="h-5 w-5" /></button>
+              <button className="absolute right-2 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg ring-1 ring-slate-200 hover:bg-slate-50" onClick={() => step(1)} aria-label="Template berikutnya"><ChevronRight className="h-5 w-5" /></button>
+              <div className="mx-auto max-w-3xl overflow-hidden rounded-lg bg-white shadow-md">
+                <CertificateSvg layout={preview.layout} images={logoImages} logoPlaceholder={!p.logoUrl} className="block h-auto w-full" />
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3">
+              <p className="max-w-md text-xs text-slate-500">
+                {p.logoUrl ? "Logo penyelenggara Anda tampil di posisi ini." : "Tulisan LOGO menandai posisi logo penyelenggara. Unggah logo di tab Ringkasan, bagian Data acara."} Gunakan tombol panah atau ← → untuk berpindah template.
+              </p>
               <div className="flex gap-2">
-                <button className="btn" onClick={() => setPreview(null)}><X className="h-4 w-4" /> Tutup</button>
+                <button className="btn" onClick={() => setPreview(null)}>Tutup</button>
                 {mode === "template" && preview.id === activeId ? (
-                  <span className="btn cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
+                  <span className="btn cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Sedang dipakai</span>
                 ) : preview.tier === "pro" && !p.isPro ? (
-                  <Link href="/dashboard/upgrade" className="btn"><Lock className="h-4 w-4" /> Gunakan template ini</Link>
+                  <Link href="/dashboard/upgrade" className="btn btn-primary"><Lock className="h-4 w-4" /> Gunakan template ini</Link>
                 ) : (
                   <button className="btn btn-primary" disabled={busyId !== null} onClick={() => use(preview)}>{busyId === preview.id ? "Memproses…" : "Gunakan template ini"}</button>
                 )}
