@@ -1,6 +1,6 @@
 "use client";
 
-import { Crown, FolderOpen, Gift, Menu, Search, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
+import { Crown, FolderOpen, Gift, Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -26,7 +26,6 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
     { href: "/dashboard", label: "Program", icon: FolderOpen, active: path === "/dashboard" || path.startsWith("/dashboard/programs") },
     { href: "/dashboard/referral", label: "Referral", icon: Gift, active: path.startsWith("/dashboard/referral"), pro: true },
     { href: "/dashboard/upgrade", label: isPro ? "Paket & perpanjang" : "Paket Pro", icon: Sparkles, active: path.startsWith("/dashboard/upgrade") },
-    { href: "/dashboard/profile", label: "Profil saya", icon: UserRound, active: path.startsWith("/dashboard/profile") },
   ];
   const until = planUntil ? new Date(planUntil).toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" }) : null;
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Crown, Mail } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { InfoForm, PasswordForm } from "./ProfileForm";
+import { InfoForm } from "./ProfileForm";
 
 export const metadata = { title: "Profil" };
 
@@ -31,8 +31,7 @@ export default async function ProfilePage() {
 
       <div className="space-y-6 lg:col-span-2">
       <InfoForm p={{ full_name: profile.full_name ?? "", phone: profile.phone ?? "", organization: profile.organization ?? "", job_title: profile.job_title ?? "" }} />
-      <PasswordForm />
-      <p className="text-center text-xs text-slate-400">Email akun tidak dapat diubah di sini.</p>
+      <p className="text-center text-xs text-slate-400">Email akun tidak dapat diubah di sini. Password bisa diganti lewat menu akun di kanan atas.</p>
       </div>
       </div>
     </div>

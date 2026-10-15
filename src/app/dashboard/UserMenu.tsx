@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Crown, LogOut, UserRound } from "lucide-react";
+import { ChevronDown, Crown, KeyRound, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -56,6 +56,7 @@ export default function UserMenu({ name, email, avatarUrl, isPro }: Props) {
           </div>
           <div className="mt-1.5 space-y-0.5">
             <Link href="/dashboard/profile" role="menuitem" className={item} onClick={() => setOpen(false)}><UserRound className="h-4 w-4 text-slate-500" /> Profil saya</Link>
+            <Link href="/dashboard/password" role="menuitem" className={item} onClick={() => setOpen(false)}><KeyRound className="h-4 w-4 text-slate-500" /> Ganti password</Link>
           </div>
           <form action="/auth/signout" method="post" className="mt-1.5 border-t border-slate-100 pt-1.5">
             <button role="menuitem" className={`${item} text-red-600 hover:bg-red-50`}><LogOut className="h-4 w-4" /> Keluar</button>
