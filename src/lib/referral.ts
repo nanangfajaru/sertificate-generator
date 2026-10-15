@@ -5,10 +5,16 @@ import { getReferralDefaults } from "./billing";
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const rand = (n: number) => Array.from({ length: n }, () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join("");
 
-/** Kode referral tetap per pengguna: dibuat otomatis (nama + 3 karakter acak) saat pertama dibuka. */
-export async function ensureReferral(admin: SupabaseClient, user: { id: string; full_name: string | null; email: string | null }) {
-  const cols = "id, code, active, payout_info";
-  const { data: found } = await admin.from("vouchers").select(cols).eq("owner_id", user.id).maybeSingle();
+const cols = "id, code, active, payout_info";
+
+export async function getReferral(admin: SupabaseClient, userId: string) {
+  const { data } = await admin.from("vouchers").select(cols).eq("owner_id", userId).maybeSingle();
+  return data;
+}
+
+/** Membuat kode referral tetap untuk pengguna (nama + karakter acak). Hanya dipanggil lewat tombol, tidak otomatis. */
+export async function createReferral(admin: SupabaseClient, user: { id: string; full_name: string | null; email: string | null }) {
+  const found = await getReferral(admin, user.id);
   if (found) return found;
   const d = await getReferralDefaults(admin);
   const base = (user.full_name ?? user.email ?? "").split(/[\s@]/)[0].replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 8) || "SK";

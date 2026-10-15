@@ -5,7 +5,8 @@ import { requireUser } from "@/lib/auth";
 import { PLANS, getPricing, getReferralDefaults, priceWith, type PlanKey } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/util";
-import { ensureReferral } from "@/lib/referral";
+import { getReferral } from "@/lib/referral";
+import CreateButton from "./CreateButton";
 import PayoutForm from "./PayoutForm";
 
 export const metadata = { title: "Referral" };
@@ -29,8 +30,9 @@ function who(p: { full_name: string | null; email: string | null } | null) {
 
 export default async function ReferralPage() {
   const { profile, isPro } = await requireUser();
+  const canCreate = isPro || profile.is_admin;
   const admin = createAdminClient();
-  const [d, v, pricing] = await Promise.all([getReferralDefaults(admin), ensureReferral(admin, profile), getPricing(admin)]);
+  const [d, v, pricing] = await Promise.all([getReferralDefaults(admin), getReferral(admin, profile.id), getPricing(admin)]);
   const examples = (["monthly", "yearly"] as PlanKey[]).map((k) => ({ label: PLANS[k].label, ...priceWith(k, pricing, d) }));
   const { data: orders } = v
     ? await admin.from("orders").select("plan, amount, commission_amount, status, created_at, paid_at, profiles(full_name, email)").eq("voucher_id", v.id).in("status", ["paid", "pending"]).order("created_at", { ascending: false }).limit(200)
@@ -39,8 +41,8 @@ export default async function ReferralPage() {
   const paidRows = rows.filter((o) => o.status === "paid");
   const earned = paidRows.reduce((a, o) => a + o.commission_amount, 0);
   // Non-Pro: kode asli tidak dikirim ke browser (hanya placeholder yang diburamkan).
-  const code = isPro ? v?.code ?? "" : "XXXXXXXX";
-  const link = v ? `${siteUrl()}/?ref=${isPro ? v.code : "XXXXXXXX"}` : "";
+  const code = isPro && v ? v.code : "XXXXXXXX";
+  const link = `${siteUrl()}/?ref=${code}`;
 
   const stat = (icon: React.ReactNode, tone: string, value: string, label: string) => (
     <div className="card !p-4 flex items-center gap-3">
@@ -56,16 +58,21 @@ export default async function ReferralPage() {
         <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari jumlah yang dibayarkan pembeli.</p>
       </div>
 
-      {!v ? (
-        <p className="card text-sm text-slate-600">Kode referral belum bisa dibuat. Muat ulang halaman ini.</p>
-      ) : (
+      {(
         <div className="grid items-start gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
+            {canCreate && !v ? (
+              <div className="card">
+                <p className="font-semibold">Aktifkan referral Anda</p>
+                <p className="mt-1 mb-4 text-sm text-slate-600">Buat kode referral pribadi. Pembeli yang memakainya mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar.</p>
+                <CreateButton />
+              </div>
+            ) : (
             <div className="card relative overflow-hidden">
               <div className={isPro ? "" : "pointer-events-none select-none blur-sm"} aria-hidden={!isPro}>
                 <p className="text-sm text-slate-500">Kode referral Anda</p>
                 <p className="mt-1 font-mono text-3xl font-bold tracking-wide">{code}</p>
-                {isPro && !v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
+                {isPro && v && !v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
                 <p className="mt-2 text-sm text-slate-600">Pembeli yang memakai kode ini mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar (setelah diskon).</p>
                 <p className="mt-4 text-xs text-slate-500">Bagikan link ini (kode terisi otomatis saat pembeli upgrade):</p>
                 <p className="mt-1 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
@@ -82,6 +89,7 @@ export default async function ReferralPage() {
                 </div>
               )}
             </div>
+            )}
 
             <div>
               <h2 className="mb-2 text-lg font-semibold">Dipakai oleh</h2>
@@ -129,7 +137,7 @@ export default async function ReferralPage() {
               </ul>
             </div>
 
-            <div className="card"><PayoutForm defaultValue={v.payout_info ?? ""} /><p className="mt-2 text-xs text-slate-500">Komisi dicairkan oleh admin ke rekening di atas.</p></div>
+            <div className="card">{v ? <><PayoutForm defaultValue={v.payout_info ?? ""} /><p className="mt-2 text-xs text-slate-500">Komisi dicairkan oleh admin ke rekening di atas.</p></> : <p className="text-sm text-slate-500">Rekening pencairan komisi bisa diisi setelah kode referral dibuat.</p>}</div>
           </div>
         </div>
       )}

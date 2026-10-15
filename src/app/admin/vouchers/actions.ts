@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSessionProfile } from "@/lib/auth";
 import { normalizeCode } from "@/lib/billing";
+import { createReferral } from "@/lib/referral";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 async function guard() {
@@ -78,4 +79,18 @@ export async function savePricing(_: unknown, fd: FormData): Promise<{ error?: s
   revalidatePath("/admin/vouchers");
   revalidatePath("/dashboard/upgrade");
   return { ok: true };
+}
+
+/** Admin membuatkan kode referral untuk pengguna tertentu (berdasarkan email). */
+export async function createReferralForUser(_: unknown, fd: FormData): Promise<{ error?: string; ok?: boolean; code?: string }> {
+  if (!(await guard())) return { error: "Tidak diizinkan" };
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  if (!email) return { error: "Isi email pengguna" };
+  const admin = createAdminClient();
+  const { data: u } = await admin.from("profiles").select("id, full_name, email").ilike("email", email).maybeSingle();
+  if (!u) return { error: "Pengguna dengan email itu tidak ditemukan" };
+  const v = await createReferral(admin, u);
+  if (!v) return { error: "Gagal membuat kode referral" };
+  revalidatePath("/admin/vouchers");
+  return { ok: true, code: v.code };
 }

@@ -4,6 +4,7 @@ import CopyButton from "@/components/CopyButton";
 import { siteUrl } from "@/lib/util";
 import { getPricing, getReferralDefaults } from "@/lib/billing";
 import PricingForm from "./PricingForm";
+import ReferralForUserForm from "./ReferralForUserForm";
 import DefaultsForm from "./DefaultsForm";
 import ToggleButton from "./ToggleButton";
 import VoucherForm from "./VoucherForm";
@@ -54,6 +55,8 @@ export default async function VouchersPage() {
       <PricingForm pricing={pricing} />
 
       <DefaultsForm discount={defaults.discount_percent} commission={defaults.commission_percent} />
+
+      <ReferralForUserForm />
 
       <VoucherForm />
 
