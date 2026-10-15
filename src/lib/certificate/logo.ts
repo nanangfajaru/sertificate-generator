@@ -1,6 +1,9 @@
 import { LOGO_PLATE, logoSlotFor } from "./logo-slots";
 import type { ImageItem, Item, Layout } from "./types";
 
+/** Lebar kotak sudah mentok (jarak ke judul/border terukur), jadi hanya tinggi yang diperbesar: logo kotak/vertikal jadi lebih besar. */
+const LOGO_TALL = 1.3;
+
 /**
  * Menyisipkan logo penyelenggara (dan alas putih bila perlu) pada layout template.
  * Murni (tanpa akses server) sehingga bisa dipakai juga di pratinjau browser.
@@ -9,7 +12,7 @@ export function addLogoItem(layout: Layout, templateId: string): Layout {
   const k = layout.width / 842;
   const slot = logoSlotFor(templateId);
   const w = slot.w * k;
-  let x: number, y: number, h = slot.h * k;
+  let x: number, y: number, h = slot.h * k * LOGO_TALL;
   if (slot.side === "C") {
     // Tengah: mengikuti judul "SERTIFIKAT" dan berada tepat di atasnya.
     const title = layout.items.find((i): i is Extract<Item, { type: "text" }> => i.type === "text" && i.text === "SERTIFIKAT");
