@@ -1,4 +1,4 @@
-import { Crown, Lock, Percent, Wallet } from "lucide-react";
+import { BadgeCheck, Coins, Crown, Lock, Percent, Wallet } from "lucide-react";
 import Link from "next/link";
 import CopyButton from "@/components/CopyButton";
 import { requireUser } from "@/lib/auth";
@@ -42,81 +42,96 @@ export default async function ReferralPage() {
   const code = isPro ? v?.code ?? "" : "XXXXXXXX";
   const link = v ? `${siteUrl()}/?ref=${isPro ? v.code : "XXXXXXXX"}` : "";
 
+  const stat = (icon: React.ReactNode, tone: string, value: string, label: string) => (
+    <div className="card !p-4 flex items-center gap-3">
+      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}>{icon}</span>
+      <div className="min-w-0"><p className="text-xl font-bold">{value}</p><p className="text-xs text-slate-500">{label}</p></div>
+    </div>
+  );
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Referral</h1>
         <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari jumlah yang dibayarkan pembeli.</p>
-        <ul className="mt-3 space-y-1.5 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-600">
-          {examples.map((e) => (
-            <li key={e.label}>
-              <b className="text-slate-800">{e.label}</b> {rp(e.base)} − diskon {d.discount_percent}% ({rp(e.discount)}) → pembeli membayar <b>{rp(e.amount)}</b> → komisi {d.commission_percent}% = <b className="text-emerald-700">{rp(e.commission)}</b> untuk Anda
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="card !p-4 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><Percent className="h-5 w-5" /></span><div><p className="text-xl font-bold">{d.discount_percent}%</p><p className="text-xs text-slate-500">Diskon untuk pembeli</p></div></div>
-        <div className="card !p-4 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-700"><Wallet className="h-5 w-5" /></span><div><p className="text-xl font-bold">{d.commission_percent}%</p><p className="text-xs text-slate-500">Komisi untuk Anda, dari jumlah yang dibayar pembeli</p></div></div>
       </div>
 
       {!v ? (
         <p className="card text-sm text-slate-600">Kode referral belum bisa dibuat. Muat ulang halaman ini.</p>
       ) : (
-        <>
-          <div className="card relative overflow-hidden">
-            <div className={isPro ? "" : "pointer-events-none select-none blur-sm"} aria-hidden={!isPro}>
-              <p className="text-sm text-slate-500">Kode referral Anda</p>
-              <p className="mt-1 font-mono text-3xl font-bold tracking-wide">{code}</p>
-              {isPro && !v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
-              <p className="mt-2 text-sm text-slate-600">Pembeli yang memakai kode ini mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar (setelah diskon).</p>
-              <p className="mt-4 text-xs text-slate-500">Bagikan link ini (kode terisi otomatis saat pembeli upgrade):</p>
-              <p className="mt-1 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
-              {isPro && <div className="mt-2 flex gap-2"><CopyButton text={link} label="Salin link" /><CopyButton text={code} label="Salin kode" /></div>}
-            </div>
-            {!isPro && (
-              <div className="absolute inset-0 grid place-items-center bg-white/40 p-4 text-center">
-                <div>
-                  <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-amber-100 text-amber-700"><Lock className="h-5 w-5" /></span>
-                  <p className="mt-2 font-semibold text-slate-900">Khusus pengguna Pro</p>
-                  <p className="mx-auto mt-1 max-w-xs text-sm text-slate-600">Upgrade ke Pro untuk membuka kode dan link referral Anda. Kode berhenti berlaku bila paket Pro berakhir.</p>
-                  <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
-                </div>
+        <div className="grid items-start gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <div className="card relative overflow-hidden">
+              <div className={isPro ? "" : "pointer-events-none select-none blur-sm"} aria-hidden={!isPro}>
+                <p className="text-sm text-slate-500">Kode referral Anda</p>
+                <p className="mt-1 font-mono text-3xl font-bold tracking-wide">{code}</p>
+                {isPro && !v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
+                <p className="mt-2 text-sm text-slate-600">Pembeli yang memakai kode ini mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar (setelah diskon).</p>
+                <p className="mt-4 text-xs text-slate-500">Bagikan link ini (kode terisi otomatis saat pembeli upgrade):</p>
+                <p className="mt-1 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
+                {isPro && <div className="mt-2 flex gap-2"><CopyButton text={link} label="Salin link" /><CopyButton text={code} label="Salin kode" /></div>}
               </div>
-            )}
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="card !p-4"><p className="text-2xl font-bold">{paidRows.length}</p><p className="text-xs text-slate-500">Pembayaran berhasil</p></div>
-            <div className="card !p-4"><p className="text-2xl font-bold">{rp(earned)}</p><p className="text-xs text-slate-500">Total komisi</p></div>
-          </div>
-
-          <div className="card"><PayoutForm defaultValue={v.payout_info ?? ""} /><p className="mt-2 text-xs text-slate-500">Komisi dicairkan oleh admin ke rekening di atas.</p></div>
-
-          <div>
-            <h2 className="mb-2 text-lg font-semibold">Dipakai oleh</h2>
-            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-3 py-2">Pengguna</th><th className="px-3 py-2">Tanggal</th><th className="px-3 py-2">Paket</th><th className="px-3 py-2 text-right">Dibayar</th><th className="px-3 py-2 text-right">Komisi</th><th className="px-3 py-2">Status</th></tr></thead>
-                <tbody className="divide-y divide-slate-100">
-                  {rows.length === 0 && <tr><td colSpan={6} className="px-3 py-6 text-center text-slate-500">Belum ada yang memakai kode Anda.</td></tr>}
-                  {rows.map((o, i) => (
-                    <tr key={i}>
-                      <td className="px-3 py-2">{who(o.profiles)}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-600">{date(o.paid_at ?? o.created_at)}</td>
-                      <td className="px-3 py-2">{o.plan === "yearly" ? "Pro Tahunan" : "Pro Bulanan"}</td>
-                      <td className="px-3 py-2 text-right">{rp(o.amount)}</td>
-                      <td className="px-3 py-2 text-right font-medium">{o.status === "paid" ? rp(o.commission_amount) : "—"}</td>
-                      <td className="px-3 py-2"><span className={`badge ${o.status === "paid" ? "badge-ok" : "badge-warn"}`}>{o.status === "paid" ? "Lunas" : "Menunggu bayar"}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {!isPro && (
+                <div className="absolute inset-0 grid place-items-center bg-white/40 p-4 text-center">
+                  <div>
+                    <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-amber-100 text-amber-700"><Lock className="h-5 w-5" /></span>
+                    <p className="mt-2 font-semibold text-slate-900">Khusus pengguna Pro</p>
+                    <p className="mx-auto mt-1 max-w-sm text-sm text-slate-600">Upgrade ke Pro untuk membuka kode dan link referral Anda. Kode berhenti berlaku bila paket Pro berakhir.</p>
+                    <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
+                  </div>
+                </div>
+              )}
             </div>
-            <p className="mt-2 text-xs text-slate-500">Nama pengguna disamarkan demi privasi.</p>
+
+            <div>
+              <h2 className="mb-2 text-lg font-semibold">Dipakai oleh</h2>
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-3 py-2">Pengguna</th><th className="px-3 py-2">Tanggal</th><th className="px-3 py-2">Paket</th><th className="px-3 py-2 text-right">Dibayar</th><th className="px-3 py-2 text-right">Komisi</th><th className="px-3 py-2">Status</th></tr></thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {rows.length === 0 && <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">Belum ada yang memakai kode Anda.</td></tr>}
+                    {rows.map((o, i) => (
+                      <tr key={i}>
+                        <td className="px-3 py-2">{who(o.profiles)}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-slate-600">{date(o.paid_at ?? o.created_at)}</td>
+                        <td className="px-3 py-2">{o.plan === "yearly" ? "Pro Tahunan" : "Pro Bulanan"}</td>
+                        <td className="px-3 py-2 text-right">{rp(o.amount)}</td>
+                        <td className="px-3 py-2 text-right font-medium">{o.status === "paid" ? rp(o.commission_amount) : "—"}</td>
+                        <td className="px-3 py-2"><span className={`badge ${o.status === "paid" ? "badge-ok" : "badge-warn"}`}>{o.status === "paid" ? "Lunas" : "Menunggu bayar"}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">Nama pengguna disamarkan demi privasi.</p>
+            </div>
           </div>
-        </>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {stat(<Percent className="h-5 w-5" />, "bg-emerald-50 text-emerald-700", `${d.discount_percent}%`, "Diskon untuk pembeli")}
+              {stat(<Wallet className="h-5 w-5" />, "bg-amber-50 text-amber-700", `${d.commission_percent}%`, "Komisi untuk Anda")}
+              {stat(<BadgeCheck className="h-5 w-5" />, "bg-brand-50 text-brand-700", String(paidRows.length), "Pembayaran berhasil")}
+              {stat(<Coins className="h-5 w-5" />, "bg-sky-50 text-sky-700", rp(earned), "Total komisi")}
+            </div>
+
+            <div className="card">
+              <h2 className="font-semibold">Simulasi komisi</h2>
+              <p className="mt-0.5 text-xs text-slate-500">Dihitung dari jumlah yang dibayar pembeli (setelah diskon).</p>
+              <ul className="mt-3 space-y-3 text-sm text-slate-600">
+                {examples.map((e) => (
+                  <li key={e.label} className="rounded-lg bg-slate-50 p-3">
+                    <p className="font-medium text-slate-800">{e.label}</p>
+                    <p className="mt-1">{rp(e.base)} − diskon {d.discount_percent}% ({rp(e.discount)}) → pembeli bayar <b>{rp(e.amount)}</b></p>
+                    <p>Komisi {d.commission_percent}% = <b className="text-emerald-700">{rp(e.commission)}</b></p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="card"><PayoutForm defaultValue={v.payout_info ?? ""} /><p className="mt-2 text-xs text-slate-500">Komisi dicairkan oleh admin ke rekening di atas.</p></div>
+          </div>
+        </div>
       )}
     </div>
   );

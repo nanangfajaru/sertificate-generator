@@ -11,10 +11,11 @@ export default async function ProfilePage() {
   const date = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6">
       <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Kembali</Link>
 
-      <div className="card flex items-center gap-4">
+      <div className="grid items-start gap-6 lg:grid-cols-3">
+      <div className="card flex items-center gap-4 lg:sticky lg:top-20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {profile.avatar_url ? <img src={profile.avatar_url} alt="" referrerPolicy="no-referrer" className="h-16 w-16 rounded-full object-cover" /> : <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-brand-100 text-2xl font-semibold uppercase text-brand-700">{name.trim().charAt(0)}</span>}
         <div className="min-w-0">
@@ -28,9 +29,12 @@ export default async function ProfilePage() {
         </div>
       </div>
 
+      <div className="space-y-6 lg:col-span-2">
       <InfoForm p={{ full_name: profile.full_name ?? "", phone: profile.phone ?? "", organization: profile.organization ?? "", job_title: profile.job_title ?? "" }} />
       <PasswordForm />
       <p className="text-center text-xs text-slate-400">Email akun tidak dapat diubah di sini.</p>
+      </div>
+      </div>
     </div>
   );
 }
