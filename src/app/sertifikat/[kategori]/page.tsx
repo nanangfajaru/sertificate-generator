@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check } from "lucide-react";
-import CertificateSvg from "@/components/CertificateSvg";
 import Logo from "@/components/Logo";
-import { SAMPLE_PROGRAM } from "@/components/SampleCert";
-import { resolveLayout } from "@/lib/certificate/sources";
-import { getTemplate } from "@/lib/certificate/templates";
+import SampleCert from "@/components/SampleCert";
 import { SEO_PAGES, getSeoPage } from "@/lib/seo-pages";
 import { siteUrl } from "@/lib/util";
 
@@ -57,15 +54,7 @@ export default async function SeoPageView({ params }: { params: Promise<{ katego
         <div className="mt-10 grid gap-5 sm:grid-cols-2">
           {p.templates.map((id) => (
             <div key={id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-              <CertificateSvg
-                layout={resolveLayout(getTemplate(id).layout, {
-                  program: { ...SAMPLE_PROGRAM, name: p.sampleEvent.name, cert_type: p.sampleEvent.certType },
-                  data: { n: "Nama Peserta", e: "" },
-                  certNumber: "001/SERT/X/2026",
-                  verifyUrl: `${siteUrl()}/c/contoh`,
-                })}
-                className="block h-auto w-full"
-              />
+              <SampleCert templateId={id} event={p.sampleEvent} />
             </div>
           ))}
         </div>

@@ -85,13 +85,13 @@ export default function Landing() {
 
           <div className="relative mx-auto w-full max-w-xl">
             <div className="absolute left-0 top-10 w-[62%] -rotate-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-              <SampleCert templateId="modern-teal" name="Budi Hartono" />
+              <SampleCert priority templateId="modern-teal" name="Budi Hartono" />
             </div>
             <div className="absolute right-0 top-0 w-[62%] rotate-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-              <SampleCert templateId="frame-crimson" name="Citra Lestari" />
+              <SampleCert priority templateId="frame-crimson" name="Citra Lestari" />
             </div>
             <div className="relative ml-[12%] mt-24 w-[76%] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl ring-1 ring-slate-900/5">
-              <SampleCert templateId="classic-navy" name="Aisyah Putri Rahma" />
+              <SampleCert priority templateId="classic-navy" name="Aisyah Putri Rahma" />
             </div>
             <div className="absolute -bottom-4 left-0 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-lg">
               <BadgeCheck className="h-5 w-5 text-emerald-600" />

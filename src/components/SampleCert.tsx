@@ -1,28 +1,19 @@
-import CertificateSvg from "./CertificateSvg";
-import { getTemplate } from "@/lib/certificate/templates";
-import { resolveLayout } from "@/lib/certificate/sources";
+import { sampleKey, type SampleEvent } from "@/lib/samples";
 
-export const SAMPLE_PROGRAM = {
-  org_name: "Universitas Contoh Nusantara",
-  name: "Seminar Nasional Teknologi 2026",
-  cert_type: "Peserta",
-  description: "atas partisipasinya dalam kegiatan",
-  start_date: "2026-10-12",
-  end_date: null,
-  location: "Jakarta",
-  signer1_name: "Dr. Budi Santoso",
-  signer1_title: "Ketua Panitia",
-  signer2_name: "Prof. Siti Aminah",
-  signer2_title: "Dekan",
-  mapping: { name: "n", extra: "e" },
-};
+export { SAMPLE_PROGRAM } from "@/lib/samples";
 
-export default function SampleCert({ templateId, name = "Nama Peserta", className, event }: { templateId: string; name?: string; className?: string; event?: { name: string; certType: string } }) {
-  const layout = resolveLayout(getTemplate(templateId).layout, {
-    program: event ? { ...SAMPLE_PROGRAM, name: event.name, cert_type: event.certType } : SAMPLE_PROGRAM,
-    data: { n: name, e: "" },
-    certNumber: "001/SERT/X/2026",
-    verifyUrl: "https://sertifikat.example/c/contoh",
-  });
-  return <CertificateSvg layout={layout} className={className ?? "h-auto w-full"} />;
+// Gambar statis hasil scripts/gen-samples.mts (dilayani dari /public, di-cache panjang).
+export default function SampleCert({ templateId, name = "Nama Peserta", className, event, priority }: { templateId: string; name?: string; className?: string; event?: SampleEvent; priority?: boolean }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/samples/${sampleKey(templateId, name, event)}.webp`}
+      alt={`Contoh sertifikat ${name}`}
+      width={842}
+      height={595}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      className={className ?? "block h-auto w-full"}
+    />
+  );
 }
