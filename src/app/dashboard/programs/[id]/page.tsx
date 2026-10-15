@@ -8,22 +8,27 @@ import { siteUrl } from "@/lib/util";
 import { deleteProgram, updateProgram } from "../../actions";
 import ProgramForm from "../../ProgramForm";
 import DeleteButton from "./DeleteButton";
+import CertPreviewCard from "./CertPreviewCard";
+import { previewUrl, programLayout, sampleContext, signatureUrls, withBranding } from "@/lib/certificate/load";
+import { resolveLayout } from "@/lib/certificate/sources";
+import { getTemplate } from "@/lib/certificate/templates";
 
 export const metadata = { title: "Ringkasan program" };
 
 export default async function ProgramOverview({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { program, supabase, isPro } = await getOwnedProgram(id);
+  const { program, fields, supabase, isPro } = await getOwnedProgram(id);
   const admin = createAdminClient();
-  const signed = async (path: string | null) => (path ? (await admin.storage.from("signatures").createSignedUrl(path, 3600)).data?.signedUrl ?? null : null);
-  // Semua permintaan berjalan paralel (sebelumnya berurutan).
-  const [logoUrl, sig1, sig2, { data: rows }] = await Promise.all([
-    signed(program.logo_path),
-    signed(program.signer1_sig_path),
-    signed(program.signer2_sig_path),
+  const custom = program.cert_mode === "custom" && !!program.design_layout;
+  // Semua permintaan berjalan paralel.
+  const [images, bgUrl, { data: rows }] = await Promise.all([
+    signatureUrls(admin, program),
+    custom ? previewUrl(admin, program) : Promise.resolve(null),
     supabase.from("participants").select("status").eq("program_id", id),
   ]);
-  const sigUrls = [sig1, sig2];
+  const logoUrl = images.logo ?? null;
+  const sigUrls = [images.sig1 ?? null, images.sig2 ?? null];
+  const certLayout = resolveLayout(withBranding(programLayout(program), program, { placeholder: true }), sampleContext(program, fields));
   const stat = { total: rows?.length ?? 0, pending: 0, approved: 0 };
   rows?.forEach((r) => {
     if (r.status === "pending") stat.pending++;
@@ -43,6 +48,7 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
             <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3">Lihat paket Pro</Link>
           </div>
         )}
+        <CertPreviewCard programId={id} templateName={custom ? "Desain sendiri" : getTemplate(program.template_id).name} layout={certLayout} bgUrl={bgUrl} images={images} logoPlaceholder={!images.logo} />
         <LinkCard programId={id} origin={siteUrl()} slug={program.slug} alias={program.alias} isOpen={program.is_open} fileBase={(program.alias || program.slug).slice(0, 40)} />
         <div className="card">
           <h2 className="font-semibold">Peserta</h2>
