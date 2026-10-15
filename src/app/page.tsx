@@ -300,7 +300,7 @@ export default function Landing() {
 
       <footer className="border-t border-slate-200">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500">
-          <Logo size={26} />
+          <Logo size={26} uid="lm-foot" />
           <nav className="flex gap-6">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>

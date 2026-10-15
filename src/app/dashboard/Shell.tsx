@@ -24,15 +24,15 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
 
   const items = [
     { href: "/dashboard", label: "Program", icon: FolderOpen, active: path === "/dashboard" || path.startsWith("/dashboard/programs") },
-    { href: "/dashboard/referral", label: "Referral & komisi", icon: Gift, active: path.startsWith("/dashboard/referral"), pro: true },
+    { href: "/dashboard/referral", label: "Referral", icon: Gift, active: path.startsWith("/dashboard/referral"), pro: true },
     { href: "/dashboard/upgrade", label: isPro ? "Paket & perpanjang" : "Paket Pro", icon: Sparkles, active: path.startsWith("/dashboard/upgrade") },
     { href: "/dashboard/profile", label: "Profil saya", icon: UserRound, active: path.startsWith("/dashboard/profile") },
   ];
   const until = planUntil ? new Date(planUntil).toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" }) : null;
 
-  const nav = (
+  const nav = (uid: string) => (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center px-5"><Logo href="/dashboard" size={30} /></div>
+      <div className="flex h-14 items-center px-5"><Logo href="/dashboard" size={30} uid={uid} /></div>
       <nav className="mt-2 flex-1 space-y-1 px-3 text-sm">
         {items.map(({ href, label, icon: Icon, active, pro }) => (
           <Link key={href} href={href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition ${active ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
@@ -69,14 +69,14 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r border-slate-200 bg-white lg:block">{nav}</aside>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r border-slate-200 bg-white lg:block">{nav("lm-side")}</aside>
 
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-slate-900/40" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-64 bg-white shadow-xl">
             <button className="absolute right-3 top-3 rounded-md p-1.5 text-slate-500 hover:bg-slate-100" aria-label="Tutup menu" onClick={() => setOpen(false)}><X className="h-5 w-5" /></button>
-            {nav}
+            {nav("lm-drawer")}
           </aside>
         </div>
       )}
@@ -85,7 +85,7 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
           <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
             <button className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100 lg:hidden" aria-label="Buka menu" onClick={() => setOpen(true)}><Menu className="h-5 w-5" /></button>
-            <div className="lg:hidden"><Logo href="/dashboard" size={26} /></div>
+            <div className="lg:hidden"><Logo href="/dashboard" size={26} uid="lm-head" /></div>
             <form action="/dashboard" role="search" className="relative ml-auto hidden max-w-sm flex-1 sm:block lg:ml-0">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input name="q" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-100" placeholder="Cari program…" />
