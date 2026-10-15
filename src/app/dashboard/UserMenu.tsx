@@ -1,10 +1,10 @@
 "use client";
 
-import { ChevronDown, Crown, Gift, LogOut, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { ChevronDown, Crown, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; isAdmin: boolean };
+type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean };
 
 function Avatar({ name, url, size }: { name: string; url: string | null; size: string }) {
   // eslint-disable-next-line @next/next/no-img-element
@@ -12,7 +12,7 @@ function Avatar({ name, url, size }: { name: string; url: string | null; size: s
   return <span className={`${size} grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-semibold uppercase text-white`}>{name.trim().charAt(0)}</span>;
 }
 
-export default function UserMenu({ name, email, avatarUrl, isPro, isAdmin }: Props) {
+export default function UserMenu({ name, email, avatarUrl, isPro }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,11 +56,6 @@ export default function UserMenu({ name, email, avatarUrl, isPro, isAdmin }: Pro
           </div>
           <div className="mt-1.5 space-y-0.5">
             <Link href="/dashboard/profile" role="menuitem" className={item} onClick={() => setOpen(false)}><UserRound className="h-4 w-4 text-slate-500" /> Profil saya</Link>
-            <Link href="/dashboard/upgrade" role="menuitem" className={item} onClick={() => setOpen(false)}>
-              <Sparkles className="h-4 w-4 text-slate-500" /> {isPro ? "Paket & perpanjang" : "Upgrade ke Pro"}
-            </Link>
-            <Link href="/dashboard/referral" role="menuitem" className={item} onClick={() => setOpen(false)}><Gift className="h-4 w-4 text-slate-500" /> Referral &amp; komisi <span className="badge badge-pro ml-auto gap-1"><Crown className="h-3 w-3" />Pro</span></Link>
-            {isAdmin && <Link href="/admin" role="menuitem" className={item} onClick={() => setOpen(false)}><ShieldCheck className="h-4 w-4 text-slate-500" /> Admin owner</Link>}
           </div>
           <form action="/auth/signout" method="post" className="mt-1.5 border-t border-slate-100 pt-1.5">
             <button role="menuitem" className={`${item} text-red-600 hover:bg-red-50`}><LogOut className="h-4 w-4" /> Keluar</button>
