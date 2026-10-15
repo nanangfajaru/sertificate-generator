@@ -11,6 +11,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const { program, fields, profile, isPro, supabase } = await getOwnedProgram(id);
   const ctx = sampleContext(program, fields);
+  const logoUrl = program.logo_path ? (await createAdminClient().storage.from("signatures").createSignedUrl(program.logo_path, 3600)).data?.signedUrl ?? null : null;
   const { data: rows } = await supabase
     .from("program_designs")
     .select("id, name, kind, layout, preview_path, updated_at")
@@ -33,6 +34,7 @@ export default async function DesignPage({ params }: { params: Promise<{ id: str
 
   return (
     <DesignClient
+      logoUrl={logoUrl}
       programId={id}
       userId={profile.id}
       isPro={isPro}

@@ -4,6 +4,7 @@ import type { Participant, Program, ProgramField } from "../db";
 import { siteUrl } from "../util";
 import { resolveLayout, type CertContext } from "./sources";
 import { getTemplate } from "./templates";
+import { LOGO_PLATE, logoSlotFor } from "./logo-slots";
 import { isProProfile } from "../db";
 import { withWatermark } from "./watermark";
 import type { ImageItem, Item, Layout } from "./types";
@@ -52,8 +53,40 @@ export async function previewUrl(admin: SupabaseClient, program: Program): Promi
 
 const sigPath = (program: Program, n: 1 | 2) => program[`signer${n}_sig_path` as "signer1_sig_path"];
 
-/** Menyisipkan gambar tanda tangan tepat di atas teks nama penandatangan. */
-export function withSignatures(layout: Layout, program: Program): Layout {
+/** Logo penyelenggara pada template (desain sendiri memakai elemen logo di editor). */
+function withLogo(layout: Layout, program: Program): Layout {
+  if (!program.logo_path || program.cert_mode !== "template") return layout;
+  const k = layout.width / 842;
+  // Posisi mengikuti judul "SERTIFIKAT": di tengah (atau rata) judul, tepat di atasnya.
+  const title = layout.items.find((i): i is Extract<Item, { type: "text" }> => i.type === "text" && i.text === "SERTIFIKAT");
+  const base = logoSlotFor(program.template_id);
+  const w = base.w * k;
+  let cx = base.cx * k;
+  let bottom = (base.y + base.h) * k;
+  if (title) {
+    const tw = Math.min(title.size * 0.62 * 10, 330 * k); // perkiraan lebar judul untuk rata kiri/kanan
+    cx = title.align === "center" ? title.x : title.align === "left" ? title.x + tw / 2 : title.x - tw / 2;
+    bottom = title.y - title.size * 0.8 - 17 * k;
+  }
+  const h = Math.min(base.h * k, Math.max(24 * k, bottom - 14 * k));
+  const img: ImageItem = { type: "image", x: cx - w / 2, y: bottom - h, w, h, src: "logo" };
+  const add: Item[] = [img];
+  if (LOGO_PLATE.has(program.template_id)) {
+    const pad = 6 * k, r = 8 * k;
+    const x = img.x - pad, y = img.y - pad, pw = img.w + pad * 2, ph = img.h + pad * 2;
+    const d = `M${x + r} ${y}h${pw - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${ph - 2 * r}a${r} ${r} 0 0 1 -${r} ${r}h-${pw - 2 * r}a${r} ${r} 0 0 1 -${r} -${r}v-${ph - 2 * r}a${r} ${r} 0 0 1 ${r} -${r}z`;
+    add.unshift({ type: "path", d, fill: "#ffffff", opacity: 0.96 });
+  }
+  // Disisipkan sebelum item teks/QR pertama agar berada di atas hiasan latar.
+  const at = layout.items.findIndex((i) => i.type === "text" || i.type === "qr");
+  const items = layout.items.slice();
+  items.splice(at < 0 ? items.length : at, 0, ...add);
+  return { ...layout, items };
+}
+
+/** Menyisipkan logo penyelenggara dan gambar tanda tangan (tepat di atas teks nama penandatangan). */
+export function withBranding(base: Layout, program: Program): Layout {
+  const layout = withLogo(base, program);
   const k = layout.width / 842;
   const items: Item[] = [];
   for (const it of layout.items) {
@@ -72,6 +105,10 @@ export function withSignatures(layout: Layout, program: Program): Layout {
 
 export async function signatureUrls(admin: SupabaseClient, program: Program): Promise<Record<string, string>> {
   const out: Record<string, string> = {};
+  if (program.logo_path) {
+    const { data } = await admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600);
+    if (data?.signedUrl) out.logo = data.signedUrl;
+  }
   for (const n of [1, 2] as const) {
     const p = sigPath(program, n);
     if (!p) continue;
@@ -83,6 +120,10 @@ export async function signatureUrls(admin: SupabaseClient, program: Program): Pr
 
 export async function signatureImages(admin: SupabaseClient, program: Program): Promise<ImageMap> {
   const out: ImageMap = {};
+  if (program.logo_path) {
+    const { data } = await admin.storage.from("signatures").download(program.logo_path);
+    if (data) out.logo = { kind: /\.png$/i.test(program.logo_path) ? "png" : "jpg", bytes: new Uint8Array(await data.arrayBuffer()) };
+  }
   for (const n of [1, 2] as const) {
     const p = sigPath(program, n);
     if (!p) continue;

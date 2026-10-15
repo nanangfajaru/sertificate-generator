@@ -15,6 +15,7 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
   const { id } = await params;
   const { program, supabase, isPro } = await getOwnedProgram(id);
   const admin = createAdminClient();
+  const logoUrl = program.logo_path ? (await admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600)).data?.signedUrl ?? null : null;
   const sigUrls = await Promise.all(([1, 2] as const).map(async (n) => {
     const p = program[`signer${n}_sig_path` as "signer1_sig_path"];
     return p ? (await admin.storage.from("signatures").createSignedUrl(p, 3600)).data?.signedUrl ?? null : null;
@@ -29,7 +30,7 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
-        <ProgramForm action={updateProgram.bind(null, id)} program={program} sigUrls={[sigUrls[0], sigUrls[1]]} submitLabel="Simpan perubahan" />
+        <ProgramForm action={updateProgram.bind(null, id)} program={program} sigUrls={[sigUrls[0], sigUrls[1]]} logoUrl={logoUrl} submitLabel="Simpan perubahan" />
       </div>
       <div className="space-y-6">
         {!isPro && stat.total >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8) && (

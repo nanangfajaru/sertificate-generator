@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import type { Program, ProgramField } from "@/lib/db";
-import { sampleContext } from "@/lib/certificate/load";
+import { sampleContext, signatureImages, withBranding } from "@/lib/certificate/load";
 import { renderCertificatePdf, type Background } from "@/lib/certificate/pdf";
 import { resolveLayout } from "@/lib/certificate/sources";
 import type { Layout } from "@/lib/certificate/types";
@@ -25,11 +25,13 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const { data: f } = await s.supabase.from("program_fields").select("*").eq("program_id", d.program_id).order("sort");
 
   const base = d.layout as Layout;
-  const layout = resolveLayout(program.show_qr ? base : { ...base, items: base.items.filter((i) => i.type !== "qr") }, sampleContext(program, (f ?? []) as ProgramField[]));
+  const resolved = resolveLayout(program.show_qr ? base : { ...base, items: base.items.filter((i) => i.type !== "qr") }, sampleContext(program, (f ?? []) as ProgramField[]));
+  const asCustom = { ...program, cert_mode: "custom" as const }; // desain sendiri: logo dipasang lewat elemen di editor
+  const layout = withBranding(resolved, asCustom);
   const { data: blob, error } = await createAdminClient().storage.from("designs").download(d.file_path);
   if (error || !blob) return new NextResponse("File desain tidak ditemukan", { status: 404 });
   const bg = { kind: d.kind, bytes: new Uint8Array(await blob.arrayBuffer()) } as Background;
 
-  const bytes = await renderCertificatePdf(layout, bg);
+  const bytes = await renderCertificatePdf(layout, bg, await signatureImages(createAdminClient(), program));
   return new NextResponse(Buffer.from(bytes), { headers: { "Content-Type": "application/pdf", "Content-Disposition": 'inline; filename="contoh-desain.pdf"' } });
 }

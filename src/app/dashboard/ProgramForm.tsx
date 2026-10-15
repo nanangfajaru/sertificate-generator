@@ -2,6 +2,7 @@
 
 import { CalendarDays, PenLine, Workflow } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
+import LogoUpload from "./LogoUpload";
 import SignatureUpload from "./SignatureUpload";
 import { useActionState, useState } from "react";
 import { CERT_TYPES, CUSTOM_TYPE, isPresetType, presetDescription } from "@/lib/cert-types";
@@ -9,6 +10,7 @@ import type { Program } from "@/lib/db";
 import type { ActionState } from "./actions";
 
 type Props = {
+  logoUrl?: string | null;
   defaultOrg?: string;
   sigUrls?: [string | null, string | null];
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
@@ -16,7 +18,7 @@ type Props = {
   submitLabel: string;
 };
 
-export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg }: Props) {
+export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg, logoUrl }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const edit = !!p;
 
@@ -39,6 +41,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
     <form action={formAction} className="space-y-6">
       <section className="card space-y-4">
         <SectionTitle icon={CalendarDays} title="Data acara" hint="Informasi kegiatan yang tampil di formulir dan sertifikat." />
+        {p ? <LogoUpload programId={p.id} initialUrl={logoUrl ?? null} /> : <p className="hint">Logo penyelenggara dapat diunggah setelah program dibuat.</p>}
         <div>
           <label className="label" htmlFor="org_name">Nama instansi / penyelenggara</label>
           <input id="org_name" name="org_name" className="input" required defaultValue={p?.org_name ?? defaultOrg} placeholder="mis. Universitas Contoh Nusantara" />

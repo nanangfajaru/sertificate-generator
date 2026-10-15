@@ -21,6 +21,7 @@ export type Program = {
   owner_id: string;
   slug: string;
   alias: string | null;
+  logo_path: string | null;
   name: string;
   org_name: string;
   cert_type: string;

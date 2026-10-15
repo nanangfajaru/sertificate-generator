@@ -17,6 +17,7 @@ type Props = {
   initial: Row[];
   layout: Layout;
   bgUrl: string | null;
+  images?: Record<string, string>;
   custom: boolean;
   templateName: string;
   program: ProgramLike;
@@ -24,7 +25,7 @@ type Props = {
 
 const COLORS = ["#4f46e5", "#d97706", "#059669", "#db2777", "#0891b2", "#7c3aed"];
 
-export default function FormBuilder({ programId, initial, layout, bgUrl, custom, templateName, program }: Props) {
+export default function FormBuilder({ programId, initial, layout, bgUrl, images, custom, templateName, program }: Props) {
   const [rows, setRows] = useState<Row[]>(initial);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
@@ -166,7 +167,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, custom,
             <Link href={`/dashboard/programs/${programId}/design`} className="btn btn-sm shrink-0">Ganti</Link>
           </div>
           <div className="overflow-hidden rounded-lg border border-slate-200">
-            <CertificateSvg layout={resolved} backgroundUrl={bgUrl} highlight={highlight} className="block h-auto w-full" />
+            <CertificateSvg layout={resolved} backgroundUrl={bgUrl} images={images} highlight={highlight} className="block h-auto w-full" />
           </div>
         </div>
 

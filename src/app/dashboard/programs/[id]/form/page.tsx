@@ -1,6 +1,6 @@
 import { getOwnedProgram } from "@/lib/program-server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { previewUrl, programLayout } from "@/lib/certificate/load";
+import { previewUrl, programLayout, signatureUrls, withBranding } from "@/lib/certificate/load";
 import { getTemplate } from "@/lib/certificate/templates";
 import FormBuilder from "./FormBuilder";
 
@@ -18,13 +18,15 @@ export default async function FormPage({ params }: { params: Promise<{ id: strin
     slot: (program.mapping?.name === f.id ? "name" : program.mapping?.extra === f.id ? "extra" : "") as "" | "name" | "extra",
   }));
   const custom = program.cert_mode === "custom" && !!program.design_layout;
-  const bgUrl = custom ? await previewUrl(createAdminClient(), program) : null;
+  const admin = createAdminClient();
+  const [bgUrl, images] = await Promise.all([custom ? previewUrl(admin, program) : Promise.resolve(null), signatureUrls(admin, program)]);
 
   return (
     <FormBuilder
       programId={id}
       initial={initial}
-      layout={programLayout(program)}
+      layout={withBranding(programLayout(program), program)}
+      images={images}
       bgUrl={bgUrl}
       custom={custom}
       templateName={custom ? "Desain sendiri" : getTemplate(program.template_id).name}

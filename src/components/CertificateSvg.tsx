@@ -166,6 +166,26 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, image
             <g key={id}>{child}</g>
           );
         if (item.type === "text") return wrap(<FitText item={item} interactive={interactive} selected={selectedId === id} hl={highlight?.(item) ?? null} />, item.x, item.y);
+        if (item.type === "image") {
+          const url = images?.[item.src];
+          const sel = selectedId === id;
+          if (!url && !interactive) return null;
+          return wrap(
+            <>
+              {url ? (
+                <image href={url} x={item.x} y={item.y} width={item.w} height={item.h} preserveAspectRatio="xMidYMid meet" />
+              ) : (
+                <g>
+                  <rect x={item.x} y={item.y} width={item.w} height={item.h} fill="#eef2ff" stroke="#6366f1" strokeDasharray="6 4" strokeWidth={1.5} rx={6} />
+                  <text x={item.x + item.w / 2} y={item.y + item.h / 2 + 5} textAnchor="middle" fontSize={Math.max(12, item.h * 0.25)} fill="#4f46e5" style={{ fontFamily: "CertInter, sans-serif" }}>Logo penyelenggara</text>
+                </g>
+              )}
+              {interactive && <rect x={item.x} y={item.y} width={item.w} height={item.h} fill="transparent" stroke={sel ? "#2563eb" : "none"} strokeWidth={1.5} />}
+            </>,
+            item.x,
+            item.y,
+          );
+        }
         if (item.type === "qr") {
           const hl = highlight?.(item);
           return wrap(

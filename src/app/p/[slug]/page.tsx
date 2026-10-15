@@ -14,7 +14,8 @@ const loadProgram = cache(async (slug: string) => {
   const program = await findProgramByKey(admin, slug);
   if (!program) return null;
   const { data: f } = await admin.from("program_fields").select("*").eq("program_id", program.id).order("sort");
-  return { program, fields: (f ?? []) as ProgramField[] };
+  const logo = program.logo_path ? (await admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600)).data?.signedUrl ?? null : null;
+  return { program, fields: (f ?? []) as ProgramField[], logo };
 });
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -27,12 +28,16 @@ export default async function PublicRegisterPage({ params }: { params: Promise<{
   const { slug } = await params;
   const loaded = await loadProgram(slug);
   if (!loaded) notFound();
-  const { program, fields } = loaded;
+  const { program, fields, logo } = loaded;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
       <div className="mx-auto max-w-lg">
         <div className="card">
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt={`Logo ${program.org_name}`} className="mb-4 h-14 w-auto max-w-[12rem] object-contain" />
+          )}
           <p className="text-sm font-medium text-brand-700">{program.org_name}</p>
           <h1 className="mt-1 text-2xl font-bold leading-snug">{program.name}</h1>
           <div className="mt-3 space-y-1 text-sm text-slate-600">

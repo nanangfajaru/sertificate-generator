@@ -1,15 +1,16 @@
 "use client";
 
-import { AlignCenter, AlignLeft, AlignRight, ArrowLeft, Check, Download, Lock, MousePointerClick, Plus, QrCode, Save, Trash2, Type } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowLeft, Check, Download, Lock, MousePointerClick, Plus, ImagePlus, QrCode, Save, Trash2, Type } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
 import { EVENT_SOURCES, resolveSource, type CertContext } from "@/lib/certificate/sources";
-import { FONT_OPTIONS, type Item, type Layout, type QrItem, type TextItem } from "@/lib/certificate/types";
+import { FONT_OPTIONS, type ImageItem, type Item, type Layout, type QrItem, type TextItem } from "@/lib/certificate/types";
 import type { DesignDTO } from "@/lib/designs";
 import { saveDesign } from "../../../design-actions";
 
 type Props = {
+  logoUrl: string | null;
   design: DesignDTO;
   isPro: boolean;
   isActive: boolean;
@@ -23,7 +24,7 @@ type Props = {
 
 const SAVED_MSG = "Desain tersimpan.";
 
-export default function DesignEditor({ design, isPro, isActive, sample, fields, onBack, onSaved, onUse }: Props) {
+export default function DesignEditor({ design, isPro, isActive, sample, fields, logoUrl, onBack, onSaved, onUse }: Props) {
   const [name, setName] = useState(design.name);
   const [layout, setLayout] = useState<Layout>(design.layout);
   const [saved, setSaved] = useState(() => JSON.stringify({ n: design.name, l: design.layout }));
@@ -57,19 +58,20 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
     [layout, sample, labelOf],
   );
 
-  const current = layout.items.find((i) => i.id === selected) as TextItem | QrItem | undefined;
+  const current = layout.items.find((i) => i.id === selected) as TextItem | QrItem | ImageItem | undefined;
   const numberOf = (id?: string) => layout.items.findIndex((i) => i.id === id) + 1;
   const highlight = showBadges ? (it: TextItem | QrItem) => ({ color: it.id === selected ? "#4f46e5" : "#64748b", n: String(numberOf(it.id)) }) : undefined;
 
-  const rowLabel = (it: Item) => (it.type === "qr" ? "Kode QR verifikasi" : it.type === "text" ? (it.source ? (labelOf.get(it.source) ?? it.source) : "Teks tetap") : "");
+  const rowLabel = (it: Item) => (it.type === "image" ? "Logo penyelenggara" : it.type === "qr" ? "Kode QR verifikasi" : it.type === "text" ? (it.source ? (labelOf.get(it.source) ?? it.source) : "Teks tetap") : "");
   const rowValue = (it: Item) => {
     if (it.type === "qr") return `${Math.round(it.size)} px`;
+    if (it.type === "image") return logoUrl ? `${Math.round(it.w)} × ${Math.round(it.h)} px` : "belum diunggah";
     if (it.type !== "text") return "";
     const v = it.source ? resolveSource(it.source, sample) : (it.text ?? "");
     return v || "kosong pada contoh ini";
   };
 
-  const patch = (id: string, p: Partial<TextItem> & Partial<QrItem>) =>
+  const patch = (id: string, p: Partial<TextItem> & Partial<QrItem> & Partial<ImageItem>) =>
     setLayout((l) => ({ ...l, items: l.items.map((i) => (i.id === id ? ({ ...i, ...p } as Item) : i)) }));
   const remove = (id?: string) => {
     setLayout((l) => ({ ...l, items: l.items.filter((x) => x.id !== id) }));
@@ -79,6 +81,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
   const usedSources = new Set(layout.items.flatMap((i) => (i.type === "text" && i.source ? [i.source] : [])));
   const unused = sources.filter((s) => !usedSources.has(s.value));
   const hasQr = layout.items.some((i) => i.type === "qr");
+  const hasLogo = layout.items.some((i) => i.type === "image" && i.src === "logo");
 
   /** Posisi Y pertama yang belum ditempati elemen lain, agar elemen baru tidak menumpuk. */
   function freeY() {
@@ -96,6 +99,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
     add({ type: "text", id: uid("t"), x: 500, y: freeY(), size: small ? 18 : 28, font: "sans", color: "#1f2937", align: "center", source, maxWidth: 800 });
   };
   const addStatic = () => add({ type: "text", id: uid("t"), x: 500, y: freeY(), size: 24, font: "sans", color: "#1f2937", align: "center", text: "Teks tetap", maxWidth: 800 });
+  const addLogo = () => add({ type: "image", id: uid("l"), x: 60, y: 40, w: 220, h: 90, src: "logo" });
   const addQr = () => add({ type: "qr", id: uid("q"), x: 880, y: layout.height - 120, size: 80, color: "#111827" });
 
   function doSave(after?: () => void) {
@@ -183,6 +187,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
             <p className="mb-2 text-sm font-semibold">Tambah elemen</p>
             <div className="flex flex-wrap gap-1.5">
               <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addStatic}><Type className="h-4 w-4" />Teks tetap</button>
+              {!hasLogo && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addLogo}><ImagePlus className="h-4 w-4" />Logo penyelenggara</button>}
               {!hasQr && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addQr}><QrCode className="h-4 w-4" />Kode QR</button>}
             </div>
             <p className={`${sectionTitle} mt-3`}>Parameter data</p>
@@ -195,7 +200,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
 
         {/* Tengah: kanvas */}
         <div className="order-1 min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white lg:order-2">
-          <CertificateSvg layout={preview} backgroundUrl={design.previewUrl} highlight={highlight} className="block h-auto w-full" selectedId={selected} onSelect={setSelected} onMove={(id, x, y) => patch(id, { x, y })} />
+          <CertificateSvg layout={preview} backgroundUrl={design.previewUrl} images={logoUrl ? { logo: logoUrl } : undefined} highlight={highlight} className="block h-auto w-full" selectedId={selected} onSelect={setSelected} onMove={(id, x, y) => patch(id, { x, y })} />
         </div>
 
         {/* Kanan: properti elemen terpilih */}
@@ -250,6 +255,18 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
                       <p className="hint">Teks yang lebih panjang otomatis diperkecil.</p>
                     </section>
                   </>
+                )}
+
+                {current.type === "image" && (
+                  <section>
+                    <p className={sectionTitle}>Ukuran logo</p>
+                    {!logoUrl && <p className="mb-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-800">Logo belum diunggah. Unggah di tab Ringkasan, bagian Data acara.</p>}
+                    <label className="label !text-xs">Lebar ({Math.round(current.w)}px)</label>
+                    <input type="range" min={40} max={500} className="w-full" value={current.w} onChange={(e) => patch(current.id!, { w: Number(e.target.value) })} />
+                    <label className="label mt-2 !text-xs">Tinggi ({Math.round(current.h)}px)</label>
+                    <input type="range" min={30} max={400} className="w-full" value={current.h} onChange={(e) => patch(current.id!, { h: Number(e.target.value) })} />
+                    <p className="hint">Gambar menyesuaikan kotak tanpa terpotong.</p>
+                  </section>
                 )}
 
                 {current.type === "qr" && (

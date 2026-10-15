@@ -16,6 +16,7 @@ type Tpl = { id: string; name: string; tier: "free" | "pro"; layout: Layout };
 type TplMeta = Omit<Tpl, "layout">;
 
 type Props = {
+  logoUrl: string | null;
   programId: string;
   userId: string;
   isPro: boolean;
@@ -138,6 +139,7 @@ export default function DesignClient(p: Props) {
           </>
         ) : (
           <DesignsPanel
+            logoUrl={p.logoUrl}
             programId={p.programId}
             userId={p.userId}
             isPro={p.isPro}

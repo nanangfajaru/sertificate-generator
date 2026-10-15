@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Participant, Program } from "@/lib/db";
-import { loadBackground, ownerIsPro, resolvedFor, signatureImages, withSignatures } from "@/lib/certificate/load";
+import { loadBackground, ownerIsPro, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
 import { renderCertificatePdf } from "@/lib/certificate/pdf";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -17,7 +17,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ code: stri
   const { data: prog } = await admin.from("programs").select("*").eq("id", participant.program_id).single();
   const program = prog as Program;
 
-  const layout = withSignatures(resolvedFor(program, participant, !(await ownerIsPro(admin, program.owner_id))), program);
+  const layout = withBranding(resolvedFor(program, participant, !(await ownerIsPro(admin, program.owner_id))), program);
   const bytes = await renderCertificatePdf(layout, await loadBackground(admin, program), await signatureImages(admin, program));
 
   const nameId = program.mapping?.name;

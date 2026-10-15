@@ -10,6 +10,7 @@ import DesignEditor from "./DesignEditor";
 import { MAX_DESIGN_BYTES, readDesign, uploadDesignFiles } from "./design-upload";
 
 type Props = {
+  logoUrl: string | null;
   programId: string;
   userId: string;
   isPro: boolean;
@@ -21,7 +22,7 @@ type Props = {
   onActiveChange: (id: string | null) => void;
 };
 
-export default function DesignsPanel({ programId, userId, isPro, designs, activeId, sample, fields, onDesignsChange, onActiveChange }: Props) {
+export default function DesignsPanel({ programId, userId, isPro, designs, activeId, sample, fields, logoUrl, onDesignsChange, onActiveChange }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -74,6 +75,7 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
   if (editing) {
     return (
       <DesignEditor
+        logoUrl={logoUrl}
         key={editing.id}
         design={editing}
         isPro={isPro}

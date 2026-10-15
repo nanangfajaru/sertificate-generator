@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { BadgeCheck, Download, Mail } from "lucide-react";
 import CertificateSvg from "@/components/CertificateSvg";
 import type { Participant, Program } from "@/lib/db";
-import { ownerIsPro, previewUrl, resolvedFor, signatureUrls, withSignatures } from "@/lib/certificate/load";
+import { ownerIsPro, previewUrl, resolvedFor, signatureUrls, withBranding } from "@/lib/certificate/load";
 import { mailConfigured } from "@/lib/mailer";
 import { emailFieldOf } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -66,7 +66,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
               </p>
             )}
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <CertificateSvg layout={withSignatures(resolvedFor(program, participant, !isPro), program)} backgroundUrl={bgUrl} images={sigUrls} className="block h-auto w-full" />
+              <CertificateSvg layout={withBranding(resolvedFor(program, participant, !isPro), program)} backgroundUrl={bgUrl} images={sigUrls} className="block h-auto w-full" />
             </div>
           </>
         ) : participant.status === "pending" ? (
