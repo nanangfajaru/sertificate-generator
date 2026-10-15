@@ -1,7 +1,7 @@
 "use server";
 
 import { requireUser } from "@/lib/auth";
-import { PLANS, createSnapTransaction, findVoucher, grantPro, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
+import { PLANS, createSnapTransaction, findVoucher, getPricing, grantPro, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
 import { randomCode } from "@/lib/util";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -12,14 +12,14 @@ export type VoucherCheck = { error?: string; code?: string; percent?: number; pr
 /** Cek voucher dan hitung harga baru untuk kedua paket. */
 export async function checkVoucher(rawCode: string): Promise<VoucherCheck> {
   const { profile } = await requireUser();
-  const r = await findVoucher(createAdminClient(), rawCode, profile.id);
+  const admin = createAdminClient();
+  const [r, pricing] = await Promise.all([findVoucher(admin, rawCode, profile.id), getPricing(admin)]);
   if (!r.voucher) return { error: r.error };
   const v = r.voucher;
-  if (v.discount_percent <= 0) return { code: v.code, percent: 0, prices: { monthly: PLANS.monthly.price, yearly: PLANS.yearly.price } };
   return {
     code: v.code,
     percent: v.discount_percent,
-    prices: { monthly: priceWith("monthly", v).amount, yearly: priceWith("yearly", v).amount },
+    prices: { monthly: priceWith("monthly", pricing, v).amount, yearly: priceWith("yearly", pricing, v).amount },
   };
 }
 
@@ -35,7 +35,7 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
     if (!r.voucher) return { error: r.error };
     voucher = r.voucher;
   }
-  const price = priceWith(plan, voucher);
+  const price = priceWith(plan, await getPricing(admin), voucher);
   const orderId = `SO-${Date.now().toString(36)}-${randomCode(3)}`.toUpperCase();
   const row = {
     order_id: orderId,

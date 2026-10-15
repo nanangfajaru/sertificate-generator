@@ -60,3 +60,22 @@ export async function saveReferralDefaults(_: unknown, fd: FormData): Promise<{ 
   revalidatePath("/dashboard/referral");
   return { ok: true };
 }
+
+export async function savePricing(_: unknown, fd: FormData): Promise<{ error?: string; ok?: boolean }> {
+  if (!(await guard())) return { error: "Tidak diizinkan" };
+  const n = z.coerce.number().int().min(0).max(100_000_000);
+  const p = z.object({ ml: n, mp: n, yl: n, yp: n }).safeParse({ ml: fd.get("monthlyList"), mp: fd.get("monthlyPrice"), yl: fd.get("yearlyList"), yp: fd.get("yearlyPrice") });
+  if (!p.success) return { error: "Isi harga dengan angka rupiah" };
+  const d = p.data;
+  if (d.mp < 1 || d.yp < 1) return { error: "Harga jual minimal Rp1" };
+  if (d.ml < d.mp || d.yl < d.yp) return { error: "Harga coret tidak boleh lebih kecil dari harga jual" };
+  const { error } = await createAdminClient().from("app_settings").upsert({
+    key: "pricing",
+    value: { monthly: { list: d.ml, price: d.mp }, yearly: { list: d.yl, price: d.yp } },
+    updated_at: new Date().toISOString(),
+  });
+  if (error) return { error: "Gagal menyimpan harga" };
+  revalidatePath("/admin/vouchers");
+  revalidatePath("/dashboard/upgrade");
+  return { ok: true };
+}

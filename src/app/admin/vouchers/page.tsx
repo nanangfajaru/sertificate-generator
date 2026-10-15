@@ -2,7 +2,8 @@ import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import CopyButton from "@/components/CopyButton";
 import { siteUrl } from "@/lib/util";
-import { getReferralDefaults } from "@/lib/billing";
+import { getPricing, getReferralDefaults } from "@/lib/billing";
+import PricingForm from "./PricingForm";
 import DefaultsForm from "./DefaultsForm";
 import ToggleButton from "./ToggleButton";
 import VoucherForm from "./VoucherForm";
@@ -18,7 +19,8 @@ type Order = { id: string; order_id: string; plan: string; amount: number; disco
 export default async function VouchersPage() {
   await requireAdmin();
   const admin = createAdminClient();
-  const [defaults, { data: vs }, { data: os }] = await Promise.all([
+  const [pricing, defaults, { data: vs }, { data: os }] = await Promise.all([
+    getPricing(admin),
     getReferralDefaults(admin),
     admin.from("vouchers").select("*").order("created_at", { ascending: false }),
     admin.from("orders").select("id, order_id, plan, amount, discount_amount, commission_amount, voucher_id, voucher_code, status, paid_at, created_at, profiles(email)").order("created_at", { ascending: false }).limit(1000),
@@ -48,6 +50,8 @@ export default async function VouchersPage() {
           <div key={l} className="card !p-4"><p className="text-2xl font-bold">{v}</p><p className="text-xs text-slate-500">{l}</p></div>
         ))}
       </div>
+
+      <PricingForm pricing={pricing} />
 
       <DefaultsForm discount={defaults.discount_percent} commission={defaults.commission_percent} />
 

@@ -5,9 +5,12 @@ import { useState, useTransition } from "react";
 import { checkVoucher, startCheckout, type VoucherCheck } from "./actions";
 
 type Plans = { monthly: number; yearly: number };
+type Pricing = Record<"monthly" | "yearly", { list: number; price: number }>;
 const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
-export default function Checkout({ prices, configured, saving, initialCode = "" }: { prices: Plans; configured: boolean; saving: number; initialCode?: string }) {
+export default function Checkout({ pricing, configured, initialCode = "" }: { pricing: Pricing; configured: boolean; initialCode?: string }) {
+  const prices: Plans = { monthly: pricing.monthly.price, yearly: pricing.yearly.price };
+  const saving = Math.max(0, pricing.monthly.price * 12 - pricing.yearly.price);
   const [code, setCode] = useState(initialCode);
   const [v, setV] = useState<VoucherCheck | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -47,7 +50,12 @@ export default function Checkout({ prices, configured, saving, initialCode = "" 
         {rp(price(k))}
         <span className="text-base font-normal text-slate-500"> / {unit}</span>
       </p>
-      {applied && applied.percent ? <p className="mt-1 text-sm text-slate-400 line-through">{rp(prices[k])}</p> : null}
+      {pricing[k].list > price(k) ? (
+        <p className="mt-1 text-sm text-slate-400">
+          <span className="line-through">{rp(pricing[k].list)}</span>
+          <span className="ml-2 rounded bg-emerald-50 px-1.5 py-0.5 text-xs font-semibold text-emerald-700">Hemat {Math.round((1 - price(k) / pricing[k].list) * 100)}%</span>
+        </p>
+      ) : null}
       <p className="mt-2 flex-1 text-sm text-slate-600">{note}</p>
       <button className={`btn mt-4 w-full ${primary ? "btn-primary" : ""}`} disabled={!configured || busy !== null} onClick={() => pay(k)}>
         {busy === k ? <><Loader2 className="h-4 w-4 animate-spin" /> Mengalihkan…</> : `Pilih ${unit === "bulan" ? "bulanan" : "tahunan"}`}
@@ -75,7 +83,7 @@ export default function Checkout({ prices, configured, saving, initialCode = "" 
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Card k="monthly" title="Pro Bulanan" unit="bulan" note="Fleksibel, perpanjang kapan saja." />
-        <Card k="yearly" title="Pro Tahunan" unit="tahun" note={`Setara ${rp(Math.round(price("yearly") / 12))} per bulan — paling hemat.`} primary badge={`Hemat ${rp(saving)}`} />
+        <Card k="yearly" title="Pro Tahunan" unit="tahun" note={`Setara ${rp(Math.round(price("yearly") / 12))} per bulan — paling hemat.`} primary badge={saving > 0 ? `Hemat ${rp(saving)}` : undefined} />
       </div>
       {!configured && <p className="mt-3 text-center text-xs text-slate-500">Pembayaran online belum aktif. Hubungi admin untuk mengaktifkan paket Pro.</p>}
       <p className="mt-3 text-center text-xs text-slate-500">Pembayaran diproses aman oleh Midtrans (transfer bank, e-wallet, QRIS, kartu). Pro aktif otomatis setelah pembayaran berhasil.</p>

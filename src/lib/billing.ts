@@ -9,6 +9,23 @@ export const PLANS: Record<PlanKey, { label: string; price: number; months: numb
   yearly: { label: "Pro Tahunan", price: 499000, months: 12 },
 };
 
+export type PlanPricing = { list: number; price: number };
+export type Pricing = Record<PlanKey, PlanPricing>;
+// Bawaan: harga jual = harga paket; harga coret (list) bisa diubah admin di pengaturan master.
+const DEFAULT_PRICING: Pricing = { monthly: { list: 79000, price: PLANS.monthly.price }, yearly: { list: 699000, price: PLANS.yearly.price } };
+
+/** Harga master: `list` = harga normal (dicoret di tampilan), `price` = harga jual yang menjadi dasar diskon voucher. */
+export async function getPricing(admin: SupabaseClient): Promise<Pricing> {
+  const { data } = await admin.from("app_settings").select("value").eq("key", "pricing").maybeSingle();
+  const v = (data?.value ?? {}) as Partial<Record<PlanKey, Partial<PlanPricing>>>;
+  const n = (x: unknown, d: number) => (typeof x === "number" && Number.isFinite(x) && x >= 0 ? Math.round(x) : d);
+  const one = (k: PlanKey): PlanPricing => {
+    const price = n(v[k]?.price, DEFAULT_PRICING[k].price);
+    return { price, list: Math.max(price, n(v[k]?.list, DEFAULT_PRICING[k].list)) };
+  };
+  return { monthly: one("monthly"), yearly: one("yearly") };
+}
+
 export type Voucher = {
   id: string;
   code: string;
@@ -56,8 +73,9 @@ export async function findVoucher(admin: SupabaseClient, rawCode: string, userId
   return { voucher: v };
 }
 
-export function priceWith(plan: PlanKey, voucher?: Pick<Voucher, "discount_percent" | "commission_percent"> | null) {
-  const base = PLANS[plan].price;
+/** Diskon voucher dihitung dari harga jual (bukan harga coret); komisi dari jumlah yang dibayar pembeli. */
+export function priceWith(plan: PlanKey, pricing: Pricing, voucher?: Pick<Voucher, "discount_percent" | "commission_percent"> | null) {
+  const base = pricing[plan].price;
   const discount = voucher ? Math.round((base * voucher.discount_percent) / 100) : 0;
   const amount = base - discount;
   const commission = voucher ? Math.round((amount * voucher.commission_percent) / 100) : 0;

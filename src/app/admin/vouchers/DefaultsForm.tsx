@@ -16,7 +16,7 @@ export default function DefaultsForm({ discount, commission }: { discount: numbe
         <input name="discount" type="number" min={0} max={100} defaultValue={discount} className="input" required />
       </div>
       <div>
-        <label className="label">Komisi pemilik kode (%)</label>
+        <label className="label">Komisi pemilik kode (% dari jumlah dibayar pembeli)</label>
         <input name="commission" type="number" min={0} max={100} defaultValue={commission} className="input" required />
       </div>
       <div className="flex items-end"><button className="btn btn-primary w-full" disabled={pending}>{pending ? "Menyimpan…" : "Simpan"}</button></div>
