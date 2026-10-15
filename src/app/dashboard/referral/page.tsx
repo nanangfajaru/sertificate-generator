@@ -2,7 +2,7 @@ import { Crown, Lock, Percent, Wallet } from "lucide-react";
 import Link from "next/link";
 import CopyButton from "@/components/CopyButton";
 import { requireUser } from "@/lib/auth";
-import { getReferralDefaults } from "@/lib/billing";
+import { PLANS, getPricing, getReferralDefaults, priceWith, type PlanKey } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/util";
 import { ensureReferral } from "@/lib/referral";
@@ -30,7 +30,8 @@ function who(p: { full_name: string | null; email: string | null } | null) {
 export default async function ReferralPage() {
   const { profile, isPro } = await requireUser();
   const admin = createAdminClient();
-  const [d, v] = await Promise.all([getReferralDefaults(admin), ensureReferral(admin, profile)]);
+  const [d, v, pricing] = await Promise.all([getReferralDefaults(admin), ensureReferral(admin, profile), getPricing(admin)]);
+  const examples = (["monthly", "yearly"] as PlanKey[]).map((k) => ({ label: PLANS[k].label, ...priceWith(k, pricing, d) }));
   const { data: orders } = v
     ? await admin.from("orders").select("plan, amount, commission_amount, status, created_at, paid_at, profiles(full_name, email)").eq("voucher_id", v.id).in("status", ["paid", "pending"]).order("created_at", { ascending: false }).limit(200)
     : { data: [] };
@@ -45,7 +46,14 @@ export default async function ReferralPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Referral</h1>
-        <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari jumlah yang dibayarkan pembeli. Contoh: pembeli membayar Rp374.250 dengan komisi 50% → Anda mendapat Rp187.125.</p>
+        <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari jumlah yang dibayarkan pembeli.</p>
+        <ul className="mt-3 space-y-1.5 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-600">
+          {examples.map((e) => (
+            <li key={e.label}>
+              <b className="text-slate-800">{e.label}</b> {rp(e.base)} − diskon {d.discount_percent}% ({rp(e.discount)}) → pembeli membayar <b>{rp(e.amount)}</b> → komisi {d.commission_percent}% = <b className="text-emerald-700">{rp(e.commission)}</b> untuk Anda
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
