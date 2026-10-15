@@ -5,11 +5,15 @@ import { requireAdmin } from "@/lib/auth";
 import { formatDateRange } from "@/lib/certificate/sources";
 import type { Participant, Program, ProgramField } from "@/lib/db";
 import { publicLink, siteUrl } from "@/lib/util";
+import Pager, { pageOf } from "@/components/admin/Pager";
+
+const SIZE = 50;
 
 const STATUS = { pending: ["Menunggu", "badge-warn"], approved: ["Disetujui", "badge-ok"], rejected: ["Ditolak", "badge-bad"], revoked: ["Dicabut", "badge-revoked"] } as const;
 
-export default async function AdminProgram({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminProgram({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ page?: string }> }) {
   const { id } = await params;
+  const page = pageOf((await searchParams).page);
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const { supabase } = await requireAdmin();
   const { data } = await supabase.from("programs").select("*, owner:profiles(email, full_name)").eq("id", id).maybeSingle();
@@ -17,7 +21,7 @@ export default async function AdminProgram({ params }: { params: Promise<{ id: s
   const program = data as Program & { owner: { email: string; full_name: string | null } | null };
   const { data: f } = await supabase.from("program_fields").select("*").eq("program_id", id).order("sort");
   const fields = (f ?? []) as ProgramField[];
-  const { data: p, count } = await supabase.from("participants").select("*", { count: "exact" }).eq("program_id", id).order("created_at", { ascending: false }).limit(500);
+  const { data: p, count } = await supabase.from("participants").select("*", { count: "exact" }).eq("program_id", id).order("created_at", { ascending: false }).range((page - 1) * SIZE, page * SIZE - 1);
   const rows = (p ?? []) as Participant[];
 
   return (
@@ -51,7 +55,7 @@ export default async function AdminProgram({ params }: { params: Promise<{ id: s
       </div>
 
       <div>
-        <h2 className="mb-2 font-semibold">Peserta ({count ?? rows.length}{(count ?? 0) > rows.length ? `, menampilkan ${rows.length} terbaru` : ""})</h2>
+        <h2 className="mb-2 font-semibold">Peserta ({count ?? rows.length})</h2>
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
@@ -73,6 +77,7 @@ export default async function AdminProgram({ params }: { params: Promise<{ id: s
             </tbody>
           </table>
         </div>
+        <div className="mt-3"><Pager path={`/admin/programs/${id}`} params={{}} page={page} total={count ?? 0} size={SIZE} noun="peserta" /></div>
       </div>
     </div>
   );

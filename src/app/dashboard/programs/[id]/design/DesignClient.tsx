@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, Download, Eye, LayoutTemplate, Lock, Palette, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Sparkles, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
@@ -8,6 +8,7 @@ import LazyMount from "@/components/LazyMount";
 import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
 import { brandLayout } from "@/lib/certificate/branding";
 import { TEMPLATES } from "@/lib/certificate/templates";
+import { TEMPLATE_GROUPS, templateGroup, type TemplateGroupKey } from "@/lib/certificate/template-groups";
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
 import type { DesignDTO } from "@/lib/designs";
@@ -42,6 +43,7 @@ export default function DesignClient(p: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [preview, setPreview] = useState<Tpl | null>(null);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+  const [group, setGroup] = useState<"all" | TemplateGroupKey>("all");
   const [, start] = useTransition();
 
   useEffect(() => {
@@ -63,11 +65,16 @@ export default function DesignClient(p: Props) {
   }, [preview]);
 
   const logoImages = p.images;
+  const visible = group === "all" ? templates : templates.filter((t) => templateGroup(t.id) === group);
+  const sections = group === "all"
+    ? TEMPLATE_GROUPS.map((g) => ({ key: g.key, label: g.label, items: templates.filter((t) => templateGroup(t.id) === g.key) })).filter((g) => g.items.length)
+    : [{ key: group, label: TEMPLATE_GROUPS.find((g) => g.key === group)?.label ?? "", items: visible }];
   function step(d: number) {
     setPreview((cur) => {
       if (!cur) return cur;
-      const i = templates.findIndex((t) => t.id === cur.id);
-      return templates[(i + d + templates.length) % templates.length];
+      const list = visible.length ? visible : templates;
+      const i = list.findIndex((t) => t.id === cur.id);
+      return list[(i + d + list.length) % list.length];
     });
   }
 
@@ -89,7 +96,7 @@ export default function DesignClient(p: Props) {
   return (
     <div>
       {/* Bar tetap: tetap terlihat saat menggulir daftar template */}
-      <div className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur">
+      <div className="sticky top-14 z-10 -mx-4 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="inline-flex rounded-xl border border-slate-300 bg-white p-1 text-sm font-medium shadow-sm">
             <button className={`flex items-center gap-2 rounded-lg px-4 py-2 transition ${tab === "template" ? "bg-brand-600 text-white shadow-sm" : "text-slate-700 hover:bg-slate-100"}`} onClick={() => setTab("template")}>
@@ -97,6 +104,7 @@ export default function DesignClient(p: Props) {
             </button>
             <button className={`flex items-center gap-2 rounded-lg px-4 py-2 transition ${tab === "custom" ? "bg-brand-600 text-white shadow-sm" : "text-slate-700 hover:bg-slate-100"}`} onClick={() => setTab("custom")}>
               <Palette className="h-4 w-4" /> Desain sendiri
+              <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tab === "custom" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"}`}><Crown className="h-2.5 w-2.5" />Pro</span>
             </button>
           </div>
           <p className="hidden min-w-0 flex-1 truncate text-sm text-slate-600 sm:block">
@@ -116,9 +124,30 @@ export default function DesignClient(p: Props) {
       <div className="mt-5 space-y-5">
         {tab === "template" ? (
           <>
-            {!p.isPro && <p className="text-sm text-slate-500">Template bertanda Pro terkunci pada paket Free.</p>}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {templates.map((t) => {
+            <button type="button" onClick={() => setTab("custom")} className="group relative flex w-full flex-wrap items-center gap-4 overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-r from-brand-600 via-indigo-600 to-violet-600 p-4 text-left text-white shadow-sm transition hover:shadow-md sm:p-5">
+              <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/10" />
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/15"><Upload className="h-5 w-5" /></span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 font-semibold">Punya desain sendiri dari Canva atau Photoshop? <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-300 px-1.5 py-0.5 text-[10px] font-bold text-amber-950"><Crown className="h-2.5 w-2.5" />Pro</span></span>
+                <span className="mt-0.5 block text-sm text-brand-100">Unggah PDF/PNG/JPG, lalu geser posisi nama peserta dan QR. {p.isPro ? "Hingga 20 desain." : "Coba gratis: buat dan simpan hingga 3 desain."}</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-brand-700 shadow-sm transition group-hover:bg-brand-50"><Sparkles className="h-4 w-4" /> Coba desain sendiri</span>
+            </button>
+
+            <div className="flex flex-wrap gap-1.5">
+              {[{ key: "all" as const, label: "Semua", n: templates.length }, ...TEMPLATE_GROUPS.map((g) => ({ key: g.key, label: g.label, n: templates.filter((t) => templateGroup(t.id) === g.key).length }))].map((g) => (
+                <button key={g.key} type="button" onClick={() => setGroup(g.key)} className={`rounded-full border px-3 py-1 text-xs font-medium transition ${group === g.key ? "border-brand-600 bg-brand-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
+                  {g.label} <span className={group === g.key ? "text-brand-100" : "text-slate-400"}>{g.n}</span>
+                </button>
+              ))}
+            </div>
+            {!p.isPro && <p className="text-xs text-slate-500">Template bertanda Pro terkunci pada paket Free.</p>}
+
+            {sections.map((sec) => (
+              <section key={sec.key}>
+                {group === "all" && <h3 className="mb-2.5 text-sm font-semibold text-slate-700">{sec.label} <span className="font-normal text-slate-400">· {sec.items.length}</span></h3>}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {sec.items.map((t) => {
                 const locked = t.tier === "pro" && !p.isPro;
                 const active = mode === "template" && t.id === activeId;
                 return (
@@ -151,8 +180,10 @@ export default function DesignClient(p: Props) {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+                  })}
+                </div>
+              </section>
+            ))}
             {mode === "custom" && (
               <button
                 className="btn"
@@ -187,7 +218,7 @@ export default function DesignClient(p: Props) {
             <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
               <div className="min-w-0">
                 <p className="truncate font-semibold">{preview.name}</p>
-                <p className="text-xs text-slate-500">{templates.findIndex((t) => t.id === preview.id) + 1} dari {templates.length} template</p>
+                <p className="text-xs text-slate-500">{(visible.length ? visible : templates).findIndex((t) => t.id === preview.id) + 1} dari {(visible.length ? visible : templates).length} template</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`badge ${preview.tier === "pro" ? "badge-pro" : ""}`}>{preview.tier === "pro" ? "Pro" : "Free"}</span>

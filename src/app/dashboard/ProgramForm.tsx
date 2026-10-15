@@ -1,10 +1,10 @@
 "use client";
 
-import { CalendarDays, PenLine, Workflow } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Check, PenLine, Workflow } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import LogoUpload from "./LogoUpload";
 import SignatureUpload from "./SignatureUpload";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { CERT_TYPES, CUSTOM_TYPE, isPresetType, presetDescription } from "@/lib/cert-types";
 import type { Program } from "@/lib/db";
 import type { ActionState } from "./actions";
@@ -16,9 +16,17 @@ type Props = {
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
   program?: Program;
   submitLabel: string;
+  /** Tampilkan sebagai wizard 3 langkah (dipakai saat membuat program baru). */
+  wizard?: boolean;
 };
 
-export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg, logoUrl }: Props) {
+const STEPS = [
+  { title: "Data acara", icon: CalendarDays },
+  { title: "Penandatangan", icon: PenLine },
+  { title: "Alur sertifikat", icon: Workflow },
+];
+
+export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg, logoUrl, wizard = false }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const edit = !!p;
 
@@ -31,6 +39,20 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
   const [descEdited, setDescEdited] = useState(() => !!p && p.description !== presetDescription(initialType));
   const certType = typeSel === CUSTOM_TYPE ? customType : typeSel;
 
+  // Wizard: semua bagian tetap ada di form (agar ikut terkirim), hanya bagian aktif yang terlihat.
+  const [step, setStep] = useState(0);
+  const sections = useRef<(HTMLElement | null)[]>([]);
+  const last = !wizard || step === STEPS.length - 1;
+  const show = (i: number) => (!wizard || step === i ? "" : "hidden");
+
+  function next() {
+    const sec = sections.current[step];
+    const invalid = sec ? Array.from(sec.querySelectorAll<HTMLInputElement>("input, select, textarea")).find((el) => !el.checkValidity()) : null;
+    if (invalid) return invalid.reportValidity();
+    setStep((s) => Math.min(STEPS.length - 1, s + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function onTypeChange(v: string) {
     setTypeSel(v);
     const next = presetDescription(v);
@@ -38,8 +60,43 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
   }
 
   return (
-    <form action={formAction} className="space-y-6">
-      <section className="card space-y-4">
+    <form
+      action={formAction}
+      className="space-y-6"
+      onKeyDown={(e) => {
+        // Enter di langkah awal berarti "lanjut", bukan langsung membuat program.
+        if (wizard && !last && e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
+          e.preventDefault();
+          next();
+        }
+      }}
+    >
+      {wizard && (
+        <ol className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+          {STEPS.map((st, i) => {
+            const done = i < step;
+            const cur = i === step;
+            return (
+              <li key={st.title} className="flex flex-1 items-center gap-2">
+                <button
+                  type="button"
+                  disabled={i > step}
+                  onClick={() => setStep(i)}
+                  className={`flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition ${cur ? "bg-brand-50 text-brand-700" : done ? "text-slate-700 hover:bg-slate-50" : "text-slate-400"}`}
+                >
+                  <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold ${cur ? "bg-brand-600 text-white" : done ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-500"}`}>
+                    {done ? <Check className="h-4 w-4" /> : i + 1}
+                  </span>
+                  <span className="hidden truncate font-medium sm:block">{st.title}</span>
+                </button>
+                {i < STEPS.length - 1 && <span className={`h-px w-4 shrink-0 sm:w-8 ${done ? "bg-emerald-400" : "bg-slate-200"}`} />}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+
+      <section ref={(el) => { sections.current[0] = el; }} className={`card space-y-4 ${show(0)}`}>
         <SectionTitle icon={CalendarDays} title="Data acara" hint="Informasi kegiatan yang tampil di formulir dan sertifikat." />
         {p ? <LogoUpload programId={p.id} initialUrl={logoUrl ?? null} /> : <p className="hint">Logo penyelenggara dapat diunggah setelah program dibuat.</p>}
         <div>
@@ -84,7 +141,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
         </div>
       </section>
 
-      <section className="card space-y-4">
+      <section ref={(el) => { sections.current[1] = el; }} className={`card space-y-4 ${show(1)}`}>
         <SectionTitle icon={PenLine} title="Penandatangan" hint="Nama, jabatan, dan tanda tangan yang muncul di sertifikat." />
         {[1, 2].map((n) => (
           <div key={n} className={`grid gap-4 sm:grid-cols-2 ${n === 2 ? "mt-8 border-t border-slate-200 pt-8" : ""}`}>
@@ -102,7 +159,7 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
         ))}
       </section>
 
-      <section className="card space-y-4">
+      <section ref={(el) => { sections.current[2] = el; }} className={`card space-y-4 ${show(2)}`}>
         <SectionTitle icon={Workflow} title="Alur sertifikat" hint="Atur kapan sertifikat terbit dan siapa yang diberi tahu." />
         <div className="grid gap-3 sm:grid-cols-2">
           {[
@@ -141,7 +198,18 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
 
       {state.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{state.error}</p>}
       {state.ok && <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">Tersimpan.</p>}
-      <button className="btn btn-primary" disabled={pending}>{pending ? "Menyimpan…" : submitLabel}</button>
+      {wizard ? (
+        <div className="flex items-center justify-between gap-3">
+          {step > 0 ? <button type="button" className="btn" onClick={() => setStep((s) => s - 1)}><ArrowLeft className="h-4 w-4" /> Kembali</button> : <span />}
+          {last ? (
+            <button className="btn btn-primary" disabled={pending}>{pending ? "Menyimpan…" : submitLabel}</button>
+          ) : (
+            <button type="button" className="btn btn-primary" onClick={next}>Lanjut <ArrowRight className="h-4 w-4" /></button>
+          )}
+        </div>
+      ) : (
+        <button className="btn btn-primary" disabled={pending}>{pending ? "Menyimpan…" : submitLabel}</button>
+      )}
     </form>
   );
 }

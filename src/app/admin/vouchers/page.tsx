@@ -9,6 +9,11 @@ import DefaultsForm from "./DefaultsForm";
 import DeleteButton from "./DeleteButton";
 import ToggleButton from "./ToggleButton";
 import VoucherForm from "./VoucherForm";
+import ListToolbar from "@/components/admin/ListToolbar";
+import Pager, { likeTerm, pageOf } from "@/components/admin/Pager";
+
+const VSIZE = 20;
+const TSIZE = 20;
 
 export const metadata = { title: "Voucher · Admin" };
 
@@ -18,13 +23,23 @@ const date = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle:
 type Voucher = { id: string; code: string; label: string | null; discount_percent: number; commission_percent: number; partner_token: string | null; owner_id: string | null; payout_info: string | null; max_uses: number | null; expires_at: string | null; active: boolean; created_at: string };
 type Order = { id: string; order_id: string; plan: string; amount: number; discount_amount: number; commission_amount: number; voucher_id: string | null; voucher_code: string | null; status: string; paid_at: string | null; created_at: string; profiles: { email: string | null } | null };
 
-export default async function VouchersPage() {
+type SP = { q?: string; type?: string; page?: string; tpage?: string };
+
+export default async function VouchersPage({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
   await requireAdmin();
   const admin = createAdminClient();
-  const [pricing, defaults, { data: vs }, { data: os }] = await Promise.all([
+  const vpage = pageOf(sp.page);
+  const tpage = pageOf(sp.tpage);
+  const term = likeTerm(sp.q);
+  let vq = admin.from("vouchers").select("*", { count: "exact" }).order("created_at", { ascending: false }).range((vpage - 1) * VSIZE, vpage * VSIZE - 1);
+  if (term) vq = vq.or(`code.ilike.%${term}%,label.ilike.%${term}%`);
+  if (sp.type === "user") vq = vq.not("owner_id", "is", null);
+  if (sp.type === "admin") vq = vq.is("owner_id", null);
+  const [pricing, defaults, { data: vs, count: vcount }, { data: os }] = await Promise.all([
     getPricing(admin),
     getReferralDefaults(admin),
-    admin.from("vouchers").select("*").order("created_at", { ascending: false }),
+    vq,
     admin.from("orders").select("id, order_id, plan, amount, discount_amount, commission_amount, voucher_id, voucher_code, status, paid_at, created_at, profiles(email)").order("created_at", { ascending: false }).limit(1000),
   ]);
   const vouchers = (vs ?? []) as Voucher[];
@@ -61,6 +76,9 @@ export default async function VouchersPage() {
 
       <VoucherForm />
 
+      <div className="space-y-3">
+      <h2 className="text-lg font-semibold">Daftar kode</h2>
+      <ListToolbar placeholder="Cari kode atau pemilik…" filters={[{ param: "type", label: "Jenis", options: [["admin", "Voucher admin"], ["user", "Referral pengguna"]] }]} />
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
@@ -72,7 +90,7 @@ export default async function VouchersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {vouchers.length === 0 && <tr><td colSpan={10} className="px-3 py-6 text-center text-slate-500">Belum ada voucher.</td></tr>}
+            {vouchers.length === 0 && <tr><td colSpan={10} className="px-3 py-6 text-center text-slate-500">Tidak ada kode.</td></tr>}
             {vouchers.map((v) => {
               const s = stat.get(v.id) ?? { uses: 0, revenue: 0, commission: 0 };
               const expired = v.expires_at && new Date(v.expires_at) < new Date();
@@ -103,6 +121,8 @@ export default async function VouchersPage() {
           </tbody>
         </table>
       </div>
+      <Pager path="/admin/vouchers" params={sp} page={vpage} total={vcount ?? 0} size={VSIZE} noun="kode" />
+      </div>
 
       <div>
         <h2 className="mb-2 text-lg font-semibold">Transaksi terbaru</h2>
@@ -113,7 +133,7 @@ export default async function VouchersPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {orders.length === 0 && <tr><td colSpan={8} className="px-3 py-6 text-center text-slate-500">Belum ada transaksi.</td></tr>}
-              {orders.slice(0, 50).map((o) => (
+              {orders.slice((tpage - 1) * TSIZE, tpage * TSIZE).map((o) => (
                 <tr key={o.id}>
                   <td className="px-3 py-2 font-mono text-xs">{o.order_id}</td>
                   <td className="px-3 py-2">{o.profiles?.email ?? "—"}</td>
@@ -128,6 +148,7 @@ export default async function VouchersPage() {
             </tbody>
           </table>
         </div>
+        <div className="mt-3"><Pager path="/admin/vouchers" params={sp} page={tpage} total={orders.length} size={TSIZE} param="tpage" noun="transaksi" /></div>
       </div>
     </div>
   );

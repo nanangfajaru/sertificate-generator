@@ -18,6 +18,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [msg, setMsg] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [page, setPage] = useState(1);
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -27,6 +28,10 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
         (!needle || Object.values(r.data).some((v) => String(v).toLowerCase().includes(needle)) || (r.cert_number ?? "").toLowerCase().includes(needle)),
     );
   }, [rows, filter, q]);
+  const PAGE = 50;
+  const pages = Math.max(1, Math.ceil(shown.length / PAGE));
+  const cur = Math.min(page, pages);
+  const visible = shown.slice((cur - 1) * PAGE, cur * PAGE);
 
   const allSelected = shown.length > 0 && shown.every((r) => sel.has(r.id));
   const toggleAll = () => setSel(allSelected ? new Set() : new Set(shown.map((r) => r.id)));
@@ -75,14 +80,14 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
   return (
     <div className="space-y-3">
       <div className="card flex flex-wrap items-center gap-2 !p-3">
-        <select className="input !w-auto" value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
+        <select className="input !w-auto" value={filter} onChange={(e) => { setFilter(e.target.value as typeof filter); setPage(1); }}>
           <option value="all">Semua status</option>
           <option value="pending">Menunggu</option>
           <option value="approved">Disetujui</option>
           <option value="rejected">Ditolak</option>
           <option value="revoked">Dicabut</option>
         </select>
-        <input className="input !w-64" placeholder="Cari nama, email, atau nomor…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="input !w-64" placeholder="Cari nama, email, atau nomor…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
         <span className="ml-auto text-sm text-slate-500">{shown.length} peserta</span>
       </div>
 
@@ -118,7 +123,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
             {shown.length === 0 && (
               <tr><td colSpan={fields.length + 6} className="px-3 py-14 text-center"><p className="font-medium text-slate-700">Belum ada peserta</p><p className="mt-1 text-sm text-slate-500">Bagikan link atau QR pendaftaran dari tab Ringkasan agar peserta mulai mengisi.</p></td></tr>
             )}
-            {shown.map((r) => (
+            {visible.map((r) => (
               <tr key={r.id} className={`transition hover:bg-slate-50/70 ${sel.has(r.id) ? "bg-brand-50/50" : ""}`}>
                 <td className="px-3 py-2"><input type="checkbox" checked={sel.has(r.id)} onChange={() => toggle(r.id)} /></td>
                 <td className="whitespace-nowrap px-3 py-2 text-slate-500">{new Date(r.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
@@ -145,6 +150,16 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
           </tbody>
         </table>
       </div>
+      {pages > 1 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+          <p className="text-slate-500">{(cur - 1) * PAGE + 1}–{Math.min(cur * PAGE, shown.length)} dari {shown.length} peserta</p>
+          <div className="flex items-center gap-1.5">
+            <button className="btn btn-sm" disabled={cur <= 1} onClick={() => setPage(cur - 1)} aria-label="Sebelumnya">‹</button>
+            <span className="px-2 text-slate-600">{cur} / {pages}</span>
+            <button className="btn btn-sm" disabled={cur >= pages} onClick={() => setPage(cur + 1)} aria-label="Berikutnya">›</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
