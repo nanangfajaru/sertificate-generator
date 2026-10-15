@@ -1,27 +1,13 @@
-import Link from "next/link";
-import Logo from "@/components/Logo";
 import { requireAdmin } from "@/lib/auth";
-import AdminNav from "./AdminNav";
+import AdminShell from "./AdminShell";
 
 export const metadata = { title: "Admin" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await requireAdmin();
+  const { profile, isPro } = await requireAdmin();
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <Logo href="/admin" size={28} /><span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">Admin</span>
-            <AdminNav />
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-slate-500 sm:inline">{profile.email}</span>
-            <Link href="/dashboard" className="btn btn-sm">Dashboard</Link>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-    </div>
+    <AdminShell name={profile.full_name ?? profile.email ?? "Admin"} email={profile.email} avatarUrl={profile.avatar_url} isPro={isPro}>
+      {children}
+    </AdminShell>
   );
 }

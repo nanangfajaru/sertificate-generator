@@ -30,7 +30,7 @@ export default async function AdminHome() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Ringkasan</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Ringkasan</h1>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
         {stats.map(([l, v]) => (
           <div key={l} className="card !p-4">

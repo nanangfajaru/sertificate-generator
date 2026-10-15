@@ -43,7 +43,7 @@ export default async function VouchersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Voucher & Referral</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Voucher & Referral</h1>
         <p className="text-sm text-slate-500">Setiap voucher bisa dibagikan ke pihak lain sebagai kode referral: pembeli mendapat diskon, pemilik kode mendapat komisi dari tiap pembayaran yang berhasil.</p>
       </div>
 

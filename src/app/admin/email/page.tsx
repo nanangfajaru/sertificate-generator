@@ -21,7 +21,7 @@ export default async function EmailAdmin() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Email sistem</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Email sistem</h1>
 
       <section className="card">
         <h2 className="font-semibold">Konfigurasi SMTP</h2>

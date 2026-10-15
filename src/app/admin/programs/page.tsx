@@ -14,7 +14,7 @@ export default async function AllPrograms() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold">Semua program</h1>
+      <h1 className="mb-4 text-2xl font-bold tracking-tight">Semua program</h1>
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
