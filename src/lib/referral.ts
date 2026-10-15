@@ -12,16 +12,15 @@ export async function getReferral(admin: SupabaseClient, userId: string) {
   return data;
 }
 
-/** Membuat kode referral tetap untuk pengguna (nama + karakter acak). Hanya dipanggil lewat tombol, tidak otomatis. */
+/** Membuat kode referral tetap untuk pengguna (acak, tanpa nama). Hanya dipanggil lewat tombol, tidak otomatis. */
 export async function createReferral(admin: SupabaseClient, user: { id: string; full_name: string | null; email: string | null }) {
   const found = await getReferral(admin, user.id);
   if (found) return found;
   const d = await getReferralDefaults(admin);
-  const base = (user.full_name ?? user.email ?? "").split(/[\s@]/)[0].replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 8) || "SK";
   for (let i = 0; i < 6; i++) {
     const { data, error } = await admin
       .from("vouchers")
-      .insert({ code: `${base}${rand(i < 3 ? 3 : 5)}`, label: user.full_name ?? user.email, owner_id: user.id, discount_percent: d.discount_percent, commission_percent: d.commission_percent })
+      .insert({ code: rand(i < 3 ? 7 : 9), label: user.full_name ?? user.email, owner_id: user.id, discount_percent: d.discount_percent, commission_percent: d.commission_percent })
       .select(cols)
       .single();
     if (data) return data;
