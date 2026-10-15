@@ -9,8 +9,8 @@ export default function ProgramTabs({ id }: { id: string }) {
   const base = `/dashboard/programs/${id}`;
   const tabs = [
     [base, "Ringkasan", LayoutDashboard],
-    [`${base}/form`, "Form pendaftaran", ClipboardList],
     [`${base}/design`, "Sertifikat", Palette],
+    [`${base}/form`, "Form pendaftaran", ClipboardList],
     [`${base}/participants`, "Peserta", Users],
   ] as const;
   return (

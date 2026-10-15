@@ -2,6 +2,8 @@
 
 import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Sparkles, Upload, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import SetupSteps from "@/components/SetupSteps";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
 import LazyMount from "@/components/LazyMount";
@@ -31,6 +33,8 @@ type Props = {
   activeDesignId: string | null;
   sample: CertContext;
   fields: { id: string; label: string }[];
+  /** sedang dalam alur pembuatan program baru (langkah 4) */
+  setup?: boolean;
 };
 
 export default function DesignClient(p: Props) {
@@ -45,6 +49,9 @@ export default function DesignClient(p: Props) {
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
   const [group, setGroup] = useState<"all" | TemplateGroupKey>("all");
   const [, start] = useTransition();
+  const router = useRouter();
+  // Setelah memilih sertifikat, lanjut ke pengaturan formulir.
+  const toForm = () => router.push(`/dashboard/programs/${p.programId}/form${p.setup ? "?setup=1" : ""}`);
 
   useEffect(() => {
     if (!toast) return;
@@ -87,7 +94,8 @@ export default function DesignClient(p: Props) {
       setActiveId(t.id);
       setMode("template");
       setPreview(null);
-      setToast({ ok: true, text: `Template "${t.name}" dipakai.` });
+      setToast({ ok: true, text: `Template "${t.name}" dipakai. Membuka form…` });
+      toForm();
     });
   }
 
@@ -95,6 +103,15 @@ export default function DesignClient(p: Props) {
 
   return (
     <div>
+      {p.setup && (
+        <div className="mb-4 space-y-3">
+          <SetupSteps current={3} />
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-100 bg-brand-50/60 p-3 text-sm">
+            <p className="text-brand-900"><b>Program tersimpan.</b> Pilih template sertifikat (klik <b>Gunakan</b>), atau lanjut dengan yang sedang dipakai.</p>
+            <button type="button" className="btn btn-primary btn-sm" onClick={toForm}>Lanjut dengan {activeName}</button>
+          </div>
+        </div>
+      )}
       {/* Bar tetap: tetap terlihat saat menggulir daftar template */}
       <div className="sticky top-14 z-10 -mx-4 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -207,6 +224,7 @@ export default function DesignClient(p: Props) {
             onActiveChange={(id) => {
               setActiveDesignId(id);
               setMode(id ? "custom" : "template");
+              if (id) toForm();
             }}
           />
         )}

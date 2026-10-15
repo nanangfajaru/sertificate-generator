@@ -6,8 +6,9 @@ import FormBuilder from "./FormBuilder";
 
 export const metadata = { title: "Form pendaftaran" };
 
-export default async function FormPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function FormPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ setup?: string }> }) {
   const { id } = await params;
+  const setup = (await searchParams).setup === "1";
   const { program, fields } = await getOwnedProgram(id);
   const initial = fields.map((f) => ({
     id: f.id,
@@ -23,6 +24,7 @@ export default async function FormPage({ params }: { params: Promise<{ id: strin
 
   return (
     <FormBuilder
+      setup={setup}
       programId={id}
       initial={initial}
       layout={withBranding(programLayout(program), program, { placeholder: true })}

@@ -15,8 +15,9 @@ import { getTemplate } from "@/lib/certificate/templates";
 
 export const metadata = { title: "Ringkasan program" };
 
-export default async function ProgramOverview({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProgramOverview({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }) {
   const { id } = await params;
+  const created = (await searchParams).created === "1";
   const { program, fields, supabase, isPro } = await getOwnedProgram(id);
   const admin = createAdminClient();
   const custom = program.cert_mode === "custom" && !!program.design_layout;
@@ -36,6 +37,13 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
   });
 
   return (
+    <>
+    {created && (
+      <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-emerald-500 text-white">✓</span>
+        <p className="flex-1"><b>Program siap!</b> Bagikan link atau QR pendaftaran di kanan agar peserta mulai mengisi. Logo dan tanda tangan bisa diunggah di bawah.</p>
+      </div>
+    )}
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <ProgramForm action={updateProgram.bind(null, id)} program={program} sigUrls={[sigUrls[0], sigUrls[1]]} logoUrl={logoUrl} submitLabel="Simpan perubahan" />
@@ -80,5 +88,6 @@ export default async function ProgramOverview({ params }: { params: Promise<{ id
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -3,6 +3,8 @@
 import { ArrowDown, ArrowUp, ClipboardList, Eye, Plus, Trash2, X } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import SetupSteps from "@/components/SetupSteps";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg, { type Highlight } from "@/components/CertificateSvg";
 import { resolveLayout, type ProgramLike } from "@/lib/certificate/sources";
@@ -22,11 +24,14 @@ type Props = {
   custom: boolean;
   templateName: string;
   program: ProgramLike;
+  /** langkah terakhir alur pembuatan program baru */
+  setup?: boolean;
 };
 
 const COLORS = ["#4f46e5", "#d97706", "#059669", "#db2777", "#0891b2", "#7c3aed"];
 
-export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program }: Props) {
+export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false }: Props) {
+  const router = useRouter();
   const [rows, setRows] = useState<Row[]>(initial);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
@@ -97,11 +102,14 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
         programId,
         rows.map((r) => ({ ...r, options: r.options.split("\n").map((s) => s.trim()).filter(Boolean) })),
       );
+      if (!res.error && setup) return router.push(`/dashboard/programs/${programId}?created=1`);
       setMsg(res.error ? { ok: false, text: res.error } : { ok: true, text: "Form tersimpan." });
     });
   }
 
   return (
+    <>
+    {setup && <div className="mb-4"><SetupSteps current={4} /></div>}
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
     <div className="min-w-0 space-y-4">
       <SectionTitle icon={ClipboardList} title="Formulir pendaftaran" hint="Atur pertanyaan untuk peserta. Kolom Di sertifikat menentukan field mana yang dicetak sebagai nama peserta dan keterangan (opsional)." />
@@ -173,7 +181,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
         </button>
       </div>
       {msg && <p className={`rounded-lg p-3 text-sm ${msg.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{msg.text}</p>}
-      <div><button className="btn btn-primary" onClick={save} disabled={pending}>{pending ? "Menyimpan…" : "Simpan form"}</button></div>
+      <div><button className="btn btn-primary" onClick={save} disabled={pending}>{pending ? "Menyimpan…" : setup ? "Simpan & selesai" : "Simpan form"}</button></div>
     </div>
 
     <aside className="order-first lg:order-last">
@@ -242,5 +250,6 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
       </div>
     )}
     </div>
+    </>
   );
 }

@@ -71,7 +71,8 @@ export async function createProgram(_: ActionState, fd: FormData): Promise<Actio
   if (fErr) return { error: dbError(fErr.message) };
 
   revalidatePath("/dashboard");
-  redirect(`/dashboard/programs/${id}`);
+  // Lanjut ke langkah 4 (pilih sertifikat) dari alur pembuatan program.
+  redirect(`/dashboard/programs/${id}/design?setup=1`);
 }
 
 export async function updateProgram(id: string, _: ActionState, fd: FormData): Promise<ActionState> {
