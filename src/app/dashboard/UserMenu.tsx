@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Crown, LogOut, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { ChevronDown, Crown, Gift, LogOut, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -59,6 +59,7 @@ export default function UserMenu({ name, email, avatarUrl, isPro, isAdmin }: Pro
             <Link href="/dashboard/upgrade" role="menuitem" className={item} onClick={() => setOpen(false)}>
               <Sparkles className="h-4 w-4 text-slate-500" /> {isPro ? "Paket & perpanjang" : "Upgrade ke Pro"}
             </Link>
+            <Link href="/dashboard/referral" role="menuitem" className={item} onClick={() => setOpen(false)}><Gift className="h-4 w-4 text-slate-500" /> Referral &amp; komisi</Link>
             {isAdmin && <Link href="/admin" role="menuitem" className={item} onClick={() => setOpen(false)}><ShieldCheck className="h-4 w-4 text-slate-500" /> Admin owner</Link>}
           </div>
           <form action="/auth/signout" method="post" className="mt-1.5 border-t border-slate-100 pt-1.5">

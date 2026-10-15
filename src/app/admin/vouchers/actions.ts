@@ -49,3 +49,14 @@ export async function setVoucherActive(id: string, active: boolean) {
   await createAdminClient().from("vouchers").update({ active }).eq("id", id);
   revalidatePath("/admin/vouchers");
 }
+
+export async function saveReferralDefaults(_: unknown, fd: FormData): Promise<{ error?: string; ok?: boolean }> {
+  if (!(await guard())) return { error: "Tidak diizinkan" };
+  const p = z.object({ discount: z.coerce.number().int().min(0).max(100), commission: z.coerce.number().int().min(0).max(100) }).safeParse({ discount: fd.get("discount"), commission: fd.get("commission") });
+  if (!p.success) return { error: "Isi persentase 0–100" };
+  const { error } = await createAdminClient().from("app_settings").upsert({ key: "referral_defaults", value: { discount_percent: p.data.discount, commission_percent: p.data.commission }, updated_at: new Date().toISOString() });
+  if (error) return { error: "Gagal menyimpan pengaturan" };
+  revalidatePath("/admin/vouchers");
+  revalidatePath("/dashboard/referral");
+  return { ok: true };
+}

@@ -2,6 +2,8 @@ import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import CopyButton from "@/components/CopyButton";
 import { siteUrl } from "@/lib/util";
+import { getReferralDefaults } from "@/lib/billing";
+import DefaultsForm from "./DefaultsForm";
 import ToggleButton from "./ToggleButton";
 import VoucherForm from "./VoucherForm";
 
@@ -10,13 +12,14 @@ export const metadata = { title: "Voucher · Admin" };
 const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 const date = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
 
-type Voucher = { id: string; code: string; label: string | null; discount_percent: number; commission_percent: number; partner_token: string | null; max_uses: number | null; expires_at: string | null; active: boolean; created_at: string };
+type Voucher = { id: string; code: string; label: string | null; discount_percent: number; commission_percent: number; partner_token: string | null; owner_id: string | null; payout_info: string | null; max_uses: number | null; expires_at: string | null; active: boolean; created_at: string };
 type Order = { id: string; order_id: string; plan: string; amount: number; discount_amount: number; commission_amount: number; voucher_id: string | null; voucher_code: string | null; status: string; paid_at: string | null; created_at: string; profiles: { email: string | null } | null };
 
 export default async function VouchersPage() {
   await requireAdmin();
   const admin = createAdminClient();
-  const [{ data: vs }, { data: os }] = await Promise.all([
+  const [defaults, { data: vs }, { data: os }] = await Promise.all([
+    getReferralDefaults(admin),
     admin.from("vouchers").select("*").order("created_at", { ascending: false }),
     admin.from("orders").select("id, order_id, plan, amount, discount_amount, commission_amount, voucher_id, voucher_code, status, paid_at, created_at, profiles(email)").order("created_at", { ascending: false }).limit(1000),
   ]);
@@ -46,6 +49,8 @@ export default async function VouchersPage() {
         ))}
       </div>
 
+      <DefaultsForm discount={defaults.discount_percent} commission={defaults.commission_percent} />
+
       <VoucherForm />
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -67,9 +72,9 @@ export default async function VouchersPage() {
               return (
                 <tr key={v.id}>
                   <td className="px-3 py-2 font-mono font-semibold">{v.code}</td>
-                  <td className="px-3 py-2">{v.label || "—"}</td>
-                  <td className="px-3 py-2 text-right">{v.discount_percent}%</td>
-                  <td className="px-3 py-2 text-right">{v.commission_percent}%</td>
+                  <td className="px-3 py-2">{v.label || "—"}{v.owner_id && <span className="badge ml-1.5">Pengguna</span>}{v.payout_info && <div className="mt-0.5 max-w-[14rem] whitespace-pre-wrap text-[11px] text-slate-500">{v.payout_info}</div>}</td>
+                  <td className="px-3 py-2 text-right">{v.owner_id ? defaults.discount_percent : v.discount_percent}%</td>
+                  <td className="px-3 py-2 text-right">{v.owner_id ? defaults.commission_percent : v.commission_percent}%</td>
                   <td className="px-3 py-2 text-right">{s.uses}{v.max_uses != null ? ` / ${v.max_uses}` : ""}</td>
                   <td className="px-3 py-2 text-right">{rp(s.revenue)}</td>
                   <td className="px-3 py-2 text-right font-medium">{rp(s.commission)}</td>

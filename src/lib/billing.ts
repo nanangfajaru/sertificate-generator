@@ -18,7 +18,19 @@ export type Voucher = {
   max_uses: number | null;
   expires_at: string | null;
   active: boolean;
+  owner_id?: string | null;
 };
+
+export type ReferralDefaults = { discount_percent: number; commission_percent: number };
+const FALLBACK_DEFAULTS: ReferralDefaults = { discount_percent: 25, commission_percent: 50 };
+
+/** Pengaturan master untuk referral buatan pengguna (diatur admin). */
+export async function getReferralDefaults(admin: SupabaseClient): Promise<ReferralDefaults> {
+  const { data } = await admin.from("app_settings").select("value").eq("key", "referral_defaults").maybeSingle();
+  const v = data?.value as Partial<ReferralDefaults> | undefined;
+  const ok = (n: unknown, d: number) => (typeof n === "number" && n >= 0 && n <= 100 ? Math.round(n) : d);
+  return { discount_percent: ok(v?.discount_percent, FALLBACK_DEFAULTS.discount_percent), commission_percent: ok(v?.commission_percent, FALLBACK_DEFAULTS.commission_percent) };
+}
 
 export const normalizeCode = (c: string) => c.trim().toUpperCase().replace(/\s+/g, "");
 
@@ -27,8 +39,13 @@ export async function findVoucher(admin: SupabaseClient, rawCode: string, userId
   const code = normalizeCode(rawCode);
   if (!code) return { error: "Masukkan kode voucher" };
   const { data } = await admin.from("vouchers").select("*").eq("code", code).maybeSingle();
-  const v = data as Voucher | null;
+  let v = data as Voucher | null;
   if (!v || !v.active) return { error: "Kode voucher tidak valid" };
+  if (v.owner_id) {
+    if (v.owner_id === userId) return { error: "Anda tidak bisa memakai kode referral milik sendiri" };
+    // Kode buatan pengguna selalu mengikuti persentase master terbaru.
+    v = { ...v, ...(await getReferralDefaults(admin)) };
+  }
   if (v.expires_at && new Date(v.expires_at) < new Date()) return { error: "Kode voucher sudah kedaluwarsa" };
   if (v.max_uses != null) {
     const { count } = await admin.from("orders").select("id", { count: "exact", head: true }).eq("voucher_id", v.id).eq("status", "paid");
