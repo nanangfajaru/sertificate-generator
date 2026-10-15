@@ -6,6 +6,7 @@ import { getPricing, getReferralDefaults } from "@/lib/billing";
 import PricingForm from "./PricingForm";
 import ReferralForUserForm from "./ReferralForUserForm";
 import DefaultsForm from "./DefaultsForm";
+import DeleteButton from "./DeleteButton";
 import ToggleButton from "./ToggleButton";
 import VoucherForm from "./VoucherForm";
 
@@ -95,7 +96,7 @@ export default async function VouchersPage() {
                       {v.partner_token && <CopyButton text={`${siteUrl()}/mitra/${v.partner_token}`} label="Mitra" />}
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-right"><ToggleButton id={v.id} active={v.active} /></td>
+                  <td className="px-3 py-2 text-right"><div className="flex justify-end gap-1.5"><ToggleButton id={v.id} active={v.active} /><DeleteButton id={v.id} code={v.code} uses={s.uses} /></div></td>
                 </tr>
               );
             })}

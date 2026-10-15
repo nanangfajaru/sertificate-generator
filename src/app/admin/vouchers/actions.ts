@@ -94,3 +94,11 @@ export async function createReferralForUser(_: unknown, fd: FormData): Promise<{
   revalidatePath("/admin/vouchers");
   return { ok: true, code: v.code };
 }
+
+export async function deleteVoucher(id: string) {
+  if (!(await guard())) return;
+  // Pesanan lama tetap ada (voucher_code tersimpan); hanya tautan ke voucher yang dilepas.
+  await createAdminClient().from("vouchers").delete().eq("id", id);
+  revalidatePath("/admin/vouchers");
+  revalidatePath("/dashboard/referral");
+}
