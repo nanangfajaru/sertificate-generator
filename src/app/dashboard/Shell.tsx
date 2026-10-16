@@ -59,7 +59,7 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
         ) : (
           <div className="rounded-xl bg-gradient-to-br from-brand-600 to-indigo-800 p-3.5 text-xs text-white">
             <p className="font-semibold">Buka semua fitur</p>
-            <p className="mt-0.5 text-brand-100">Program tanpa batas, template bertema, dan desain sendiri.</p>
+            <p className="mt-0.5 text-brand-100">Program tanpa batas, template bertema, desain sendiri, tanpa watermark.</p>
             <Link href="/dashboard/upgrade" className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-white py-1.5 font-semibold text-brand-700 hover:bg-brand-50"><Sparkles className="h-3.5 w-3.5" /> Upgrade ke Pro</Link>
           </div>
         )}

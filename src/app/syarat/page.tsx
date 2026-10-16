@@ -29,7 +29,7 @@ export default async function TermsPage() {
       <section>
         <h2>Paket dan pembayaran</h2>
         <ul>
-          <li>Paket <b>Free</b> memiliki batasan jumlah program, peserta, dan template.</li>
+          <li>Paket <b>Free</b> memiliki batasan jumlah program, peserta, dan template, serta sertifikat diberi watermark.</li>
           <li>Paket <b>Pro</b> tersedia dalam langganan bulanan (harga normal {rp(pricing.monthly.list)}) dan tahunan (harga normal {rp(pricing.yearly.list)}), dan diaktifkan setelah pembayaran berhasil lewat Midtrans. Harga yang dibayar bisa lebih rendah karena promo atau kode voucher yang berlaku, dan selalu ditampilkan sebelum pembayaran.</li>
           <li>Masa aktif Pro berlaku sesuai paket yang dibeli dan tidak diperpanjang otomatis. Anda dapat memperpanjang kapan saja.</li>
           <li>Pembayaran yang sudah berhasil tidak dapat dikembalikan, kecuali terdapat kesalahan dari pihak kami. Hubungi kami untuk bantuan.</li>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Zip, ZipPassThrough } from "fflate";
 import { getSessionProfile } from "@/lib/auth";
 import { CERT_ZIP_BATCH, type Participant, type Program } from "@/lib/db";
-import { loadBackground, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
+import { loadBackground, ownerIsPro, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
 import { certFileName, contentDisposition, safeFileName } from "@/lib/util";
 import { renderCertificatePdf } from "@/lib/certificate/pdf";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -36,7 +36,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   // Latar, tanda tangan, dan status paket cukup dimuat sekali untuk semua peserta.
   const admin = createAdminClient();
-  const [bg, images] = await Promise.all([loadBackground(admin, program), signatureImages(admin, program)]);
+  const [isPro, bg, images] = await Promise.all([ownerIsPro(admin, program.owner_id), loadBackground(admin, program), signatureImages(admin, program)]);
   const nameId = program.mapping?.name;
 
   const stream = new ReadableStream<Uint8Array>({
@@ -50,7 +50,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         const used = new Set<string>();
         for (const [i, p] of list.entries()) {
           try {
-            const bytes = await renderCertificatePdf(withBranding(resolvedFor(program, p), program), bg, images);
+            const bytes = await renderCertificatePdf(withBranding(resolvedFor(program, p, !isPro), program), bg, images);
             const base = certFileName(program.name, String((nameId && p.data?.[nameId]) || "Peserta"));
             // Nama sama dalam satu ZIP diberi nomor (2), (3), ...
             let file = `${base}.pdf`;

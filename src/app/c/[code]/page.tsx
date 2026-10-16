@@ -65,7 +65,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
               </p>
             )}
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <CertificateSvg layout={withBranding(resolvedFor(program, participant), program)} backgroundUrl={bgUrl} images={sigUrls} className="block h-auto w-full" />
+              <CertificateSvg layout={withBranding(resolvedFor(program, participant, !isPro), program)} backgroundUrl={bgUrl} images={sigUrls} className="block h-auto w-full" />
             </div>
           </>
         ) : participant.status === "pending" ? (

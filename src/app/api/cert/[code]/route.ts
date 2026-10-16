@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Participant, Program } from "@/lib/db";
-import { loadBackground, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
+import { loadBackground, ownerIsPro, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
 import { certFileName, contentDisposition } from "@/lib/util";
 import { renderCertificatePdf } from "@/lib/certificate/pdf";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,8 +18,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ code: stri
   const participant = rest as Participant;
 
   // Status paket pemilik, latar desain, dan tanda tangan diambil bersamaan.
-  const [bg, images] = await Promise.all([loadBackground(admin, program), signatureImages(admin, program)]);
-  const layout = withBranding(resolvedFor(program, participant), program);
+  const [isPro, bg, images] = await Promise.all([ownerIsPro(admin, program.owner_id), loadBackground(admin, program), signatureImages(admin, program)]);
+  const layout = withBranding(resolvedFor(program, participant, !isPro), program);
   const bytes = await renderCertificatePdf(layout, bg, images);
 
   const nameId = program.mapping?.name;
