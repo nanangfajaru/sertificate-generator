@@ -1,6 +1,6 @@
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, Mail, Palette, QrCode, Send, ShieldCheck, X, Zap } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, FileDown, Mail, Palette, QrCode, Send, ShieldCheck, X, Zap } from "lucide-react";
 import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
@@ -105,13 +105,13 @@ export default function Landing() {
       <section className="border-y border-slate-100">
         <dl className="mx-auto grid max-w-6xl grid-cols-2 px-5 lg:grid-cols-4">
           {[
-            { icon: Link2, big: "1 link", text: "Pendaftaran sampai sertifikat dalam satu tautan atau QR." },
-            { icon: Zap, big: "Langsung terbit", text: "Begitu peserta mengisi form, tanpa bikin satu\u2011satu." },
-            { icon: ShieldCheck, big: "Bisa diverifikasi", text: "Nomor dan QR keaslian di setiap sertifikat." },
-            { icon: Palette, big: `${TEMPLATES.length} template`, text: "20 gratis, atau pakai desain sendiri." },
+            { icon: Palette, big: `${TEMPLATES.length} template`, text: "Siap pakai untuk berbagai acara, atau unggah desain sendiri." },
+            { icon: Zap, big: "Langsung terbit", text: "Peserta kirim form, sertifikat langsung jadi. Bisa juga lewat persetujuan Anda dulu." },
+            { icon: ShieldCheck, big: "Bisa diverifikasi", text: "Setiap sertifikat punya nomor dan QR untuk cek keaslian." },
+            { icon: FileDown, big: "Unduh laporan", text: "Rekap kehadiran dan semua isian peserta, termasuk kesan dan saran." },
           ].map(({ icon: Icon, big, text }, i) => (
             <div key={big} className={`py-8 pr-4 ${i % 2 ? "pl-5 lg:pl-8" : "lg:pl-8 lg:first:pl-0"} ${i > 0 ? "lg:border-l lg:border-slate-100" : ""} ${i % 2 ? "border-l border-slate-100 lg:border-l" : ""} ${i > 1 ? "border-t border-slate-100 lg:border-t-0" : ""}`}>
-              <dt className="flex items-center gap-2 text-base font-semibold text-slate-900"><Icon className="h-4 w-4 text-brand-600" /> {big}</dt>
+              <dt className="flex items-start gap-2 text-base font-semibold leading-snug text-slate-900"><Icon className="mt-[3px] h-4 w-4 shrink-0 text-brand-600" /> {big}</dt>
               <dd className="mt-1.5 text-sm leading-relaxed text-slate-500">{text}</dd>
             </div>
           ))}
