@@ -92,6 +92,8 @@ export type Participant = {
 
 export const FREE_PROGRAM_LIMIT = 10;
 export const FREE_PARTICIPANT_LIMIT = 100;
+/** Jumlah sertifikat per file ZIP unduhan massal; lebih dari ini diunduh per bagian. */
+export const CERT_ZIP_BATCH = 200;
 
 export function isProProfile(p: Pick<Profile, "plan" | "plan_expires_at"> | null | undefined) {
   if (!p || p.plan !== "pro") return false;

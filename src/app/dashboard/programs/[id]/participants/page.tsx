@@ -1,11 +1,11 @@
-import { Ban, BadgeCheck, Clock, Download, Users } from "lucide-react";
+import { Ban, BadgeCheck, Clock, Download, FileArchive, Users } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import { getOwnedProgram } from "@/lib/program-server";
 import { mailConfigured } from "@/lib/mailer";
 import { siteUrl } from "@/lib/util";
 import ParticipantsTable from "./ParticipantsTable";
 import ImportDialog from "./ImportDialog";
-import { FREE_PARTICIPANT_LIMIT } from "@/lib/db";
+import { CERT_ZIP_BATCH, FREE_PARTICIPANT_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Peserta" };
 
@@ -15,11 +15,32 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
   const { data } = await supabase.from("participants").select("*").eq("program_id", id).order("created_at", { ascending: false }).limit(2000);
   const rows = data ?? [];
   const count = (s: string) => (s === "all" ? rows.length : rows.filter((r) => r.status === s).length);
+  // Unduh semua sertifikat (ZIP, 1 PDF per peserta); dibagi per CERT_ZIP_BATCH agar tiap unduhan tidak terlalu lama.
+  const approved = count("approved");
+  const parts = Math.ceil(approved / CERT_ZIP_BATCH);
+  const zipHref = (n: number) => `/api/programs/${id}/certificates${n > 1 ? `?part=${n}` : ""}`;
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <SectionTitle icon={Users} title="Daftar peserta" hint={`Mode: ${program.approval_mode === "auto" ? "sertifikat terbit otomatis" : "perlu persetujuan"}`} />
         <div className="flex flex-wrap gap-2">
+          {approved === 0 ? (
+            <span className="btn btn-sm cursor-not-allowed opacity-50" title="Belum ada sertifikat yang terbit"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</span>
+          ) : parts <= 1 ? (
+            <a href={zipHref(1)} className="btn btn-sm" title="Satu file PDF per peserta yang disetujui"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</a>
+          ) : (
+            <details className="relative">
+              <summary className="btn btn-sm cursor-pointer list-none"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</summary>
+              <div className="absolute right-0 z-20 mt-1 w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <p className="px-2 py-1 text-xs text-slate-500">{approved} sertifikat, dibagi per {CERT_ZIP_BATCH}:</p>
+                {Array.from({ length: parts }, (_, i) => (
+                  <a key={i} href={zipHref(i + 1)} className="block rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50">
+                    Bagian {i + 1} <span className="text-slate-400">({i * CERT_ZIP_BATCH + 1}–{Math.min(approved, (i + 1) * CERT_ZIP_BATCH)})</span>
+                  </a>
+                ))}
+              </div>
+            </details>
+          )}
           <a href={`/api/programs/${id}/export`} className="btn btn-sm"><Download className="h-4 w-4" /> Unduh kehadiran (CSV)</a>
           <ImportDialog
             programId={id}
