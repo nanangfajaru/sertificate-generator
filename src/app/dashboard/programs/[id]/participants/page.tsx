@@ -11,7 +11,7 @@ export const metadata = { title: "Peserta" };
 
 export default async function ParticipantsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { program, fields, supabase, isPro } = await getOwnedProgram(id);
+  const { program, fields, supabase, isPro, profile } = await getOwnedProgram(id);
   const { data } = await supabase.from("participants").select("*").eq("program_id", id).order("created_at", { ascending: false }).limit(2000);
   const rows = data ?? [];
   const count = (s: string) => (s === "all" ? rows.length : rows.filter((r) => r.status === s).length);
@@ -81,7 +81,7 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
               : "Peserta otomatis menerima email berisi tautan sertifikat saat disetujui.";
         return <p className={`mb-4 rounded-lg border px-3 py-2 text-sm ${tone}`}>{msg}</p>;
       })()}
-      <ParticipantsTable programId={id} siteUrl={siteUrl()} fields={fields.map((f) => ({ id: f.id, label: f.label }))} rows={rows} />
+      <ParticipantsTable programId={id} siteUrl={siteUrl()} fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))} rows={rows} nameId={program.mapping?.name ?? null} canEdit={program.owner_id === profile.id} />
     </div>
   );
 }

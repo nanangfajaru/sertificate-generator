@@ -29,7 +29,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ code: stri
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": contentDisposition(file),
-      "Cache-Control": "private, max-age=300",
+      "Cache-Control": "private, no-cache", // data peserta bisa diedit panitia; selalu ambil versi terbaru
     },
   });
 }

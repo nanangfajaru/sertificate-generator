@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { FileArchive, Pencil } from "lucide-react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import CopyButton from "@/components/CopyButton";
-import type { Participant } from "@/lib/db";
+import { CERT_ZIP_BATCH, type Participant } from "@/lib/db";
+import EditParticipantDialog, { type EditField } from "./EditParticipantDialog";
 import { deleteParticipants, resendCertificateEmails, revokeParticipants, setParticipantStatus } from "../../../actions";
 
 const STATUS = {
@@ -12,7 +14,10 @@ const STATUS = {
   revoked: ["Dicabut", "badge-revoked"],
 } as const;
 
-export default function ParticipantsTable({ programId, fields, rows, siteUrl }: { programId: string; fields: { id: string; label: string }[]; rows: Participant[]; siteUrl: string }) {
+export default function ParticipantsTable({ programId, fields, rows, siteUrl, nameId, canEdit }: { programId: string; fields: EditField[]; rows: Participant[]; siteUrl: string; nameId: string | null; canEdit: boolean }) {
+  const [editing, setEditing] = useState<Participant | null>(null);
+  const zipForm = useRef<HTMLFormElement>(null);
+  const zipIds = useRef<HTMLInputElement>(null);
   const [filter, setFilter] = useState<"all" | Participant["status"]>("all");
   const [q, setQ] = useState("");
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -62,6 +67,17 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
   const hasRevoked = selRows.some((r) => r.status === "revoked");
   const hasIssued = selRows.some((r) => r.status === "approved" || r.status === "revoked");
 
+  /** Unduh sertifikat peserta terpilih (hanya yang disetujui) sebagai ZIP lewat form POST. */
+  function downloadZip() {
+    const approvedIds = selRows.filter((r) => r.status === "approved").map((r) => r.id);
+    setMsg(null);
+    if (approvedIds.length > CERT_ZIP_BATCH) return setMsg(`Maksimal ${CERT_ZIP_BATCH} sertifikat sekali unduh. Kurangi pilihan atau gunakan "Unduh semua sertifikat (ZIP)".`);
+    if (zipIds.current && zipForm.current) {
+      zipIds.current.value = approvedIds.join(",");
+      zipForm.current.submit();
+    }
+  }
+
   function revoke() {
     const n = selRows.filter((r) => r.status === "approved").length;
     const reason = window.prompt(`Cabut ${n} sertifikat?\n\nTautan dan QR-nya akan menampilkan "Sertifikat telah dicabut". Alasan (opsional, hanya terlihat oleh panitia):`, "");
@@ -79,6 +95,20 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
 
   return (
     <div className="space-y-3">
+      <form ref={zipForm} method="post" action={`/api/programs/${programId}/certificates`} className="hidden">
+        <input ref={zipIds} type="hidden" name="ids" />
+      </form>
+      {editing && (
+        <EditParticipantDialog
+          programId={programId}
+          participantId={editing.id}
+          fields={fields}
+          nameId={nameId}
+          initial={editing.data as Record<string, string>}
+          issued={editing.status === "approved" || editing.status === "revoked"}
+          onClose={() => setEditing(null)}
+        />
+      )}
       <div className="card flex flex-wrap items-center gap-2 !p-3">
         <select className="input !w-auto" value={filter} onChange={(e) => { setFilter(e.target.value as typeof filter); setPage(1); }}>
           <option value="all">Semua status</option>
@@ -97,6 +127,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
           <button className="btn btn-primary btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "approved"))}>Setujui</button>
           <button className="btn btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "rejected"))}>Tolak</button>
           <button className="btn btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "pending"))}>Kembalikan ke menunggu</button>
+          {hasApproved && <button className="btn btn-sm" disabled={pending} onClick={downloadZip} title="Hanya peserta yang disetujui"><FileArchive className="h-4 w-4" /> Unduh sertifikat ({selRows.filter((r) => r.status === "approved").length})</button>}
           <button className="btn btn-sm" disabled={pending} onClick={() => run(() => resendCertificateEmails(programId, ids))}>Kirim email sertifikat</button>
           {hasApproved && <button className="btn btn-danger btn-sm" disabled={pending} onClick={revoke}>Cabut sertifikat</button>}
           {hasRevoked && <button className="btn btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "approved"))}>Pulihkan</button>}
@@ -117,11 +148,12 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
               <th className="px-3 py-2">No. sertifikat</th>
               <th className="px-3 py-2">Link sertifikat</th>
               <th className="px-3 py-2">Email</th>
+              {canEdit && <th className="w-12 px-3 py-2"><span className="sr-only">Edit</span></th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {shown.length === 0 && (
-              <tr><td colSpan={fields.length + 6} className="px-3 py-14 text-center"><p className="font-medium text-slate-700">Belum ada peserta</p><p className="mt-1 text-sm text-slate-500">Bagikan link atau QR pendaftaran dari tab Ringkasan agar peserta mulai mengisi.</p></td></tr>
+              <tr><td colSpan={fields.length + (canEdit ? 7 : 6)} className="px-3 py-14 text-center"><p className="font-medium text-slate-700">Belum ada peserta</p><p className="mt-1 text-sm text-slate-500">Bagikan link atau QR pendaftaran dari tab Ringkasan agar peserta mulai mengisi.</p></td></tr>
             )}
             {visible.map((r) => (
               <tr key={r.id} className={`transition hover:bg-slate-50/70 ${sel.has(r.id) ? "bg-brand-50/50" : ""}`}>
@@ -145,6 +177,11 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl }: 
                 <td className="whitespace-nowrap px-3 py-2 text-xs">
                   {r.emailed_at ? <span className="badge badge-ok" title={new Date(r.emailed_at).toLocaleString("id-ID")}>Terkirim</span> : <span className="text-slate-400">—</span>}
                 </td>
+                {canEdit && (
+                  <td className="px-3 py-2">
+                    <button type="button" className="btn btn-sm !px-2" onClick={() => setEditing(r)} aria-label="Edit data peserta" title="Edit data peserta"><Pencil className="h-3.5 w-3.5" /></button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cleanParticipantData } from "@/lib/participant-data";
 import { approveParticipants } from "@/lib/approve";
 import { requireUser } from "@/lib/auth";
 import { FREE_PARTICIPANT_LIMIT, type Program, type ProgramField } from "@/lib/db";
@@ -15,15 +16,7 @@ export type ImportResult = {
   invalid?: { row: number; reason: string }[];
 };
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_ROWS = 2000;
-
-/** Tanggal: terima YYYY-MM-DD atau DD/MM/YYYY (format umum Excel Indonesia). */
-function normDate(v: string): string | null {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
-  const m = v.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/);
-  return m ? `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}` : null;
-}
 
 /**
  * Impor peserta dari baris yang sudah dipetakan ke field form (key = field id).
@@ -48,31 +41,9 @@ export async function importParticipants(programId: string, input: { line: numbe
   const invalid: ImportResult["invalid"] = [];
   const valid: { line: number; data: Record<string, string> }[] = [];
   for (const r of input) {
-    const data: Record<string, string> = {};
-    let reason = "";
-    for (const field of fields) {
-      let v = String(r.data?.[field.id] ?? "").trim();
-      if (!v) {
-        if (field.required || field.id === nameId) { reason = `"${field.label}" kosong`; break; }
-        continue;
-      }
-      if (v.length > (field.type === "textarea" ? 2000 : 300)) { reason = `"${field.label}" terlalu panjang`; break; }
-      if (field.type === "email" && !EMAIL.test(v)) { reason = `Email "${v}" tidak valid`; break; }
-      if (field.type === "number" && !Number.isFinite(Number(v.replace(",", ".")))) { reason = `"${field.label}" harus angka`; break; }
-      if (field.type === "date") {
-        const d = normDate(v);
-        if (!d) { reason = `"${field.label}" bukan tanggal (pakai YYYY-MM-DD atau DD/MM/YYYY)`; break; }
-        v = d;
-      }
-      if (field.type === "select") {
-        const opt = field.options.find((o) => o.toLowerCase() === v.toLowerCase());
-        if (!opt) { reason = `"${v}" bukan pilihan "${field.label}"`; break; }
-        v = opt;
-      }
-      data[field.id] = v;
-    }
-    if (reason) invalid.push({ row: r.line, reason });
-    else valid.push({ line: r.line, data });
+    const res = cleanParticipantData(fields, nameId, r.data ?? {});
+    if ("error" in res) invalid.push({ row: r.line, reason: res.error });
+    else valid.push({ line: r.line, data: res.data });
   }
 
   // Lewati email yang sudah terdaftar di program ini atau muncul dua kali di file.

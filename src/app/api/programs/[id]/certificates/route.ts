@@ -11,9 +11,25 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 
-/** Unduh massal: ZIP berisi satu PDF per peserta yang disetujui, dikirim bertahap (streaming). */
+/** Unduh semua (GET, per bagian ?part=N): ZIP berisi satu PDF per peserta yang disetujui. */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const part = Math.max(1, Number(new URL(req.url).searchParams.get("part")) || 1);
+  return zipResponse(id, { part });
+}
+
+/** Unduh peserta terpilih (POST form, field `ids` dipisah koma; maks CERT_ZIP_BATCH). */
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const form = await req.formData().catch(() => null);
+  const ids = String(form?.get("ids") ?? "").split(",").filter((x) => /^[0-9a-f-]{36}$/.test(x));
+  if (!ids.length) return new NextResponse("Pilih peserta terlebih dahulu.", { status: 400 });
+  if (ids.length > CERT_ZIP_BATCH) return new NextResponse(`Maksimal ${CERT_ZIP_BATCH} sertifikat sekali unduh.`, { status: 400 });
+  return zipResponse(id, { ids });
+}
+
+/** ZIP satu PDF per peserta, dikirim bertahap (streaming) agar unduhan langsung berjalan. */
+async function zipResponse(id: string, opt: { part?: number; ids?: string[] }) {
   const s = await getSessionProfile();
   if (!s) return new NextResponse("Unauthorized", { status: 401 });
   if (!/^[0-9a-f-]{36}$/.test(id)) return new NextResponse("Not found", { status: 404 });
@@ -22,15 +38,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!prog) return new NextResponse("Not found", { status: 404 });
   const program = prog as Program;
 
-  const part = Math.max(1, Number(new URL(req.url).searchParams.get("part")) || 1);
-  const from = (part - 1) * CERT_ZIP_BATCH;
-  const { data: rows } = await s.supabase
-    .from("participants")
-    .select("id, data, cert_number, code, created_at")
-    .eq("program_id", id)
-    .eq("status", "approved")
-    .order("created_at")
-    .range(from, from + CERT_ZIP_BATCH - 1);
+  const part = opt.part ?? 1;
+  const from = opt.ids ? 0 : (part - 1) * CERT_ZIP_BATCH;
+  let query = s.supabase.from("participants").select("id, data, cert_number, code, created_at").eq("program_id", id).eq("status", "approved").order("created_at");
+  query = opt.ids ? query.in("id", opt.ids) : query.range(from, from + CERT_ZIP_BATCH - 1);
+  const { data: rows } = await query;
   const list = (rows ?? []) as Pick<Participant, "id" | "data" | "cert_number" | "code">[];
   if (!list.length) return new NextResponse("Belum ada sertifikat yang terbit.", { status: 404 });
 
@@ -68,7 +80,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     },
   });
 
-  const suffix = part > 1 || list.length === CERT_ZIP_BATCH ? ` (bagian ${part})` : "";
+  const suffix = opt.ids ? ` (${list.length} terpilih)` : part > 1 || list.length === CERT_ZIP_BATCH ? ` (bagian ${part})` : "";
   return new NextResponse(stream, {
     headers: {
       "Content-Type": "application/zip",
