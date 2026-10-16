@@ -45,16 +45,16 @@ export default async function ReferralPage() {
   const link = `${siteUrl()}/?ref=${code}`;
 
   const stat = (icon: React.ReactNode, tone: string, value: string, label: string) => (
-    <div className="card !p-4 flex items-center gap-3">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}>{icon}</span>
-      <div className="min-w-0"><p className="text-xl font-bold">{value}</p><p className="text-xs text-slate-500">{label}</p></div>
+    <div className="card !p-3 flex items-center gap-2.5 sm:!p-4 sm:gap-3 lg:flex-col lg:items-start xl:flex-row xl:items-center">
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10 ${tone}`}>{icon}</span>
+      <div className="min-w-0"><p className="truncate text-lg font-bold sm:text-xl">{value}</p><p className="text-xs leading-snug text-slate-500">{label}</p></div>
     </div>
   );
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Referral</h1>
+        <h1 className="text-xl font-bold sm:text-2xl">Referral</h1>
         <p className="text-sm text-slate-500">Ajak orang lain memakai SertifikatKu Pro dan dapatkan komisi dari jumlah yang dibayarkan pembeli.</p>
       </div>
 
@@ -71,12 +71,12 @@ export default async function ReferralPage() {
             <div className="card relative overflow-hidden">
               <div className={isPro ? "" : "pointer-events-none select-none blur-sm"} aria-hidden={!isPro}>
                 <p className="text-sm text-slate-500">Kode referral Anda</p>
-                <p className="mt-1 font-mono text-3xl font-bold tracking-wide">{code}</p>
+                <p className="mt-1 break-all font-mono text-2xl font-bold tracking-wide sm:text-3xl">{code}</p>
                 {isPro && v && !v.active && <p className="mt-2 text-sm text-red-600">Kode ini sedang dinonaktifkan.</p>}
                 <p className="mt-2 text-sm text-slate-600">Pembeli yang memakai kode ini mendapat diskon <b>{d.discount_percent}%</b>, dan Anda mendapat komisi <b>{d.commission_percent}%</b> dari jumlah yang mereka bayar (setelah diskon).</p>
                 <p className="mt-4 text-xs text-slate-500">Bagikan link ini (kode terisi otomatis saat pembeli upgrade):</p>
                 <p className="mt-1 break-all rounded-lg bg-slate-50 p-2 font-mono text-xs">{link}</p>
-                {isPro && <div className="mt-2 flex gap-2"><CopyButton text={link} label="Salin link" /><CopyButton text={code} label="Salin kode" /></div>}
+                {isPro && <div className="mt-2 flex flex-wrap gap-2"><CopyButton text={link} label="Salin link" /><CopyButton text={code} label="Salin kode" /></div>}
               </div>
               {!isPro && (
                 <div className="absolute inset-0 grid place-items-center bg-white/40 p-4 text-center">
@@ -93,7 +93,23 @@ export default async function ReferralPage() {
 
             <div>
               <h2 className="mb-2 text-lg font-semibold">Dipakai oleh</h2>
-              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+              <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white sm:hidden">
+                {rows.length === 0 && <li className="px-3 py-8 text-center text-sm text-slate-500">Belum ada yang memakai kode Anda.</li>}
+                {rows.map((o, i) => (
+                  <li key={i} className="flex items-start justify-between gap-3 p-3 text-sm">
+                    <div className="min-w-0">
+                      {who(o.profiles)}
+                      <p className="mt-1 text-xs text-slate-500">{o.plan === "yearly" ? "Pro Tahunan" : "Pro Bulanan"} · {date(o.paid_at ?? o.created_at)}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-semibold text-emerald-700">{o.status === "paid" ? rp(o.commission_amount) : "—"}</p>
+                      <p className="text-xs text-slate-500">dari {rp(o.amount)}</p>
+                      <span className={`badge mt-1 ${o.status === "paid" ? "badge-ok" : "badge-warn"}`}>{o.status === "paid" ? "Lunas" : "Menunggu bayar"}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white sm:block">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-3 py-2">Pengguna</th><th className="px-3 py-2">Tanggal</th><th className="px-3 py-2">Paket</th><th className="px-3 py-2 text-right">Dibayar</th><th className="px-3 py-2 text-right">Komisi</th><th className="px-3 py-2">Status</th></tr></thead>
                   <tbody className="divide-y divide-slate-100">
