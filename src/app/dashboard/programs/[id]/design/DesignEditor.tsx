@@ -210,7 +210,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
             </div>
             <p className={`${sectionTitle} mt-3`}>Parameter data</p>
             <div className="flex flex-wrap gap-1.5">
-              {unused.map((u) => <button key={u.value} type="button" className="btn btn-sm !px-2.5 hover:border-brand-500 hover:bg-brand-50" onClick={() => addSource(u.value)}><Plus className="h-3.5 w-3.5 text-brand-600" />{u.label}</button>)}
+              {unused.map((u) => <button key={u.value} type="button" title={u.label} className="btn btn-sm max-w-full !px-2.5 text-[13px] hover:border-brand-500 hover:bg-brand-50" onClick={() => addSource(u.value)}><Plus className="h-3.5 w-3.5 shrink-0 text-brand-600" /><span className="truncate whitespace-nowrap">{u.label}</span></button>)}
               {unused.length === 0 && <span className="text-xs text-slate-400">Semua parameter sudah dipakai.</span>}
             </div>
           </div>
