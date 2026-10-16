@@ -6,7 +6,7 @@ import CopyButton from "@/components/CopyButton";
 import { CERT_ZIP_BATCH, type Participant } from "@/lib/db";
 import { DEFAULT_ROLE } from "@/lib/cert-types";
 import EditParticipantDialog, { type EditField } from "./EditParticipantDialog";
-import { deleteParticipants, resendCertificateEmails, revokeParticipants, setParticipantStatus } from "../../../actions";
+import { resendCertificateEmails, revokeParticipants, setParticipantStatus } from "../../../actions";
 
 const STATUS = {
   pending: ["Menunggu", "badge-warn"],
@@ -69,7 +69,6 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
   const selRows = rows.filter((r) => sel.has(r.id));
   const hasApproved = selRows.some((r) => r.status === "approved");
   const hasRevoked = selRows.some((r) => r.status === "revoked");
-  const hasIssued = selRows.some((r) => r.status === "approved" || r.status === "revoked");
 
   /** Unduh sertifikat peserta terpilih (hanya yang disetujui) sebagai ZIP lewat form POST. */
   function downloadZip() {
@@ -87,14 +86,6 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
     const reason = window.prompt(`Cabut ${n} sertifikat?\n\nTautan dan QR-nya akan menampilkan "Sertifikat telah dicabut". Alasan (opsional, hanya terlihat oleh panitia):`, "");
     if (reason === null) return;
     run(() => revokeParticipants(programId, ids, reason));
-  }
-
-  function remove() {
-    const base = `Hapus ${sel.size} peserta secara permanen?`;
-    const warn = hasIssued
-      ? `${base}\n\nSebagian sudah memiliki sertifikat. Jika dihapus, tautan dan QR sertifikatnya hanya akan menampilkan "tidak ditemukan", tanpa penjelasan bahwa sertifikat itu dicabut.\n\nUntuk sertifikat yang tidak valid, gunakan "Cabut sertifikat". Tetap hapus?`
-      : base;
-    if (confirm(warn)) run(() => deleteParticipants(programId, ids));
   }
 
   return (
@@ -142,7 +133,6 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
           <button className="btn btn-sm" disabled={pending} onClick={() => run(() => resendCertificateEmails(programId, ids))}>Kirim email sertifikat</button>
           {hasApproved && <button className="btn btn-danger btn-sm" disabled={pending} onClick={revoke}>Cabut sertifikat</button>}
           {hasRevoked && <button className="btn btn-sm" disabled={pending} onClick={() => run(() => setParticipantStatus(programId, ids, "approved"))}>Pulihkan</button>}
-          <button className="btn btn-danger btn-sm" disabled={pending} onClick={remove}>Hapus</button>
         </div>
       )}
       {msg && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{msg}</p>}

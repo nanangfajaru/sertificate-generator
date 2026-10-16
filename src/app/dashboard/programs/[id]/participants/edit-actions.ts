@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import type { Program, ProgramField } from "@/lib/db";
 import { cleanParticipantData } from "@/lib/participant-data";
 import { approveParticipants } from "@/lib/approve";
+import { PRO_ENDED_MESSAGE } from "@/lib/pro-gate";
 import { DEFAULT_ROLE, normRole } from "@/lib/cert-types";
 import { randomCode } from "@/lib/util";
 
@@ -64,7 +65,8 @@ export async function addManualParticipant(programId: string, input: { role: str
   if (error || !ins) {
     return { error: error?.message.includes("PLAN_LIMIT_PARTICIPANTS") ? "Kuota 100 peserta paket Free sudah penuh. Peran selain Peserta tidak dihitung kuota." : "Gagal menyimpan, silakan coba lagi." };
   }
-  await approveParticipants({ ...program, notify_email: !!input.sendEmail }, [ins.id as string]);
+  const { blocked } = await approveParticipants({ ...program, notify_email: !!input.sendEmail }, [ins.id as string]);
   revalidatePath(`/dashboard/programs/${programId}`, "layout");
+  if (blocked) return { error: `Data tersimpan sebagai menunggu. ${PRO_ENDED_MESSAGE}` };
   return { ok: true, name: (nameId && res.data[nameId]) || (role === DEFAULT_ROLE ? "Peserta" : role) };
 }

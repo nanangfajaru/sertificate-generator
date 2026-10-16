@@ -110,6 +110,7 @@ export default function ImportDialog(p: Props) {
                   {(result.skippedDuplicates || result.skippedLimit || result.invalid?.length) ? (
                     <div className="space-y-1 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                       {!!result.skippedDuplicates && <p>{result.skippedDuplicates} baris dilewati karena emailnya sudah terdaftar / ganda.</p>}
+                      {!!result.blockedPro && <p className="text-amber-700">{result.blockedPro} peserta tersimpan sebagai menunggu: Pro sudah berakhir dan program memakai template Pro / desain sendiri, sertifikatnya belum bisa diterbitkan.</p>}
                       {!!result.skippedLimit && <p>{result.skippedLimit} baris dilewati karena kuota paket Free (100 peserta per program) penuh.</p>}
                       {!!result.invalid?.length && (
                         <>

@@ -15,6 +15,8 @@ export type ImportResult = {
   approved?: boolean;
   skippedDuplicates?: number;
   skippedLimit?: number;
+  /** tidak diterbitkan karena Pro pemilik sudah berakhir (tetap tersimpan sebagai menunggu) */
+  blockedPro?: number;
   invalid?: { row: number; reason: string }[];
 };
 
@@ -89,7 +91,8 @@ export async function importParticipants(programId: string, input: { line: numbe
   }
 
   // Disetujui per kelompok kecil agar filter id tidak terlalu panjang.
-  if (approve) for (let i = 0; i < ids.length; i += 200) await approveParticipants(program, ids.slice(i, i + 200));
+  let blockedPro = 0;
+  if (approve) for (let i = 0; i < ids.length; i += 200) blockedPro += (await approveParticipants(program, ids.slice(i, i + 200))).blocked;
   revalidatePath(`/dashboard/programs/${programId}`, "layout");
-  return { imported: ids.length, approved: approve, skippedDuplicates, skippedLimit, invalid: invalid.slice(0, 50) };
+  return { imported: ids.length, approved: approve, skippedDuplicates, skippedLimit, blockedPro, invalid: invalid.slice(0, 50) };
 }

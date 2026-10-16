@@ -24,3 +24,26 @@ export async function setUserPlan(userId: string, plan: string, expiresAt: strin
   revalidatePath("/admin/users");
   return {};
 }
+
+/** Admin: hapus program beserta peserta & field-nya (desain sendiri tetap di pustaka pemiliknya). */
+export async function adminDeleteProgram(programId: string): Promise<{ error?: string }> {
+  const s = await getSessionProfile();
+  if (!s?.profile.is_admin) return { error: "Tidak diizinkan" };
+  if (!z.string().uuid().safeParse(programId).success) return { error: "Data tidak valid" };
+  // File logo/tanda tangan tidak dihapus: bisa dipakai bersama oleh program lain milik pengguna yang sama.
+  const { error } = await createAdminClient().from("programs").delete().eq("id", programId);
+  if (error) return { error: "Gagal menghapus program" };
+  revalidatePath("/admin/programs");
+  return {};
+}
+
+/** Admin: hapus satu peserta secara permanen. */
+export async function adminDeleteParticipant(programId: string, participantId: string): Promise<{ error?: string }> {
+  const s = await getSessionProfile();
+  if (!s?.profile.is_admin) return { error: "Tidak diizinkan" };
+  if (!z.string().uuid().safeParse(programId).success || !z.string().uuid().safeParse(participantId).success) return { error: "Data tidak valid" };
+  const { error } = await createAdminClient().from("participants").delete().eq("id", participantId).eq("program_id", programId);
+  if (error) return { error: "Gagal menghapus peserta" };
+  revalidatePath(`/admin/programs/${programId}`);
+  return {};
+}

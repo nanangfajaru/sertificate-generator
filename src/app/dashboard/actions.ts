@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { getTemplate } from "@/lib/certificate/templates";
 import { FIELD_TYPES, type Program } from "@/lib/db";
 import { approveParticipants } from "@/lib/approve";
+import { PRO_ENDED_MESSAGE } from "@/lib/pro-gate";
 import { notifyApproved } from "@/lib/notify";
 import { dbError } from "@/lib/db-errors";
 import { slugify } from "@/lib/util";
@@ -203,7 +204,7 @@ export async function switchToTemplate(programId: string): Promise<ActionState> 
 
 // ───────────────────────── peserta ─────────────────────────
 
-export async function setParticipantStatus(programId: string, ids: string[], status: "approved" | "rejected" | "pending"): Promise<ActionState> {
+export async function setParticipantStatus(programId: string, ids: string[], status: "approved" | "rejected" | "pending"): Promise<ActionState & { message?: string }> {
   const { supabase } = await requireUser();
   if (!ids.length) return { error: "Pilih peserta terlebih dahulu" };
   if (ids.length > 500) return { error: "Maksimal 500 peserta sekali proses" };
@@ -214,15 +215,20 @@ export async function setParticipantStatus(programId: string, ids: string[], sta
   const { data: owned } = await supabase.from("participants").select("id").eq("program_id", programId).in("id", ids);
   const ownedIds = (owned ?? []).map((r) => r.id);
 
-  if (status === "approved") await approveParticipants(program as Program, ownedIds);
+  let blocked = 0;
+  let approvedCount = 0;
+  if (status === "approved") ({ blocked, approved: approvedCount } = await approveParticipants(program as Program, ownedIds));
   else await supabase.from("participants").update({ status, revoked_at: null, revoked_reason: null }).in("id", ownedIds);
 
   revalidatePath(`/dashboard/programs/${programId}/participants`);
+  if (blocked) return { error: `${approvedCount ? `${approvedCount} disetujui. ` : ""}${blocked} peserta tidak dapat diterbitkan: ${PRO_ENDED_MESSAGE}` };
   return { ok: true };
 }
 
+/** Hapus peserta permanen: khusus admin (penyelenggara memakai "Cabut sertifikat"). */
 export async function deleteParticipants(programId: string, ids: string[]): Promise<ActionState> {
-  const { supabase } = await requireUser();
+  const { supabase, profile } = await requireUser();
+  if (!profile.is_admin) return { error: "Penghapusan peserta hanya dapat dilakukan admin." };
   if (!ids.length) return { error: "Pilih peserta terlebih dahulu" };
   const { error } = await supabase.from("participants").delete().eq("program_id", programId).in("id", ids);
   if (error) return { error: dbError(error.message) };

@@ -11,7 +11,7 @@ export type DesignDTO = {
 };
 
 /** Batas desain di pustaka pengguna (dijaga juga oleh trigger database). */
-export const DESIGN_LIMITS = { free: 3, pro: 10 } as const;
+export const DESIGN_LIMITS = { free: 5, pro: 50 } as const;
 
 /** Layout awal untuk desain baru: nama peserta, kegiatan, tanggal, nomor, dan QR. Satuan desain: lebar 1000. */
 export function defaultCustomLayout(height: number): Layout {

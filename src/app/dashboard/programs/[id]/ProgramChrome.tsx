@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, CalendarDays, Eye, MapPin } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, Eye, MapPin } from "lucide-react";
 import ProgramTabs from "./ProgramTabs";
 
 type Props = {
@@ -14,6 +14,8 @@ type Props = {
   isOpen: boolean;
   auto: boolean;
   viewOnly: boolean;
+  /** tanggal Pro berakhir (teks) bila program memakai fitur Pro tetapi Pro pemilik sudah habis */
+  proEnded?: string | null;
 };
 
 /**
@@ -54,6 +56,19 @@ export default function ProgramChrome(p: Props) {
           </div>
         </div>
       </div>
+      {p.proEnded != null && (
+        <div className="mt-3 flex flex-wrap items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Paket Pro telah berakhir{p.proEnded ? ` pada ${p.proEnded}` : ""}</p>
+            <p className="mt-0.5 text-red-800">Program ini memakai template Pro / desain sendiri. Peserta tetap bisa mendaftar, tetapi sertifikat peserta yang mendaftar setelah Pro berakhir <b>tidak dapat diterbitkan</b>. Peserta yang mendaftar sebelumnya tetap bisa diterbitkan.</p>
+          </div>
+          <div className="flex gap-2">
+            <Link href={`/dashboard/programs/${p.id}/form?pick=1`} className="btn btn-sm">Ganti template</Link>
+            <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm">Perpanjang Pro</Link>
+          </div>
+        </div>
+      )}
       {p.viewOnly && (
         <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
           <Eye className="mt-0.5 h-4 w-4 shrink-0" />

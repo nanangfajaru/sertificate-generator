@@ -30,6 +30,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     supabase.from("participants").select("program_id").eq("status", "pending").limit(1000),
   ]);
   const programs = data ?? [];
+  // Paket Free: kuota hanya menghitung peran "Peserta" (pembicara/narasumber dkk. tidak dihitung).
+  const { data: pc } = !isPro && programs.length ? await supabase.rpc("peserta_counts", { p_ids: programs.map((p) => p.id) }) : { data: null };
+  const quotaBy = new Map(((pc ?? []) as { program_id: string; n: number }[]).map((r) => [r.program_id, Number(r.n)]));
+  const quotaOf = (p: (typeof programs)[number]) => quotaBy.get(p.id) ?? 0;
   const pendingBy = new Map<string, number>();
   pendingRows.data?.forEach((r) => pendingBy.set(r.program_id, (pendingBy.get(r.program_id) ?? 0) + 1));
   const countOf = (p: (typeof programs)[number]) => (p.participants as unknown as { count: number }[])?.[0]?.count ?? 0;
@@ -152,7 +156,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       <tr key={p.id} className="hover:bg-slate-50/70">
                         <td className="px-4 py-3"><Link href={hrefOf(p)} className="font-medium text-slate-900 hover:text-brand-700">{p.name}</Link>{!p.setup_done && <span className="badge badge-warn ml-2">Draf</span>}<p className="text-xs text-slate-500">{p.org_name}</p></td>
                         <td className="whitespace-nowrap px-4 py-3 text-slate-600">{formatDateRange(p.start_date, p.end_date)}</td>
-                        <td className="px-4 py-3 text-right">{countOf(p)}{!isPro ? <span className="text-slate-400"> / {FREE_PARTICIPANT_LIMIT}</span> : ""}</td>
+                        <td className="px-4 py-3 text-right">{isPro ? countOf(p) : <>{quotaOf(p)}<span className="text-slate-400"> / {FREE_PARTICIPANT_LIMIT}</span></>}</td>
                         <td className="px-4 py-3 text-right">{pending > 0 ? <span className="badge badge-warn">{pending}</span> : <span className="text-slate-300">—</span>}</td>
                         <td className="px-4 py-3"><span className={`badge ${p.is_open ? "badge-ok" : ""}`}>{p.is_open ? "Dibuka" : "Ditutup"}</span></td>
                         <td className="px-4 py-3 text-right"><div className="flex justify-end gap-1.5"><Link href={`/dashboard/programs/${p.id}/participants`} className="btn btn-sm">Peserta</Link><Link href={hrefOf(p)} className={`btn btn-sm ${p.setup_done ? "" : "btn-primary"}`}>{p.setup_done ? "Kelola" : "Lanjutkan"}</Link></div></td>
@@ -208,7 +212,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       <p className="mt-0.5 truncate text-sm text-slate-500">{p.org_name}</p>
                       <div className="mt-2.5 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-slate-600">
                         <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> {formatDateRange(p.start_date, p.end_date)}</span>
-                        <span className={`flex items-center gap-1 ${!isPro && count >= FREE_PARTICIPANT_LIMIT * 0.8 ? "font-medium text-amber-700" : ""}`}><Users className="h-3.5 w-3.5" /> {count}{!isPro ? ` / ${FREE_PARTICIPANT_LIMIT}` : ""}</span>
+                        <span className={`flex items-center gap-1 ${!isPro && quotaOf(p) >= FREE_PARTICIPANT_LIMIT * 0.8 ? "font-medium text-amber-700" : ""}`} title={!isPro ? "Kuota paket Free (peran Peserta)" : undefined}><Users className="h-3.5 w-3.5" /> {isPro ? count : `${quotaOf(p)} / ${FREE_PARTICIPANT_LIMIT}`}</span>
                       </div>
                     </div>
                   </Link>

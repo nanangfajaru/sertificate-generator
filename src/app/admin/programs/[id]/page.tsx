@@ -6,6 +6,7 @@ import { formatDateRange } from "@/lib/certificate/sources";
 import type { Participant, Program, ProgramField } from "@/lib/db";
 import { publicLink, siteUrl } from "@/lib/util";
 import Pager, { pageOf } from "@/components/admin/Pager";
+import { DeleteParticipantButton, DeleteProgramButton } from "../AdminDelete";
 
 const SIZE = 50;
 
@@ -26,10 +27,13 @@ export default async function AdminProgram({ params, searchParams }: { params: P
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link href="/admin/programs" className="text-sm text-slate-500 hover:text-slate-800">← Semua program</Link>
-        <h1 className="mt-2 text-2xl font-bold">{program.name}</h1>
-        <p className="text-sm text-slate-500">{program.org_name} · {formatDateRange(program.start_date, program.end_date)}</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <Link href="/admin/programs" className="text-sm text-slate-500 hover:text-slate-800">← Semua program</Link>
+          <h1 className="mt-2 text-2xl font-bold">{program.name}</h1>
+          <p className="text-sm text-slate-500">{program.org_name} · {formatDateRange(program.start_date, program.end_date)}</p>
+        </div>
+        <DeleteProgramButton id={id} name={program.name} participants={count ?? rows.length} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -62,7 +66,7 @@ export default async function AdminProgram({ params, searchParams }: { params: P
               <tr>
                 <th className="px-3 py-2">Waktu</th>
                 {fields.map((x) => <th key={x.id} className="px-3 py-2">{x.label}</th>)}
-                <th className="px-3 py-2">Status</th><th className="px-3 py-2">No. sertifikat</th>
+                <th className="px-3 py-2">Peran</th><th className="px-3 py-2">Status</th><th className="px-3 py-2">No. sertifikat</th><th className="w-10 px-3 py-2"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -70,8 +74,10 @@ export default async function AdminProgram({ params, searchParams }: { params: P
                 <tr key={r.id}>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-500">{new Date(r.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
                   {fields.map((x) => <td key={x.id} className="max-w-56 truncate px-3 py-2">{r.data[x.id] ?? ""}</td>)}
+                  <td className="whitespace-nowrap px-3 py-2 text-slate-600">{r.role || "Peserta"}</td>
                   <td className="px-3 py-2"><span className={`badge ${STATUS[r.status][1]}`}>{STATUS[r.status][0]}</span></td>
                   <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{r.status === "approved" ? <a className="hover:text-brand-700" target="_blank" href={`/c/${r.code}`}>{r.cert_number}</a> : "—"}</td>
+                  <td className="px-3 py-2"><DeleteParticipantButton programId={id} id={r.id} name={String((program.mapping?.name && r.data[program.mapping.name]) || "peserta")} /></td>
                 </tr>
               ))}
             </tbody>
