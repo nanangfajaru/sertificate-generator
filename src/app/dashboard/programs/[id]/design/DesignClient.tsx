@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Plus, Sparkles, Upload, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Plus, Upload, X } from "lucide-react";
 import Link from "next/link";
 import ConfirmLink from "@/components/ConfirmLink";
 import { useRouter } from "next/navigation";
@@ -152,16 +152,6 @@ export default function DesignClient(p: Props) {
       <div className="mt-5 space-y-5">
         {tab === "template" ? (
           <>
-            <button type="button" onClick={() => setTab("custom")} className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl border border-brand-200 bg-gradient-to-r from-brand-600 via-indigo-600 to-violet-600 px-3.5 py-3 text-left text-white shadow-sm transition hover:shadow-md sm:gap-4 sm:rounded-2xl sm:p-5">
-              <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/10" />
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/15 sm:h-11 sm:w-11 sm:rounded-xl"><Upload className="h-4 w-4 sm:h-5 sm:w-5" /></span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-semibold sm:text-base"><span className="sm:hidden">Pakai desain sendiri</span><span className="hidden sm:inline">Punya desain sendiri dari Canva atau Photoshop?</span> <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-300 px-1.5 py-0.5 text-[10px] font-bold text-amber-950"><Crown className="h-2.5 w-2.5" />Pro</span></span>
-                <span className="mt-0.5 block text-xs text-brand-100 sm:text-sm"><span className="sm:hidden">Unggah dari Canva/Photoshop. </span><span className="hidden sm:inline">Unggah PDF/PNG/JPG, lalu geser posisi nama peserta dan QR. </span>{p.isPro ? "Satu desain untuk semua program." : "Coba gratis hingga 3 desain."}</span>
-              </span>
-              <span className="hidden items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-brand-700 shadow-sm transition group-hover:bg-brand-50 sm:inline-flex"><Sparkles className="h-4 w-4" /> Coba desain sendiri</span>
-              <ChevronRight className="h-5 w-5 shrink-0 text-white/80 sm:hidden" />
-            </button>
 
             <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
               {[{ key: "all" as const, label: "Semua", n: templates.length }, ...TEMPLATE_GROUPS.map((g) => ({ key: g.key, label: g.label, n: templates.filter((t) => templateGroup(t.id) === g.key).length }))].map((g) => (
@@ -215,6 +205,12 @@ export default function DesignClient(p: Props) {
                 </div>
               </section>
             ))}
+            <button type="button" onClick={() => setTab("custom")} className="flex w-full items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-left text-sm transition hover:border-brand-400 hover:bg-brand-50/40">
+              <Upload className="h-4 w-4 shrink-0 text-slate-400" />
+              <span className="min-w-0 flex-1 text-slate-600"><b className="font-medium text-slate-800">Punya desain sendiri?</b> Unggah dari Canva atau Photoshop di tab Desain sendiri.</span>
+              <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-slate-500"><Crown className="h-3 w-3 text-amber-500" /> Pro</span>
+              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+            </button>
             {mode === "custom" && !lib && (
               <button
                 className="btn"

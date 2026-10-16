@@ -24,7 +24,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const [{ data }, approved, pendingRows] = await Promise.all([
     supabase
       .from("programs")
-      .select("id, name, org_name, cert_type, description, location, start_date, end_date, approval_mode, is_open, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, created_at, participants(count)")
+      .select("id, name, org_name, cert_type, description, location, start_date, end_date, approval_mode, is_open, setup_done, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, created_at, participants(count)")
       .order("created_at", { ascending: false }),
     supabase.from("participants").select("id", { count: "exact", head: true }).eq("status", "approved"),
     supabase.from("participants").select("program_id").eq("status", "pending").limit(1000),
@@ -33,6 +33,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const pendingBy = new Map<string, number>();
   pendingRows.data?.forEach((r) => pendingBy.set(r.program_id, (pendingBy.get(r.program_id) ?? 0) + 1));
   const countOf = (p: (typeof programs)[number]) => (p.participants as unknown as { count: number }[])?.[0]?.count ?? 0;
+  // Draf (wizard belum selesai) dibuka langsung di langkah Formulir & sertifikat.
+  const hrefOf = (p: (typeof programs)[number]) => (p.setup_done ? `/dashboard/programs/${p.id}` : `/dashboard/programs/${p.id}/form?setup=1`);
   const totalParticipants = programs.reduce((a, p) => a + countOf(p), 0);
   const pendingTotal = [...pendingBy.values()].reduce((a, b) => a + b, 0);
   const activeCount = programs.filter((p) => p.is_open).length;
@@ -148,12 +150,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     const pending = pendingBy.get(p.id) ?? 0;
                     return (
                       <tr key={p.id} className="hover:bg-slate-50/70">
-                        <td className="px-4 py-3"><Link href={`/dashboard/programs/${p.id}`} className="font-medium text-slate-900 hover:text-brand-700">{p.name}</Link><p className="text-xs text-slate-500">{p.org_name}</p></td>
+                        <td className="px-4 py-3"><Link href={hrefOf(p)} className="font-medium text-slate-900 hover:text-brand-700">{p.name}</Link>{!p.setup_done && <span className="badge badge-warn ml-2">Draf</span>}<p className="text-xs text-slate-500">{p.org_name}</p></td>
                         <td className="whitespace-nowrap px-4 py-3 text-slate-600">{formatDateRange(p.start_date, p.end_date)}</td>
                         <td className="px-4 py-3 text-right">{countOf(p)}{!isPro ? <span className="text-slate-400"> / {FREE_PARTICIPANT_LIMIT}</span> : ""}</td>
                         <td className="px-4 py-3 text-right">{pending > 0 ? <span className="badge badge-warn">{pending}</span> : <span className="text-slate-300">—</span>}</td>
                         <td className="px-4 py-3"><span className={`badge ${p.is_open ? "badge-ok" : ""}`}>{p.is_open ? "Dibuka" : "Ditutup"}</span></td>
-                        <td className="px-4 py-3 text-right"><div className="flex justify-end gap-1.5"><Link href={`/dashboard/programs/${p.id}/participants`} className="btn btn-sm">Peserta</Link><Link href={`/dashboard/programs/${p.id}`} className="btn btn-sm">Kelola</Link></div></td>
+                        <td className="px-4 py-3 text-right"><div className="flex justify-end gap-1.5"><Link href={`/dashboard/programs/${p.id}/participants`} className="btn btn-sm">Peserta</Link><Link href={hrefOf(p)} className={`btn btn-sm ${p.setup_done ? "" : "btn-primary"}`}>{p.setup_done ? "Kelola" : "Lanjutkan"}</Link></div></td>
                       </tr>
                     );
                   })}
@@ -172,7 +174,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   if (u) images[key] = u;
                 }
                 return (
-                  <Link key={p.id} href={`/dashboard/programs/${p.id}`} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
+                  <Link key={p.id} href={hrefOf(p)} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
                     <div className="relative border-b border-slate-100 bg-slate-100">
                       {p.cert_mode === "template" || design ? (
                         <TemplateThumb
@@ -186,7 +188,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       ) : (
                         <div className="grid aspect-[842/595] place-items-center bg-gradient-to-br from-brand-50 to-slate-100 text-xs text-slate-500">Desain sendiri</div>
                       )}
-                      <span className={`badge absolute left-3 top-3 shadow-sm ${p.is_open ? "badge-ok" : "bg-white"}`}>{p.is_open ? "Dibuka" : "Ditutup"}</span>
+                      {p.setup_done ? (
+                        <span className={`badge absolute left-3 top-3 shadow-sm ${p.is_open ? "badge-ok" : "bg-white"}`}>{p.is_open ? "Dibuka" : "Ditutup"}</span>
+                      ) : (
+                        <span className="badge badge-warn absolute left-3 top-3 shadow-sm">Draf · lanjutkan</span>
+                      )}
                       {pending > 0 && <span className="badge badge-warn absolute right-3 top-3 shadow-sm">{pending} menunggu</span>}
                     </div>
                     <div className="p-3.5">

@@ -11,6 +11,8 @@ import { resolveLayout, type ProgramLike } from "@/lib/certificate/sources";
 import type { Layout, QrItem, TextItem } from "@/lib/certificate/types";
 import { FIELD_TYPES, type FieldType } from "@/lib/db";
 import { saveFields } from "../../../actions";
+import type { DesignDTO } from "@/lib/designs";
+import TemplatePicker from "./TemplatePicker";
 
 type Row = { id: string; label: string; type: FieldType; required: boolean; options: string; slot: "" | "name" | "extra" };
 
@@ -26,16 +28,20 @@ type Props = {
   program: ProgramLike;
   /** langkah terakhir alur pembuatan program baru */
   setup?: boolean;
+  /** data popup Ganti sertifikat */
+  picker: { isPro: boolean; current: { mode: "template" | "custom"; templateId: string; designId: string | null }; designs: DesignDTO[] };
 };
 
 const COLORS = ["#4f46e5", "#d97706", "#059669", "#db2777", "#0891b2", "#7c3aed"];
 
-export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false }: Props) {
+export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false, picker }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState<Row[]>(initial);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
   const [zoom, setZoom] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const pickerSample = useMemo(() => ({ program: { ...program, mapping: { name: "_n" } }, data: { _n: "Nama Peserta Contoh" }, certNumber: "001/SERT/I/2026", verifyUrl: "https://contoh" }), [program]);
   useEffect(() => {
     if (!zoom) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoom(false);
@@ -101,6 +107,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
       const res = await saveFields(
         programId,
         rows.map((r) => ({ ...r, options: r.options.split("\n").map((s) => s.trim()).filter(Boolean) })),
+        setup,
       );
       if (!res.error && setup) return router.push(`/dashboard/programs/${programId}?created=1`);
       setMsg(res.error ? { ok: false, text: res.error } : { ok: true, text: "Form tersimpan." });
@@ -109,7 +116,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
 
   return (
     <>
-    {setup && <div className="mb-4"><SetupSteps current={4} /></div>}
+    {setup && <div className="mb-4"><SetupSteps current={3} /></div>}
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
     <div className="min-w-0 space-y-4">
       <SectionTitle icon={ClipboardList} title="Formulir pendaftaran" hint="Atur pertanyaan untuk peserta. Kolom Di sertifikat menentukan field mana yang dicetak sebagai nama peserta dan keterangan (opsional)." />
@@ -192,7 +199,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
               <p className="text-xs text-slate-500">Sertifikat yang dipilih</p>
               <p className="truncate text-sm font-semibold">{templateName}</p>
             </div>
-            <Link href={`/dashboard/programs/${programId}/design`} className="btn btn-sm shrink-0">Ganti</Link>
+            <button type="button" className="btn btn-sm shrink-0" onClick={() => setPicking(true)}>Ganti</button>
           </div>
           <button type="button" className="group relative block w-full overflow-hidden rounded-lg border border-slate-200 text-left" onClick={() => setZoom(true)} aria-label="Perbesar pratinjau sertifikat">
             <CertificateSvg layout={resolved} backgroundUrl={bgUrl} images={images} logoPlaceholder={logoPlaceholder} highlight={highlight} className="block h-auto w-full" />
@@ -226,6 +233,18 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
         </div>
       </div>
     </aside>
+    {picking && (
+      <TemplatePicker
+        programId={programId}
+        isPro={picker.isPro}
+        sample={pickerSample}
+        images={images ?? {}}
+        current={picker.current}
+        designs={picker.designs}
+        onClose={() => setPicking(false)}
+        onChanged={(name) => { setPicking(false); setMsg({ ok: true, text: `Sertifikat diganti ke "${name}".` }); }}
+      />
+    )}
     {zoom && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-6" onClick={() => setZoom(false)} role="dialog" aria-modal="true" aria-label="Pratinjau sertifikat">
         <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -243,7 +262,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 px-4 py-3">
             <a href={`/api/programs/${programId}/sample`} target="_blank" className="btn btn-sm">Contoh PDF</a>
-            <Link href={`/dashboard/programs/${programId}/design`} className="btn btn-sm">Ganti template</Link>
+            <button type="button" className="btn btn-sm" onClick={() => { setZoom(false); setPicking(true); }}>Ganti template</button>
             <button className="btn btn-primary btn-sm" onClick={() => setZoom(false)}>Tutup</button>
           </div>
         </div>

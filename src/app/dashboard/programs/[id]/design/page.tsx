@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getOwnedProgram } from "@/lib/program-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sampleContext, signatureUrls } from "@/lib/certificate/load";
@@ -9,7 +10,9 @@ export const metadata = { title: "Sertifikat" };
 
 export default async function DesignPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ setup?: string }> }) {
   const { id } = await params;
-  const setup = (await searchParams).setup === "1";
+  // Alur program baru kini memilih sertifikat di langkah Formulir & sertifikat.
+  if ((await searchParams).setup === "1") redirect(`/dashboard/programs/${id}/form?setup=1`);
+  const setup = false;
   const { program, fields, profile, isPro, supabase } = await getOwnedProgram(id);
   const ctx = sampleContext(program, fields);
   const [images, { data: rows }] = await Promise.all([

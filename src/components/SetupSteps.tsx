@@ -1,8 +1,8 @@
 import { Check } from "lucide-react";
 
-export const SETUP_STEPS = ["Data acara", "Penandatangan", "Alur", "Sertifikat", "Formulir"] as const;
+export const SETUP_STEPS = ["Data acara", "Penandatangan", "Alur", "Formulir & sertifikat"] as const;
 
-/** Penanda langkah pembuatan program baru (dipakai di wizard, halaman sertifikat, dan form). */
+/** Penanda langkah pembuatan program baru (dipakai di wizard dan langkah Formulir & sertifikat). */
 export default function SetupSteps({ current, onSelect }: { current: number; onSelect?: (i: number) => void }) {
   return (
     <ol className="flex items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 shadow-sm">

@@ -61,6 +61,7 @@ export async function createProgram(_: ActionState, fd: FormData): Promise<Actio
     notify_email: raw.notify_email === "on",
     template_id: template.id,
     mapping: { name: nameField, extra: orgField },
+    setup_done: false,
   });
   if (error) return { error: dbError(error.message) };
 
@@ -76,8 +77,8 @@ export async function createProgram(_: ActionState, fd: FormData): Promise<Actio
   if (/^[0-9a-f-]{36}$/.test(designId)) await applyDesign(id, designId);
 
   revalidatePath("/dashboard");
-  // Lanjut ke langkah 4 (pilih sertifikat) dari alur pembuatan program.
-  redirect(`/dashboard/programs/${id}/design?setup=1`);
+  // Lanjut ke langkah 4 (formulir & sertifikat) dari alur pembuatan program.
+  redirect(`/dashboard/programs/${id}/form?setup=1`);
 }
 
 export async function updateProgram(id: string, _: ActionState, fd: FormData): Promise<ActionState> {
@@ -134,7 +135,7 @@ const fieldsSchema = z
   .min(1, "Minimal satu field")
   .max(30, "Maksimal 30 field");
 
-export async function saveFields(programId: string, input: unknown): Promise<ActionState> {
+export async function saveFields(programId: string, input: unknown, finishSetup = false): Promise<ActionState> {
   const { supabase } = await requireUser();
   const parsed = fieldsSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -169,7 +170,7 @@ export async function saveFields(programId: string, input: unknown): Promise<Act
   if (error) return { error: dbError(error.message) };
 
   const mapping = { name: names[0].id, extra: fields.find((f) => f.slot === "extra")?.id ?? null };
-  const { error: mErr } = await supabase.from("programs").update({ mapping }).eq("id", programId);
+  const { error: mErr } = await supabase.from("programs").update(finishSetup ? { mapping, setup_done: true } : { mapping }).eq("id", programId);
   if (mErr) return { error: dbError(mErr.message) };
 
   revalidatePath(`/dashboard/programs/${programId}`, "layout");

@@ -38,6 +38,8 @@ export type Program = {
   signer1_sig_path: string | null;
   signer2_sig_path: string | null;
   approval_mode: "auto" | "manual";
+  /** false selama program baru belum menyelesaikan wizard (draf) */
+  setup_done: boolean;
   is_open: boolean;
   cert_mode: "template" | "custom";
   template_id: string;

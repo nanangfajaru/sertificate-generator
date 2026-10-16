@@ -2,6 +2,7 @@ import { getOwnedProgram } from "@/lib/program-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { previewUrl, programLayout, signatureUrls, withBranding } from "@/lib/certificate/load";
 import { getTemplate } from "@/lib/certificate/templates";
+import type { DesignDTO } from "@/lib/designs";
 import FormBuilder from "./FormBuilder";
 
 export const metadata = { title: "Form pendaftaran" };
@@ -9,7 +10,7 @@ export const metadata = { title: "Form pendaftaran" };
 export default async function FormPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ setup?: string }> }) {
   const { id } = await params;
   const setup = (await searchParams).setup === "1";
-  const { program, fields } = await getOwnedProgram(id);
+  const { program, fields, isPro, supabase } = await getOwnedProgram(id);
   const initial = fields.map((f) => ({
     id: f.id,
     label: f.label,
@@ -20,7 +21,17 @@ export default async function FormPage({ params, searchParams }: { params: Promi
   }));
   const custom = program.cert_mode === "custom" && !!program.design_layout;
   const admin = createAdminClient();
-  const [bgUrl, images] = await Promise.all([custom ? previewUrl(admin, program) : Promise.resolve(null), signatureUrls(admin, program)]);
+  const [bgUrl, images, { data: designRows }] = await Promise.all([
+    custom ? previewUrl(admin, program) : Promise.resolve(null),
+    signatureUrls(admin, program),
+    supabase.from("program_designs").select("id, name, kind, layout, preview_path, updated_at").eq("owner_id", program.owner_id).order("created_at"),
+  ]);
+  // Pustaka desain sendiri untuk popup Ganti sertifikat.
+  const paths = (designRows ?? []).map((r) => r.preview_path);
+  const { data: signed } = paths.length ? await admin.storage.from("designs").createSignedUrls(paths, 3600) : { data: [] };
+  const urlByPath = new Map((signed ?? []).map((x) => [x.path, x.signedUrl]));
+  const designs: DesignDTO[] = (designRows ?? []).map((r) => ({ id: r.id, name: r.name, kind: r.kind, layout: r.layout as DesignDTO["layout"], previewUrl: urlByPath.get(r.preview_path) ?? null, updatedAt: r.updated_at }));
+  const activeDesign = custom ? designs.find((d) => d.id === program.design_id) : undefined;
 
   return (
     <FormBuilder
@@ -32,7 +43,8 @@ export default async function FormPage({ params, searchParams }: { params: Promi
       logoPlaceholder={!images.logo}
       bgUrl={bgUrl}
       custom={custom}
-      templateName={custom ? "Desain sendiri" : getTemplate(program.template_id).name}
+      templateName={custom ? `Desain sendiri${activeDesign ? `: ${activeDesign.name}` : ""}` : getTemplate(program.template_id).name}
+      picker={{ isPro, current: { mode: custom ? "custom" : "template", templateId: program.template_id, designId: program.design_id ?? null }, designs }}
       program={{
         org_name: program.org_name,
         name: program.name,

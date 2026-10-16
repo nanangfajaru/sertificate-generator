@@ -28,7 +28,7 @@ export default function ProgramChrome(p: Props) {
       <div className="mb-6">
         <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-800">← Kembali</Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">Program baru</h1>
-        <p className="mt-1 text-sm text-slate-500">Lima langkah: data acara, penandatangan, alur, pilih sertifikat, lalu atur formulir pendaftaran.</p>
+        <p className="mt-1 text-sm text-slate-500">Empat langkah: data acara, penandatangan, alur, lalu formulir pendaftaran & sertifikat.</p>
       </div>
     );
   }
