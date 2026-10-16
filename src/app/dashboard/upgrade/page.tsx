@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowLeft, Check, Crown, Minus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { applyMidtransStatus, getPricing, getReferralDefaults, fetchTransactionStatus, midtransConfigured } from "@/lib/billing";
+import { applyMidtransStatus, getPricing, fetchTransactionStatus, midtransConfigured } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Checkout from "./Checkout";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
@@ -17,6 +17,7 @@ const ROWS: Row[] = [
   ["Template sertifikat", "20 template dasar", "20 dasar + 22 bertema (bunga, rumah sakit, olahraga, perusahaan, dll)"],
   ["Desain sendiri (unggah PDF/PNG/JPG)", "Boleh membuat & menyimpan 3, tidak bisa dipakai", "Hingga 50 desain, dipakai di semua program"],
   ["Watermark sertifikatku.com", "Ada", "Tanpa watermark"],
+  ["Program referral (kode & link pribadi, dapat komisi)", false, true],
   ["Hapus program", false, true],
   ["Formulir pendaftaran & pemetaan kolom", true, true],
   ["Persetujuan otomatis / manual", true, true],
@@ -51,13 +52,7 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
       if (orderStatus === "paid") proNow = true;
     }
   }
-  const [pricing, ref] = await Promise.all([getPricing(admin), getReferralDefaults(admin)]);
-  // Baris referral memakai persentase yang sedang berlaku di pengaturan admin.
-  const rows: Row[] = [
-    ...ROWS.slice(0, 5),
-    ["Program referral (kode & link pribadi)", false, `Komisi ${ref.commission_percent}% dari pembayaran, pembeli diskon ${ref.discount_percent}%`],
-    ...ROWS.slice(5),
-  ];
+  const pricing = await getPricing(admin);
 
   return (
     <div>
@@ -88,7 +83,7 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
             </tr>
           </thead>
           <tbody>
-            {rows.map(([f, free, pro]) => (
+            {ROWS.map(([f, free, pro]) => (
               <tr key={f} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 font-medium text-slate-800">{f}</td>
                 <td className="px-4 py-3 text-center text-slate-600"><Cell v={free} /></td>
