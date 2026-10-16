@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { FREE_PROGRAM_LIMIT } from "@/lib/db";
 import { TEMPLATES } from "@/lib/certificate/templates";
-import { LayoutTemplate } from "lucide-react";
 import CertificateSvg from "@/components/CertificateSvg";
 import { brandLayout } from "@/lib/certificate/branding";
 import { resolveLayout } from "@/lib/certificate/sources";
@@ -46,27 +45,22 @@ export default async function NewProgramPage({ searchParams }: { searchParams: P
         <h1 className="text-2xl font-bold tracking-tight">Program baru</h1>
         <p className="mt-1 text-sm text-slate-500">Empat langkah: data acara, penandatangan, alur, lalu formulir pendaftaran & sertifikat.</p>
       </div>
-      {chosen && (
-        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/60 px-4 py-3 text-sm">
-          <LayoutTemplate className="h-4 w-4 shrink-0 text-brand-600" />
-          <p className="min-w-0 flex-1 text-brand-900">Sertifikat memakai <b>{chosen}</b>. Isi data acara, lalu lanjut atur formulir.</p>
-          <Link href="/dashboard/templates" className="text-xs font-medium text-brand-700 hover:underline">Ganti template</Link>
-        </div>
-      )}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2"><ProgramForm wizard action={createProgram} submitLabel="Lanjut" defaultOrg={profile.organization ?? ""} preset={{ templateId: tpl?.id, designId: design?.id }} /></div>
         <aside className="space-y-4 lg:sticky lg:top-20">
           {preview && (
             <div className="card !p-3">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Sertifikat terpilih</p>
-                <Link href="/dashboard/templates" className="text-xs font-medium text-brand-700 hover:underline">Ganti</Link>
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500">Sertifikat yang dipilih</p>
+                  <p className="truncate text-sm font-semibold">{chosen}</p>
+                </div>
+                <Link href="/dashboard/templates" className="btn btn-sm shrink-0">Ganti</Link>
               </div>
               <div className="overflow-hidden rounded-lg border border-slate-200">
                 <CertificateSvg layout={preview.layout} backgroundUrl={preview.bg} logoPlaceholder className="block h-auto w-full" />
               </div>
-              <p className="mt-2 truncate text-sm font-medium text-slate-800">{chosen}</p>
-              <p className="text-xs text-slate-500">Teks contoh akan diganti dengan data acara Anda.</p>
+              <p className="mt-2 text-xs text-slate-500">Teks contoh akan diganti dengan data acara Anda.</p>
             </div>
           )}
         <div className="card space-y-3 text-sm text-slate-600">
