@@ -5,11 +5,12 @@ import { getTemplate } from "@/lib/certificate/templates";
 import type { DesignDTO } from "@/lib/designs";
 import FormBuilder from "./FormBuilder";
 
-export const metadata = { title: "Form pendaftaran" };
+export const metadata = { title: "Formulir & sertifikat" };
 
-export default async function FormPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ setup?: string }> }) {
+export default async function FormPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ setup?: string; pick?: string }> }) {
   const { id } = await params;
-  const setup = (await searchParams).setup === "1";
+  const sp = await searchParams;
+  const setup = sp.setup === "1";
   const { program, fields, isPro, supabase } = await getOwnedProgram(id);
   const initial = fields.map((f) => ({
     id: f.id,
@@ -36,6 +37,7 @@ export default async function FormPage({ params, searchParams }: { params: Promi
   return (
     <FormBuilder
       setup={setup}
+      openPicker={sp.pick === "1"}
       programId={id}
       initial={initial}
       layout={withBranding(programLayout(program), program, { placeholder: true })}

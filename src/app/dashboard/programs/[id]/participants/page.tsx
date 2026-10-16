@@ -54,7 +54,7 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
         const msg = !program.notify_email
           ? "Email otomatis ke peserta dinonaktifkan. Aktifkan di tab Ringkasan."
           : !hasEmail
-            ? "Email ke peserta belum dapat dikirim: tambahkan field bertipe Email pada tab Form pendaftaran."
+            ? "Email ke peserta belum dapat dikirim: tambahkan field bertipe Email pada tab Formulir & sertifikat."
             : !smtp
               ? "Email ke peserta belum dapat dikirim: SMTP belum dikonfigurasi di server."
               : "Peserta otomatis menerima email berisi tautan sertifikat saat disetujui.";

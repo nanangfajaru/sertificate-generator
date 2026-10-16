@@ -11,23 +11,22 @@ import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
 import { TEMPLATE_GROUPS, templateGroup, type TemplateGroupKey } from "@/lib/certificate/template-groups";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import type { DesignDTO } from "@/lib/designs";
-import { chooseTemplate } from "../../../actions";
-import { useDesign } from "../../../design-actions";
+
+export type PickerChoice = { kind: "template" | "design"; id: string; name: string };
 
 type Props = {
-  programId: string;
   isPro: boolean;
   sample: CertContext;
   images: Record<string, string>;
   current: { mode: "template" | "custom"; templateId: string; designId: string | null };
   designs: DesignDTO[];
   onClose: () => void;
-  /** dipanggil setelah sertifikat berhasil diganti */
-  onChanged: (name: string) => void;
+  /** memasang pilihan; kembalikan { error } bila gagal. Popup tertutup sendiri bila berhasil. */
+  onChoose: (c: PickerChoice) => Promise<{ error?: string } | void>;
 };
 
 /** Popup memilih template bawaan atau desain sendiri untuk program, tanpa meninggalkan halaman. */
-export default function TemplatePicker({ programId, isPro, sample, images, current, designs, onClose, onChanged }: Props) {
+export default function TemplatePicker({ isPro, sample, images, current, designs, onClose, onChoose }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<"template" | "custom">(current.mode);
   const [group, setGroup] = useState<"all" | TemplateGroupKey>("all");
@@ -51,15 +50,14 @@ export default function TemplatePicker({ programId, isPro, sample, images, curre
   );
   const visible = group === "all" ? templates : templates.filter((t) => templateGroup(t.id) === group);
 
-  function pick(key: string, name: string, run: () => Promise<{ error?: string }>) {
+  function pick(c: PickerChoice) {
     setErr(null);
-    setBusy(key);
+    setBusy(c.id);
     start(async () => {
-      const r = await run();
+      const r = await onChoose(c);
       setBusy(null);
-      if (r.error) return setErr(r.error);
-      router.refresh();
-      onChanged(name);
+      if (r?.error) return setErr(r.error);
+      onClose();
     });
   }
 
@@ -103,7 +101,7 @@ export default function TemplatePicker({ programId, isPro, sample, images, curre
                 const active = current.mode === "template" && current.templateId === t.id;
                 const choose = () => {
                   if (locked) return router.push("/dashboard/upgrade");
-                  if (!active && busy === null) pick(t.id, t.name, () => chooseTemplate(programId, t.id));
+                  if (!active && busy === null) pick({ kind: "template", id: t.id, name: t.name });
                 };
                 return (
                   <Card key={t.id} name={t.name} active={active} busy={busy === t.id} disabled={busy !== null} locked={locked} pro={t.tier === "pro"} onChoose={choose}>
@@ -131,7 +129,7 @@ export default function TemplatePicker({ programId, isPro, sample, images, curre
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
               {designs.map((d) => {
                 const active = current.mode === "custom" && current.designId === d.id;
-                const choose = () => { if (!active && busy === null) pick(d.id, d.name, () => useDesign(programId, d.id)); };
+                const choose = () => { if (!active && busy === null) pick({ kind: "design", id: d.id, name: d.name }); };
                 return (
                   <Card key={d.id} name={d.name} active={active} busy={busy === d.id} disabled={busy !== null} onChoose={choose}>
                     <LazyMount aspect={`${d.layout.width} / ${d.layout.height}`}>

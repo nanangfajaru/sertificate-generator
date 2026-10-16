@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, LayoutDashboard, Palette, Users } from "lucide-react";
+import { ClipboardList, LayoutDashboard, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,8 +9,7 @@ export default function ProgramTabs({ id }: { id: string }) {
   const base = `/dashboard/programs/${id}`;
   const tabs = [
     [base, "Ringkasan", LayoutDashboard],
-    [`${base}/design`, "Sertifikat", Palette],
-    [`${base}/form`, "Form pendaftaran", ClipboardList],
+    [`${base}/form`, "Formulir & sertifikat", ClipboardList],
     [`${base}/participants`, "Peserta", Users],
   ] as const;
   return (

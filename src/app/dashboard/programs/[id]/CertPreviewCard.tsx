@@ -26,7 +26,7 @@ export default function CertPreviewCard({ programId, templateName, layout, bgUrl
           <p className="text-xs text-slate-500">Sertifikat yang dipilih</p>
           <p className="truncate text-sm font-semibold">{templateName}</p>
         </div>
-        <Link href={`/dashboard/programs/${programId}/design`} className="btn btn-sm shrink-0">Ganti</Link>
+        <Link href={`/dashboard/programs/${programId}/form?pick=1`} className="btn btn-sm shrink-0">Ganti</Link>
       </div>
       <button type="button" className="group relative block w-full overflow-hidden rounded-lg border border-slate-200 text-left" onClick={() => setZoom(true)} aria-label="Perbesar pratinjau sertifikat">
         {svg}

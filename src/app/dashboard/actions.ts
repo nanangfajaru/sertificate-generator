@@ -186,7 +186,7 @@ export async function chooseTemplate(programId: string, templateId: string): Pro
   if (t.tier === "pro" && !isPro) return { error: "Template ini khusus paket Pro." };
   const { error } = await supabase.from("programs").update({ template_id: t.id, cert_mode: "template" }).eq("id", programId);
   if (error) return { error: dbError(error.message) };
-  revalidatePath(`/dashboard/programs/${programId}/design`);
+  revalidatePath(`/dashboard/programs/${programId}`, "layout");
   return { ok: true };
 }
 
@@ -194,7 +194,7 @@ export async function switchToTemplate(programId: string): Promise<ActionState> 
   const { supabase } = await requireUser();
   const { error } = await supabase.from("programs").update({ cert_mode: "template" }).eq("id", programId);
   if (error) return { error: dbError(error.message) };
-  revalidatePath(`/dashboard/programs/${programId}/design`);
+  revalidatePath(`/dashboard/programs/${programId}`, "layout");
   return { ok: true };
 }
 

@@ -10,7 +10,8 @@ import CertificateSvg, { type Highlight } from "@/components/CertificateSvg";
 import { resolveLayout, type ProgramLike } from "@/lib/certificate/sources";
 import type { Layout, QrItem, TextItem } from "@/lib/certificate/types";
 import { FIELD_TYPES, type FieldType } from "@/lib/db";
-import { saveFields } from "../../../actions";
+import { chooseTemplate, saveFields } from "../../../actions";
+import { useDesign } from "../../../design-actions";
 import type { DesignDTO } from "@/lib/designs";
 import TemplatePicker from "./TemplatePicker";
 
@@ -28,19 +29,21 @@ type Props = {
   program: ProgramLike;
   /** langkah terakhir alur pembuatan program baru */
   setup?: boolean;
+  /** buka popup Ganti sertifikat saat halaman dimuat (?pick=1) */
+  openPicker?: boolean;
   /** data popup Ganti sertifikat */
   picker: { isPro: boolean; current: { mode: "template" | "custom"; templateId: string; designId: string | null }; designs: DesignDTO[] };
 };
 
 const COLORS = ["#4f46e5", "#d97706", "#059669", "#db2777", "#0891b2", "#7c3aed"];
 
-export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false, picker }: Props) {
+export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false, openPicker = false, picker }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState<Row[]>(initial);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
   const [zoom, setZoom] = useState(false);
-  const [picking, setPicking] = useState(false);
+  const [picking, setPicking] = useState(openPicker);
   const pickerSample = useMemo(() => ({ program: { ...program, mapping: { name: "_n" } }, data: { _n: "Nama Peserta Contoh" }, certNumber: "001/SERT/I/2026", verifyUrl: "https://contoh" }), [program]);
   useEffect(() => {
     if (!zoom) return;
@@ -229,21 +232,25 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
           </ul>
           <p className="mt-3 border-t border-slate-100 pt-2 text-xs text-slate-500">
             Kolom lain (mis. email, no. HP) hanya tersimpan pada data peserta dan rekap kehadiran, tidak dicetak di sertifikat.
-            {custom && " Atur posisi kolom pada tab Sertifikat → Desain sendiri."}
+            {custom && " Atur posisi kolom di menu Template → Desain sendiri."}
           </p>
         </div>
       </div>
     </aside>
     {picking && (
       <TemplatePicker
-        programId={programId}
         isPro={picker.isPro}
         sample={pickerSample}
         images={images ?? {}}
         current={picker.current}
         designs={picker.designs}
         onClose={() => setPicking(false)}
-        onChanged={(name) => { setPicking(false); setMsg({ ok: true, text: `Sertifikat diganti ke "${name}".` }); }}
+        onChoose={async (c) => {
+          const r = c.kind === "template" ? await chooseTemplate(programId, c.id) : await useDesign(programId, c.id);
+          if (r.error) return r;
+          router.refresh();
+          setMsg({ ok: true, text: `Sertifikat diganti ke "${c.name}".` });
+        }}
       />
     )}
     {zoom && (
