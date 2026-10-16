@@ -1,6 +1,6 @@
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, FileDown, Mail, Palette, QrCode, Send, ShieldCheck, X, Zap } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, FileDown, Mail, Palette, QrCode, Send, ShieldCheck, Sparkles, X, Zap } from "lucide-react";
 import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
@@ -55,7 +55,10 @@ export default function Landing() {
             <a href="#template" className="hover:text-slate-900">Template</a>
             <a href="#kegunaan" className="hover:text-slate-900">Kegunaan</a>
             <a href="#contoh" className="hover:text-slate-900">Contoh Program</a>
-            <a href="#faq" className="hover:text-slate-900">FAQ</a>
+            <span className="h-4 w-px bg-slate-200" aria-hidden />
+            <Link href="/tentang" className="inline-flex items-center gap-1.5 font-medium text-brand-700 hover:text-brand-900">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Solusi dari kami
+            </Link>
           </nav>
           <div className="flex items-center gap-2">
             <Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 sm:block">Masuk</Link>
@@ -302,12 +305,9 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500">
           <Logo size={26} uid="lm-foot" />
           <nav className="flex flex-wrap gap-x-6 gap-y-2">
-            <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
-            <Link href="/login" className="hover:text-slate-900">Masuk</Link>
-            <a href="#kegunaan" className="hover:text-slate-900">Kegunaan</a>
-            <Link href="/tentang" className="hover:text-slate-900">Tentang kami</Link>
-            <Link href="/kontak" className="hover:text-slate-900">Hubungi kami</Link>
+            <Link href="/tentang" className="hover:text-slate-900">Tentang Kami</Link>
+            <Link href="/kontak" className="hover:text-slate-900">Hubungi Kami</Link>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>

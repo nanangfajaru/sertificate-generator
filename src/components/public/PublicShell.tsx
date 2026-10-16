@@ -20,8 +20,9 @@ export default function PublicShell({ children }: { children: React.ReactNode })
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500">
           <Logo size={24} uid="lm-pub-foot" />
           <nav className="flex flex-wrap gap-5">
-            <Link href="/tentang" className="hover:text-slate-900">Tentang kami</Link>
-            <Link href="/kontak" className="hover:text-slate-900">Hubungi kami</Link>
+            <Link href="/#faq" className="hover:text-slate-900">FAQ</Link>
+            <Link href="/tentang" className="hover:text-slate-900">Tentang Kami</Link>
+            <Link href="/kontak" className="hover:text-slate-900">Hubungi Kami</Link>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>
