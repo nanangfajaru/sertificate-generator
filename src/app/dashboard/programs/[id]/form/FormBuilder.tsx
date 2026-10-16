@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ClipboardList, Eye, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ClipboardList, Eye, Plus, Trash2, X } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -116,9 +116,10 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
 
   return (
     <>
-    {setup && <div className="mb-4"><SetupSteps current={3} /></div>}
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-    <div className="min-w-0 space-y-4">
+    {/* Wizard: proporsi kolom & posisi penanda langkah sama dengan langkah 1–3 */}
+    <div className={`grid gap-6 ${setup ? "items-start lg:grid-cols-3" : "lg:grid-cols-[minmax(0,1fr)_380px]"}`}>
+    <div className={`min-w-0 space-y-4 ${setup ? "lg:col-span-2" : ""}`}>
+      {setup && <div className="mb-6"><SetupSteps current={3} /></div>}
       <SectionTitle icon={ClipboardList} title="Formulir pendaftaran" hint="Atur pertanyaan untuk peserta. Kolom Di sertifikat menentukan field mana yang dicetak sebagai nama peserta dan keterangan (opsional)." />
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_9rem_10rem_4.5rem_5.5rem] items-center gap-2 border-b border-slate-100 bg-slate-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 md:grid">
@@ -188,10 +189,10 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
         </button>
       </div>
       {msg && <p className={`rounded-lg p-3 text-sm ${msg.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{msg.text}</p>}
-      <div><button className="btn btn-primary" onClick={save} disabled={pending}>{pending ? "Menyimpan…" : setup ? "Simpan & selesai" : "Simpan form"}</button></div>
+      <div className={setup ? "flex justify-end" : ""}><button className="btn btn-primary" onClick={save} disabled={pending}>{pending ? "Menyimpan…" : setup ? <>Simpan & selesai <Check className="h-4 w-4" /></> : "Simpan form"}</button></div>
     </div>
 
-    <aside className="order-first lg:order-last">
+    <aside className={setup ? "" : "order-first lg:order-last"}>
       <div className="space-y-3 lg:sticky lg:top-20">
         <div className="card !p-3">
           <div className="mb-2 flex items-center justify-between gap-2">
