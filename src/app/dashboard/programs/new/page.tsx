@@ -4,6 +4,13 @@ import { requireUser } from "@/lib/auth";
 import { FREE_PROGRAM_LIMIT } from "@/lib/db";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import { LayoutTemplate } from "lucide-react";
+import CertificateSvg from "@/components/CertificateSvg";
+import { brandLayout } from "@/lib/certificate/branding";
+import { resolveLayout } from "@/lib/certificate/sources";
+import type { Layout } from "@/lib/certificate/types";
+import { librarySample } from "@/lib/designs";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { siteUrl } from "@/lib/util";
 import { createProgram } from "../../actions";
 import ProgramForm from "../../ProgramForm";
 
@@ -15,9 +22,19 @@ export default async function NewProgramPage({ searchParams }: { searchParams: P
   // Template / desain yang dipilih dari halaman Template (Pro dijaga lagi di server saat menyimpan).
   const tpl = TEMPLATES.find((t) => t.id === sp.template && (t.tier === "free" || isPro));
   const { data: design } = isPro && sp.design && /^[0-9a-f-]{36}$/.test(sp.design)
-    ? await supabase.from("program_designs").select("id, name").eq("id", sp.design).eq("owner_id", profile.id).maybeSingle()
+    ? await supabase.from("program_designs").select("id, name, layout, preview_path").eq("id", sp.design).eq("owner_id", profile.id).maybeSingle()
     : { data: null };
   const chosen = design ? `Desain sendiri: ${design.name}` : tpl?.name;
+
+  // Pratinjau sertifikat terpilih di samping wizard (hanya bila datang dari halaman Template).
+  const sample = librarySample(`${siteUrl()}/v/contoh`);
+  let preview: { layout: Layout; bg: string | null } | null = null;
+  if (design) {
+    const { data: signed } = await createAdminClient().storage.from("designs").createSignedUrl(design.preview_path, 3600);
+    preview = { layout: resolveLayout(design.layout as Layout, sample), bg: signed?.signedUrl ?? null };
+  } else if (tpl) {
+    preview = { layout: brandLayout(resolveLayout(tpl.layout, sample), { certMode: "template", templateId: tpl.id, logo: true, sig1: false, sig2: false }), bg: null };
+  }
   if (!isPro) {
     const { count } = await supabase.from("programs").select("id", { count: "exact", head: true });
     if ((count ?? 0) >= FREE_PROGRAM_LIMIT) redirect("/dashboard");
@@ -38,13 +55,28 @@ export default async function NewProgramPage({ searchParams }: { searchParams: P
       )}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2"><ProgramForm wizard action={createProgram} submitLabel={chosen ? "Simpan & lanjut" : "Simpan & pilih sertifikat"} defaultOrg={profile.organization ?? ""} preset={{ templateId: tpl?.id, designId: design?.id }} /></div>
-        <aside className="card space-y-3 text-sm text-slate-600 lg:sticky lg:top-20">
+        <aside className="space-y-4 lg:sticky lg:top-20">
+          {preview && (
+            <div className="card !p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Sertifikat terpilih</p>
+                <Link href="/dashboard/templates" className="text-xs font-medium text-brand-700 hover:underline">Ganti</Link>
+              </div>
+              <div className="overflow-hidden rounded-lg border border-slate-200">
+                <CertificateSvg layout={preview.layout} backgroundUrl={preview.bg} logoPlaceholder className="block h-auto w-full" />
+              </div>
+              <p className="mt-2 truncate text-sm font-medium text-slate-800">{chosen}</p>
+              <p className="text-xs text-slate-500">Teks contoh akan diganti dengan data acara Anda.</p>
+            </div>
+          )}
+        <div className="card space-y-3 text-sm text-slate-600">
           <h2 className="font-semibold text-slate-900">Tips</h2>
           <ul className="list-disc space-y-1.5 pl-5">
             <li>Program tersimpan setelah langkah 3, lalu Anda diarahkan memilih sertifikat dan formulir.</li>
             <li>Semua isian bisa diubah lagi kapan saja dari halaman program.</li>
           </ul>
           <p className="text-xs text-slate-500">Logo penyelenggara dan tanda tangan bersifat opsional dan bisa ditambahkan nanti.</p>
+        </div>
         </aside>
       </div>
     </div>

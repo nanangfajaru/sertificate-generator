@@ -2,6 +2,7 @@
 
 import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Plus, Sparkles, Upload, X } from "lucide-react";
 import Link from "next/link";
+import ConfirmLink from "@/components/ConfirmLink";
 import { useRouter } from "next/navigation";
 import SetupSteps from "@/components/SetupSteps";
 import { useEffect, useMemo, useState, useTransition } from "react";
@@ -196,7 +197,7 @@ export default function DesignClient(p: Props) {
                       <div className="grid grid-cols-2 gap-2">
                         <button type="button" className="btn btn-sm" onClick={() => setPreview(t)}><Eye className="h-4 w-4" /> Pratinjau</button>
                         {lib ? (
-                          <Link href={locked ? "/dashboard/upgrade" : newWith(`template=${t.id}`)} className={`btn btn-sm ${locked ? "" : "btn-primary"}`}>{locked ? <Lock className="h-3.5 w-3.5" /> : <Plus className="h-4 w-4" />} Buat program</Link>
+                          <ConfirmLink skip={locked} href={locked ? "/dashboard/upgrade" : newWith(`template=${t.id}`)} title="Buat program dengan template ini?" message={<>Anda akan membuat program baru dengan template <b>{t.name}</b>. Template ini bisa diganti lagi nanti.</>} confirmLabel="Ya, buat program" className={`btn btn-sm ${locked ? "" : "btn-primary"}`}>{locked ? <Lock className="h-3.5 w-3.5" /> : <Plus className="h-4 w-4" />} Buat program</ConfirmLink>
                         ) : active ? (
                           <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
                         ) : locked ? (
@@ -271,7 +272,7 @@ export default function DesignClient(p: Props) {
               <div className="flex gap-2">
                 <button className="btn" onClick={() => setPreview(null)}>Tutup</button>
                 {lib ? (
-                  <Link href={preview.tier === "pro" && !p.isPro ? "/dashboard/upgrade" : newWith(`template=${preview.id}`)} className="btn btn-primary">{preview.tier === "pro" && !p.isPro ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />} Buat program dengan template ini</Link>
+                  <ConfirmLink skip={preview.tier === "pro" && !p.isPro} href={preview.tier === "pro" && !p.isPro ? "/dashboard/upgrade" : newWith(`template=${preview.id}`)} title="Buat program dengan template ini?" message={<>Anda akan membuat program baru dengan template <b>{preview.name}</b>. Template ini bisa diganti lagi nanti.</>} confirmLabel="Ya, buat program" className="btn btn-primary">{preview.tier === "pro" && !p.isPro ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />} Buat program dengan template ini</ConfirmLink>
                 ) : mode === "template" && preview.id === activeId ? (
                   <span className="btn cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Sedang dipakai</span>
                 ) : preview.tier === "pro" && !p.isPro ? (
