@@ -4,12 +4,14 @@ import { getOwnedProgram } from "@/lib/program-server";
 import { mailConfigured } from "@/lib/mailer";
 import { siteUrl } from "@/lib/util";
 import ParticipantsTable from "./ParticipantsTable";
+import ImportDialog from "./ImportDialog";
+import { FREE_PARTICIPANT_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Peserta" };
 
 export default async function ParticipantsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { program, fields, supabase } = await getOwnedProgram(id);
+  const { program, fields, supabase, isPro } = await getOwnedProgram(id);
   const { data } = await supabase.from("participants").select("*").eq("program_id", id).order("created_at", { ascending: false }).limit(2000);
   const rows = data ?? [];
   const count = (s: string) => (s === "all" ? rows.length : rows.filter((r) => r.status === s).length);
@@ -17,7 +19,17 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <SectionTitle icon={Users} title="Daftar peserta" hint={`Mode: ${program.approval_mode === "auto" ? "sertifikat terbit otomatis" : "perlu persetujuan"}`} />
-        <a href={`/api/programs/${id}/export`} className="btn btn-sm"><Download className="h-4 w-4" /> Unduh kehadiran (CSV)</a>
+        <div className="flex flex-wrap gap-2">
+          <a href={`/api/programs/${id}/export`} className="btn btn-sm"><Download className="h-4 w-4" /> Unduh kehadiran (CSV)</a>
+          <ImportDialog
+            programId={id}
+            fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))}
+            nameId={program.mapping?.name ?? null}
+            manual={program.approval_mode === "manual"}
+            emailOn={program.notify_email && mailConfigured() && fields.some((f) => f.type === "email")}
+            freeLeft={isPro ? null : Math.max(0, FREE_PARTICIPANT_LIMIT - rows.length)}
+          />
+        </div>
       </div>
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
