@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { mailConfigured, sendMail } from "@/lib/mailer";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ContactState = { ok?: boolean; error?: string };
 
@@ -22,20 +23,33 @@ export async function sendContact(_: ContactState, fd: FormData): Promise<Contac
   if (String(fd.get("website") ?? "") !== "") return { ok: true }; // honeypot: diam-diam abaikan bot
   const p = schema.safeParse({ name: fd.get("name"), email: fd.get("email"), org: fd.get("org") ?? "", topic: fd.get("topic"), message: fd.get("message") });
   if (!p.success) return { error: p.error.issues[0]?.message ?? "Data belum lengkap" };
-  if (!mailConfigured()) return { error: `Formulir sedang tidak tersedia. Kirim email langsung ke ${INBOX}.` };
   const d = p.data;
-  const rows: [string, string][] = [["Nama", d.name], ["Email", d.email], ["Instansi", d.org || "—"], ["Topik", d.topic]];
-  try {
-    await sendMail({
-      to: INBOX,
-      replyTo: d.email,
-      subject: `[Kontak SertifikatKu] ${d.topic} — ${d.name}`,
-      text: `${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\n${d.message}`,
-      html: `<table style="font:14px sans-serif">${rows.map(([k, v]) => `<tr><td style="color:#64748b;padding-right:12px">${k}</td><td>${esc(v)}</td></tr>`).join("")}</table><p style="font:14px/1.6 sans-serif;white-space:pre-wrap">${esc(d.message)}</p>`,
-    });
-  } catch (e) {
-    console.error("kontak gagal:", e);
-    return { error: `Pesan belum terkirim. Coba lagi, atau email langsung ke ${INBOX}.` };
+  const admin = createAdminClient();
+  // Simpan dulu ke database (terlihat di Admin → Pesan masuk), lalu beri tahu lewat email.
+  const { data: row, error: dbErr } = await admin
+    .from("contact_messages")
+    .insert({ name: d.name, email: d.email, org: d.org || null, topic: d.topic, message: d.message })
+    .select("id")
+    .single();
+  if (dbErr) console.error("simpan kontak gagal:", dbErr.message);
+
+  let emailed = false;
+  if (mailConfigured()) {
+    const rows: [string, string][] = [["Nama", d.name], ["Email", d.email], ["Instansi", d.org || "—"], ["Topik", d.topic]];
+    try {
+      await sendMail({
+        to: INBOX,
+        replyTo: d.email,
+        subject: `[Kontak SertifikatKu] ${d.topic} — ${d.name}`,
+        text: `${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\n${d.message}`,
+        html: `<table style="font:14px sans-serif">${rows.map(([k, v]) => `<tr><td style="color:#64748b;padding-right:12px">${k}</td><td>${esc(v)}</td></tr>`).join("")}</table><p style="font:14px/1.6 sans-serif;white-space:pre-wrap">${esc(d.message)}</p>`,
+      });
+      emailed = true;
+    } catch (e) {
+      console.error("email kontak gagal:", e);
+    }
   }
+  if (row && emailed) await admin.from("contact_messages").update({ emailed: true }).eq("id", row.id);
+  if (!row && !emailed) return { error: `Pesan belum terkirim. Coba lagi, atau email langsung ke ${INBOX}.` };
   return { ok: true };
 }

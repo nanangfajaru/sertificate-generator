@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BadgePercent, FolderOpen, LayoutDashboard, Mail, Menu, Users, X } from "lucide-react";
+import { ArrowLeft, BadgePercent, FolderOpen, Inbox, LayoutDashboard, Mail, Menu, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,12 +12,13 @@ const ITEMS = [
   { href: "/admin/users", label: "Pengguna", icon: Users },
   { href: "/admin/programs", label: "Program", icon: FolderOpen },
   { href: "/admin/vouchers", label: "Voucher & referral", icon: BadgePercent },
+  { href: "/admin/pesan", label: "Pesan masuk", icon: Inbox },
   { href: "/admin/email", label: "Email", icon: Mail },
 ];
 
-type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; children: React.ReactNode };
+type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; newMessages?: number; children: React.ReactNode };
 
-export default function AdminShell({ name, email, avatarUrl, isPro, children }: Props) {
+export default function AdminShell({ name, email, avatarUrl, isPro, newMessages = 0, children }: Props) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
@@ -34,7 +35,8 @@ export default function AdminShell({ name, email, avatarUrl, isPro, children }: 
           const active = current?.href === href;
           return (
             <Link key={href} href={href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium transition ${active ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
-              <Icon className={`h-[18px] w-[18px] ${active ? "text-brand-600" : "text-slate-400"}`} /> {label}
+              <Icon className={`h-[18px] w-[18px] ${active ? "text-brand-600" : "text-slate-400"}`} /> <span className="flex-1">{label}</span>
+              {href === "/admin/pesan" && newMessages > 0 && <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[11px] font-semibold text-white">{newMessages}</span>}
             </Link>
           );
         })}
