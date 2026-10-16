@@ -23,44 +23,8 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
   const zipHref = (n: number) => `/api/programs/${id}/certificates${n > 1 ? `?part=${n}` : ""}`;
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5">
         <SectionTitle icon={Users} title="Daftar peserta" hint={`Mode: ${program.approval_mode === "auto" ? "sertifikat terbit otomatis" : "perlu persetujuan"}`} />
-        <div className="flex flex-wrap gap-2">
-          {approved === 0 ? (
-            <span className="btn btn-sm cursor-not-allowed opacity-50" title="Belum ada sertifikat yang terbit"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</span>
-          ) : parts <= 1 ? (
-            <a href={zipHref(1)} className="btn btn-sm" title="Satu file PDF per peserta yang disetujui"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</a>
-          ) : (
-            <details className="relative">
-              <summary className="btn btn-sm cursor-pointer list-none"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</summary>
-              <div className="absolute right-0 z-20 mt-1 w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-                <p className="px-2 py-1 text-xs text-slate-500">{approved} sertifikat, dibagi per {CERT_ZIP_BATCH}:</p>
-                {Array.from({ length: parts }, (_, i) => (
-                  <a key={i} href={zipHref(i + 1)} className="block rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50">
-                    Bagian {i + 1} <span className="text-slate-400">({i * CERT_ZIP_BATCH + 1}–{Math.min(approved, (i + 1) * CERT_ZIP_BATCH)})</span>
-                  </a>
-                ))}
-              </div>
-            </details>
-          )}
-          <a href={`/api/programs/${id}/export`} className="btn btn-sm"><Download className="h-4 w-4" /> Unduh kehadiran (CSV)</a>
-          <ImportDialog
-            programId={id}
-            fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))}
-            nameId={program.mapping?.name ?? null}
-            manual={program.approval_mode === "manual"}
-            emailOn={program.notify_email && mailConfigured() && fields.some((f) => f.type === "email")}
-            freeLeft={isPro ? null : Math.max(0, FREE_PARTICIPANT_LIMIT - rows.filter((r) => (r.role ?? DEFAULT_ROLE) === DEFAULT_ROLE).length)}
-          />
-          {program.owner_id === profile.id && (
-            <AddManualDialog
-              programId={id}
-              fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))}
-              nameId={program.mapping?.name ?? null}
-              emailOn={mailConfigured() && fields.some((f) => f.type === "email")}
-            />
-          )}
-        </div>
       </div>
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
@@ -91,6 +55,47 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
               : "Peserta otomatis menerima email berisi tautan sertifikat saat disetujui.";
         return <p className={`mb-4 rounded-lg border px-3 py-2 text-sm ${tone}`}>{msg}</p>;
       })()}
+      {/* Bar aksi: di bawah ringkasan, tepat di atas tabel */}
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          <ImportDialog
+            programId={id}
+            fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))}
+            nameId={program.mapping?.name ?? null}
+            manual={program.approval_mode === "manual"}
+            emailOn={program.notify_email && mailConfigured() && fields.some((f) => f.type === "email")}
+            freeLeft={isPro ? null : Math.max(0, FREE_PARTICIPANT_LIMIT - rows.filter((r) => (r.role ?? DEFAULT_ROLE) === DEFAULT_ROLE).length)}
+          />
+          {program.owner_id === profile.id && (
+            <AddManualDialog
+              programId={id}
+              fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))}
+              nameId={program.mapping?.name ?? null}
+              emailOn={mailConfigured() && fields.some((f) => f.type === "email")}
+            />
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {approved === 0 ? (
+            <span className="btn btn-sm cursor-not-allowed opacity-50" title="Belum ada sertifikat yang terbit"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</span>
+          ) : parts <= 1 ? (
+            <a href={zipHref(1)} className="btn btn-sm" title="Satu file PDF per peserta yang disetujui"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</a>
+          ) : (
+            <details className="relative">
+              <summary className="btn btn-sm cursor-pointer list-none"><FileArchive className="h-4 w-4" /> Unduh semua sertifikat (ZIP)</summary>
+              <div className="absolute right-0 z-20 mt-1 w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <p className="px-2 py-1 text-xs text-slate-500">{approved} sertifikat, dibagi per {CERT_ZIP_BATCH}:</p>
+                {Array.from({ length: parts }, (_, i) => (
+                  <a key={i} href={zipHref(i + 1)} className="block rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50">
+                    Bagian {i + 1} <span className="text-slate-400">({i * CERT_ZIP_BATCH + 1}–{Math.min(approved, (i + 1) * CERT_ZIP_BATCH)})</span>
+                  </a>
+                ))}
+              </div>
+            </details>
+          )}
+          <a href={`/api/programs/${id}/export`} className="btn btn-sm"><Download className="h-4 w-4" /> Unduh kehadiran (CSV)</a>
+        </div>
+      </div>
       <ParticipantsTable programId={id} siteUrl={siteUrl()} fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))} rows={rows} nameId={program.mapping?.name ?? null} canEdit={program.owner_id === profile.id} />
     </div>
   );

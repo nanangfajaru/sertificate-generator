@@ -57,15 +57,17 @@ export default function ProgramChrome(p: Props) {
         </div>
       </div>
       {p.proEnded != null && (
-        <div className="mt-3 flex flex-wrap items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">Paket Pro telah berakhir{p.proEnded ? ` pada ${p.proEnded}` : ""}</p>
-            <p className="mt-0.5 text-red-800">Program ini memakai template Pro / desain sendiri. Peserta tetap bisa mendaftar, tetapi sertifikat peserta yang mendaftar setelah Pro berakhir <b>tidak dapat diterbitkan</b>. Peserta yang mendaftar sebelumnya tetap bisa diterbitkan.</p>
+        <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900 sm:flex sm:items-start sm:gap-3 sm:px-4">
+          <div className="flex items-start gap-2.5 sm:min-w-0 sm:flex-1">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+            <div className="min-w-0">
+              <p className="font-semibold">Paket Pro telah berakhir{p.proEnded ? ` pada ${p.proEnded}` : ""}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-red-800 sm:text-sm">Program ini memakai template Pro / desain sendiri. Peserta tetap bisa mendaftar, tetapi sertifikat peserta yang mendaftar setelah Pro berakhir <b>tidak dapat diterbitkan</b>. Peserta yang mendaftar sebelumnya tetap bisa diterbitkan.</p>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Link href={`/dashboard/programs/${p.id}/form?pick=1`} className="btn btn-sm">Ganti template</Link>
-            <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm">Perpanjang Pro</Link>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-0 sm:flex sm:shrink-0">
+            <Link href={`/dashboard/programs/${p.id}/form?pick=1`} className="btn btn-sm justify-center bg-white">Ganti template</Link>
+            <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm justify-center">Perpanjang Pro</Link>
           </div>
         </div>
       )}
