@@ -137,7 +137,8 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
       {msg && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{msg}</p>}
       {okMsg && <p className="rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">{okMsg}</p>}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      {/* relative: elemen sr-only (absolute) tetap di dalam area gulir, tidak melebarkan halaman di HP */}
+      <div className="relative overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
@@ -148,7 +149,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
               <th className="px-3 py-2">No. sertifikat</th>
               <th className="px-3 py-2">Link sertifikat</th>
               <th className="px-3 py-2">Email</th>
-              {canEdit && <th className="w-12 px-3 py-2"><span className="sr-only">Edit</span></th>}
+              {canEdit && <th className="sticky right-0 w-12 bg-slate-50 px-3 py-2"><span className="sr-only">Edit</span></th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -178,7 +179,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
                   {r.emailed_at ? <span className="badge badge-ok" title={new Date(r.emailed_at).toLocaleString("id-ID")}>Terkirim</span> : <span className="text-slate-400">—</span>}
                 </td>
                 {canEdit && (
-                  <td className="px-3 py-2">
+                  <td className="sticky right-0 bg-white/95 px-3 py-2 shadow-[-6px_0_8px_-6px_rgba(15,23,42,0.12)] backdrop-blur">
                     <button type="button" className="btn btn-sm !px-2" onClick={() => setEditing(r)} aria-label="Edit data peserta" title="Edit data peserta"><Pencil className="h-3.5 w-3.5" /></button>
                   </td>
                 )}
