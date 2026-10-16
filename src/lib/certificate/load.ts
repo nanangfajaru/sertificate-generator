@@ -7,6 +7,7 @@ import { getTemplate } from "./templates";
 import { brandLayout } from "./branding";
 import { isProProfile } from "../db";
 import { withWatermark } from "./watermark";
+import { withRole } from "../cert-types";
 import type { ImageItem, Item, Layout } from "./types";
 import type { Background, ImageMap } from "./pdf";
 
@@ -15,8 +16,8 @@ export function programLayout(program: Program): Layout {
   return program.show_qr ? base : { ...base, items: base.items.filter((i) => i.type !== "qr") };
 }
 
-export function buildContext(program: Program, data: Record<string, string>, certNumber: string | null, code: string): CertContext {
-  return { program, data, certNumber, verifyUrl: `${siteUrl()}/c/${code}` };
+export function buildContext(program: Program, data: Record<string, string>, certNumber: string | null, code: string, role?: string | null): CertContext {
+  return { program: withRole(program, role), data, certNumber, verifyUrl: `${siteUrl()}/c/${code}` };
 }
 
 export function sampleContext(program: Program, fields: ProgramField[]): CertContext {
@@ -31,8 +32,8 @@ export async function ownerIsPro(admin: SupabaseClient, ownerId: string): Promis
 }
 
 /** Sertifikat milik paket Free diberi watermark; Pro tanpa watermark. */
-export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cert_number" | "code">, watermark = false) {
-  const l = resolveLayout(programLayout(program), buildContext(program, p.data, p.cert_number, p.code));
+export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cert_number" | "code"> & { role?: string | null }, watermark = false) {
+  const l = resolveLayout(programLayout(program), buildContext(program, p.data, p.cert_number, p.code, p.role));
   return watermark ? withWatermark(l) : l;
 }
 

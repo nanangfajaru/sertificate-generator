@@ -3,6 +3,7 @@
 import { CheckCircle2, ClipboardPaste, Download, FileUp, Upload, X } from "lucide-react";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { parseDelimited, toCsvLine } from "@/lib/csv";
+import { ROLE_COLUMN } from "./role-column";
 import { importParticipants, type ImportResult } from "./import-actions";
 
 type Field = { id: string; label: string; type: string; required: boolean; options: string[] };
@@ -20,6 +21,7 @@ function guess(header: string[], f: Field): number {
   if (i >= 0) return i;
   const syn: Record<string, string[]> = { email: ["email", "mail", "surel"], tel: ["hp", "wa", "whatsapp", "telepon", "phone", "nohp"], text: [] };
   const groups = [
+    ["peran", "sebagai", "role"],
     ["instansi", "asal", "kantor", "perusahaan", "sekolah", "kampus", "organisasi", "lembaga", "company"],
     ["jabatan", "posisi", "pekerjaan", "profesi", "role"],
     ["kota", "domisili", "alamat", "daerah", "city"],
@@ -29,7 +31,11 @@ function guess(header: string[], f: Field): number {
   return h.findIndex((x) => words.some((w) => x.includes(w)));
 }
 
+/** Kolom tambahan di luar formulir: peran (kosong = Peserta). */
+const ROLE_FIELD = { id: ROLE_COLUMN, label: "Peran", type: "text", required: false, options: [] as string[] } as const;
+
 export default function ImportDialog(p: Props) {
+  const fields = useMemo(() => [...p.fields, ROLE_FIELD], [p.fields]);
   const [open, setOpen] = useState(false);
   const [raw, setRaw] = useState("");
   const [fileName, setFileName] = useState("");
@@ -51,7 +57,7 @@ export default function ImportDialog(p: Props) {
     const t = text.trim() ? parseDelimited(text) : [];
     const h = t[0] ?? [];
     const m: Record<string, number> = {};
-    for (const f of p.fields) m[f.id] = guess(h, f);
+    for (const f of fields) m[f.id] = guess(h, f);
     setMap(m);
     setHasHeader(Object.values(m).some((v) => v >= 0));
   }
@@ -61,7 +67,7 @@ export default function ImportDialog(p: Props) {
   }
 
   function template() {
-    const csv = "﻿" + toCsvLine(p.fields.map((f) => f.label)) + "\n" + toCsvLine(p.fields.map((f) => (f.type === "email" ? "budi@contoh.com" : f.id === p.nameId ? "Budi Santoso" : f.type === "select" ? f.options[0] ?? "" : ""))) + "\n";
+    const csv = "﻿" + toCsvLine(fields.map((f) => f.label)) + "\n" + toCsvLine(fields.map((f) => (f.type === "email" ? "budi@contoh.com" : f.id === p.nameId ? "Budi Santoso" : f.type === "select" ? f.options[0] ?? "" : f.id === ROLE_COLUMN ? "Peserta" : ""))) + "\n";
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     a.download = "contoh-peserta.csv";
@@ -70,10 +76,10 @@ export default function ImportDialog(p: Props) {
   }
 
   const nameMapped = p.nameId ? (map[p.nameId] ?? -1) >= 0 : true;
-  const missingRequired = p.fields.filter((f) => (f.required || f.id === p.nameId) && (map[f.id] ?? -1) < 0);
+  const missingRequired = fields.filter((f) => (f.required || f.id === p.nameId) && (map[f.id] ?? -1) < 0);
 
   function submit() {
-    const rows = body.map((r, i) => ({ line: i + (hasHeader ? 2 : 1), data: Object.fromEntries(p.fields.map((f) => [f.id, (map[f.id] ?? -1) >= 0 ? r[map[f.id]] ?? "" : ""])) }));
+    const rows = body.map((r, i) => ({ line: i + (hasHeader ? 2 : 1), data: Object.fromEntries(fields.map((f) => [f.id, (map[f.id] ?? -1) >= 0 ? r[map[f.id]] ?? "" : ""])) }));
     start(async () => setResult(await importParticipants(p.programId, rows, approve)));
   }
 
@@ -133,7 +139,7 @@ export default function ImportDialog(p: Props) {
                   </div>
                   <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,text/csv" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) load(await f.text(), f.name); e.target.value = ""; }} />
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                    <span>Kolom yang dikenali: {p.fields.map((f) => f.label).join(", ")}.</span>
+                    <span>Kolom yang dikenali: {fields.map((f) => f.label).join(", ")}. Kolom <b>Peran</b> opsional: kosong = Peserta; isi Pembicara, Narasumber, dll. untuk sertifikat sesuai peran (tidak dihitung kuota).</span>
                     <button type="button" className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline" onClick={template}><Download className="h-3.5 w-3.5" /> Unduh file contoh</button>
                   </div>
                   {p.freeLeft != null && <p className="text-xs text-slate-500">Paket Free: sisa kuota {p.freeLeft} peserta untuk program ini.</p>}
@@ -151,7 +157,7 @@ export default function ImportDialog(p: Props) {
                   <div className="rounded-xl border border-slate-200">
                     <p className="border-b border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Cocokkan kolom</p>
                     <div className="divide-y divide-slate-100">
-                      {p.fields.map((f) => (
+                      {fields.map((f) => (
                         <div key={f.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                           <span className="text-sm font-medium">{f.label}{(f.required || f.id === p.nameId) && <span className="text-red-500"> *</span>}</span>
                           <select className="input !w-56 !py-1.5 text-sm" value={map[f.id] ?? -1} onChange={(e) => setMap((m) => ({ ...m, [f.id]: Number(e.target.value) }))}>
@@ -165,10 +171,10 @@ export default function ImportDialog(p: Props) {
 
                   <div className="overflow-x-auto rounded-xl border border-slate-200">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-500"><tr>{p.fields.map((f) => <th key={f.id} className="px-3 py-2 font-semibold">{f.label}</th>)}</tr></thead>
+                      <thead className="bg-slate-50 text-slate-500"><tr>{fields.map((f) => <th key={f.id} className="px-3 py-2 font-semibold">{f.label}</th>)}</tr></thead>
                       <tbody className="divide-y divide-slate-100">
                         {body.slice(0, 5).map((r, i) => (
-                          <tr key={i}>{p.fields.map((f) => <td key={f.id} className="max-w-48 truncate px-3 py-1.5">{(map[f.id] ?? -1) >= 0 ? r[map[f.id]] : <span className="text-slate-300">—</span>}</td>)}</tr>
+                          <tr key={i}>{fields.map((f) => <td key={f.id} className="max-w-48 truncate px-3 py-1.5">{(map[f.id] ?? -1) >= 0 ? r[map[f.id]] : <span className="text-slate-300">—</span>}</td>)}</tr>
                         ))}
                       </tbody>
                     </table>

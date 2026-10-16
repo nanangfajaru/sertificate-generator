@@ -5,6 +5,8 @@ import { mailConfigured } from "@/lib/mailer";
 import { siteUrl } from "@/lib/util";
 import ParticipantsTable from "./ParticipantsTable";
 import ImportDialog from "./ImportDialog";
+import AddManualDialog from "./AddManualDialog";
+import { DEFAULT_ROLE } from "@/lib/cert-types";
 import { CERT_ZIP_BATCH, FREE_PARTICIPANT_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Peserta" };
@@ -48,8 +50,16 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
             nameId={program.mapping?.name ?? null}
             manual={program.approval_mode === "manual"}
             emailOn={program.notify_email && mailConfigured() && fields.some((f) => f.type === "email")}
-            freeLeft={isPro ? null : Math.max(0, FREE_PARTICIPANT_LIMIT - rows.length)}
+            freeLeft={isPro ? null : Math.max(0, FREE_PARTICIPANT_LIMIT - rows.filter((r) => (r.role ?? DEFAULT_ROLE) === DEFAULT_ROLE).length)}
           />
+          {program.owner_id === profile.id && (
+            <AddManualDialog
+              programId={id}
+              fields={fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: f.required, options: f.options ?? [] }))}
+              nameId={program.mapping?.name ?? null}
+              emailOn={mailConfigured() && fields.some((f) => f.type === "email")}
+            />
+          )}
         </div>
       </div>
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">

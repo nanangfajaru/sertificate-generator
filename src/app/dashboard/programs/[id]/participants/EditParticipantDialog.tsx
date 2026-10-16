@@ -5,22 +5,25 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { FieldType } from "@/lib/db";
 import { updateParticipantData } from "./edit-actions";
+import { DEFAULT_ROLE, MANUAL_ROLES } from "@/lib/cert-types";
 
 export type EditField = { id: string; label: string; type: FieldType; required: boolean; options: string[] };
 
 /** Modal panitia untuk memperbaiki isian peserta (mis. salah ketik nama). */
-export default function EditParticipantDialog({ programId, participantId, fields, nameId, initial, issued, onClose }: {
+export default function EditParticipantDialog({ programId, participantId, fields, nameId, initial, initialRole, issued, onClose }: {
   programId: string;
   participantId: string;
   fields: EditField[];
   nameId: string | null;
   initial: Record<string, string>;
+  initialRole: string;
   /** sertifikat sudah terbit: beri tahu bahwa perubahan langsung terlihat */
   issued: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((f) => [f.id, initial[f.id] ?? ""])));
+  const [role, setRole] = useState(initialRole || DEFAULT_ROLE);
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
@@ -34,7 +37,7 @@ export default function EditParticipantDialog({ programId, participantId, fields
     e.preventDefault();
     setErr(null);
     start(async () => {
-      const r = await updateParticipantData(programId, participantId, values);
+      const r = await updateParticipantData(programId, participantId, values, role);
       if (r.error) return setErr(r.error);
       router.refresh();
       onClose();
@@ -52,6 +55,12 @@ export default function EditParticipantDialog({ programId, participantId, fields
         </div>
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
           {issued && <p className="rounded-lg bg-brand-50 p-2.5 text-xs text-brand-800">Sertifikat peserta ini sudah terbit. Perubahan (mis. nama) langsung terlihat pada sertifikat dan unduhan berikutnya; nomor dan link sertifikat tetap sama.</p>}
+          <div>
+            <label className="label" htmlFor="edit-role">Peran</label>
+            <input id="edit-role" className="input" list="edit-role-list" value={role} maxLength={40} onChange={(e) => setRole(e.target.value)} placeholder={DEFAULT_ROLE} />
+            <datalist id="edit-role-list">{[DEFAULT_ROLE, ...MANUAL_ROLES].map((r) => <option key={r} value={r} />)}</datalist>
+            <p className="hint">Menentukan judul sertifikat, mis. <b>SERTIFIKAT {(role.trim() || DEFAULT_ROLE).toUpperCase()}</b>. Peran selain Peserta tidak dihitung kuota.</p>
+          </div>
           {fields.map((f) => {
             const required = f.required || f.id === nameId;
             const common = { id: `f-${f.id}`, className: "input", value: values[f.id] ?? "", onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => set(f.id, e.target.value), required };

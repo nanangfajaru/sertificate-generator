@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { cleanParticipantData } from "@/lib/participant-data";
+import { DEFAULT_ROLE, normRole } from "@/lib/cert-types";
+import { ROLE_COLUMN } from "./role-column";
 import { approveParticipants } from "@/lib/approve";
 import { requireUser } from "@/lib/auth";
 import { FREE_PARTICIPANT_LIMIT, type Program, type ProgramField } from "@/lib/db";
@@ -39,11 +41,12 @@ export async function importParticipants(programId: string, input: { line: numbe
   const emailField = fields.find((x) => x.type === "email");
 
   const invalid: ImportResult["invalid"] = [];
-  const valid: { line: number; data: Record<string, string> }[] = [];
+  const valid: { line: number; data: Record<string, string>; role: string }[] = [];
   for (const r of input) {
     const res = cleanParticipantData(fields, nameId, r.data ?? {});
+    // Kolom opsional "Peran" (ROLE_COLUMN): kosong = Peserta.
     if ("error" in res) invalid.push({ row: r.line, reason: res.error });
-    else valid.push({ line: r.line, data: res.data });
+    else valid.push({ line: r.line, data: res.data, role: normRole(r.data?.[ROLE_COLUMN]) });
   }
 
   // Lewati email yang sudah terdaftar di program ini atau muncul dua kali di file.
@@ -61,17 +64,22 @@ export async function importParticipants(programId: string, input: { line: numbe
     });
   }
 
-  // Paket Free: batasi sisa kuota peserta per program.
+  // Paket Free: batasi sisa kuota (hanya peran Peserta yang dihitung; pembicara dkk. tidak).
   let skippedLimit = 0;
   if (!isPro) {
-    const { count } = await supabase.from("participants").select("id", { count: "exact", head: true }).eq("program_id", programId);
-    const remaining = Math.max(0, FREE_PARTICIPANT_LIMIT - (count ?? 0));
-    if (rows.length > remaining) { skippedLimit = rows.length - remaining; rows = rows.slice(0, remaining); }
+    const { count } = await supabase.from("participants").select("id", { count: "exact", head: true }).eq("program_id", programId).eq("role", DEFAULT_ROLE);
+    let remaining = Math.max(0, FREE_PARTICIPANT_LIMIT - (count ?? 0));
+    rows = rows.filter((r) => {
+      if (r.role !== DEFAULT_ROLE) return true;
+      if (remaining > 0) { remaining--; return true; }
+      skippedLimit++;
+      return false;
+    });
   }
 
   const ids: string[] = [];
   for (let i = 0; i < rows.length; i += 500) {
-    const chunk = rows.slice(i, i + 500).map((r) => ({ program_id: programId, code: randomCode(6), data: r.data }));
+    const chunk = rows.slice(i, i + 500).map((r) => ({ program_id: programId, code: randomCode(6), data: r.data, role: r.role }));
     const { data: ins, error } = await supabase.from("participants").insert(chunk).select("id");
     if (error) {
       if (ids.length) revalidatePath(`/dashboard/programs/${programId}`, "layout");

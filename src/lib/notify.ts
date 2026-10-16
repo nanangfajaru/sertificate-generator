@@ -1,4 +1,5 @@
 import "server-only";
+import { withRole } from "./cert-types";
 import { certificateIssuedEmail } from "./email-templates";
 import { mailConfigured, sendMail } from "./mailer";
 import { createAdminClient } from "./supabase/admin";
@@ -39,7 +40,7 @@ export async function notifyApproved(programId: string, ids: string[], force = f
       name: (nameId && p.data[nameId]) || null,
       eventName: program.name,
       org: program.org_name,
-      certType: program.cert_type,
+      certType: withRole(program, p.role).cert_type,
       certNumber: p.cert_number,
       url: `${siteUrl()}/c/${p.code}`,
     });

@@ -40,10 +40,10 @@ async function zipResponse(id: string, opt: { part?: number; ids?: string[] }) {
 
   const part = opt.part ?? 1;
   const from = opt.ids ? 0 : (part - 1) * CERT_ZIP_BATCH;
-  let query = s.supabase.from("participants").select("id, data, cert_number, code, created_at").eq("program_id", id).eq("status", "approved").order("created_at");
+  let query = s.supabase.from("participants").select("id, data, cert_number, code, role, created_at").eq("program_id", id).eq("status", "approved").order("created_at");
   query = opt.ids ? query.in("id", opt.ids) : query.range(from, from + CERT_ZIP_BATCH - 1);
   const { data: rows } = await query;
-  const list = (rows ?? []) as Pick<Participant, "id" | "data" | "cert_number" | "code">[];
+  const list = (rows ?? []) as Pick<Participant, "id" | "data" | "cert_number" | "code" | "role">[];
   if (!list.length) return new NextResponse("Belum ada sertifikat yang terbit.", { status: 404 });
 
   // Latar, tanda tangan, dan status paket cukup dimuat sekali untuk semua peserta.

@@ -25,12 +25,13 @@ export default async function ProgramOverview({ params, searchParams }: { params
   const [images, bgUrl, { data: rows }] = await Promise.all([
     signatureUrls(admin, program),
     custom ? previewUrl(admin, program) : Promise.resolve(null),
-    supabase.from("participants").select("status").eq("program_id", id),
+    supabase.from("participants").select("status, role").eq("program_id", id),
   ]);
   const logoUrl = images.logo ?? null;
   const sigUrls = [images.sig1 ?? null, images.sig2 ?? null];
   const certLayout = resolveLayout(withBranding(programLayout(program), program, { placeholder: true }), sampleContext(program, fields));
-  const stat = { total: rows?.length ?? 0, pending: 0, approved: 0 };
+  // quota: hanya peran Peserta yang dihitung kuota paket Free (pembicara dkk. tidak).
+  const stat = { total: rows?.length ?? 0, quota: rows?.filter((r) => (r.role ?? "Peserta") === "Peserta").length ?? 0, pending: 0, approved: 0 };
   rows?.forEach((r) => {
     if (r.status === "pending") stat.pending++;
     if (r.status === "approved") stat.approved++;
@@ -49,9 +50,9 @@ export default async function ProgramOverview({ params, searchParams }: { params
         <ProgramForm action={updateProgram.bind(null, id)} program={program} sigUrls={[sigUrls[0], sigUrls[1]]} logoUrl={logoUrl} submitLabel="Simpan perubahan" />
       </div>
       <div className="space-y-6">
-        {!isPro && stat.total >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8) && (
+        {!isPro && stat.quota >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8) && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="font-semibold">{stat.total >= FREE_PARTICIPANT_LIMIT ? "Kuota peserta penuh" : "Kuota peserta hampir penuh"} ({stat.total}/{FREE_PARTICIPANT_LIMIT})</p>
+            <p className="font-semibold">{stat.quota >= FREE_PARTICIPANT_LIMIT ? "Kuota peserta penuh" : "Kuota peserta hampir penuh"} ({stat.quota}/{FREE_PARTICIPANT_LIMIT})</p>
             <p className="mt-1">Upgrade ke Pro agar peserta tak terbatas dan sertifikat tanpa watermark.</p>
             <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3">Lihat paket Pro</Link>
           </div>
@@ -61,8 +62,8 @@ export default async function ProgramOverview({ params, searchParams }: { params
         <div className="card">
           <h2 className="font-semibold">Peserta</h2>
           {!isPro && (
-            <p className={`mt-1 text-xs ${stat.total >= FREE_PARTICIPANT_LIMIT ? "text-amber-700" : "text-slate-500"}`}>
-              Kuota paket Free: {stat.total} / {FREE_PARTICIPANT_LIMIT} peserta{stat.total >= FREE_PARTICIPANT_LIMIT ? " (penuh)" : ""}
+            <p className={`mt-1 text-xs ${stat.quota >= FREE_PARTICIPANT_LIMIT ? "text-amber-700" : "text-slate-500"}`}>
+              Kuota paket Free: {stat.quota} / {FREE_PARTICIPANT_LIMIT} peserta{stat.quota >= FREE_PARTICIPANT_LIMIT ? " (penuh)" : ""}
             </p>
           )}
           <dl className="mt-3 grid grid-cols-3 gap-2 text-center">

@@ -90,6 +90,8 @@ export type Participant = {
   emailed_at: string | null;
   revoked_at: string | null;
   revoked_reason: string | null;
+  /** Peserta (bawaan), Pembicara, Narasumber, ... — menentukan judul & kalimat sertifikat */
+  role: string;
 };
 
 export const FREE_PROGRAM_LIMIT = 10;

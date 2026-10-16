@@ -4,6 +4,7 @@ import { FileArchive, Pencil } from "lucide-react";
 import { useMemo, useRef, useState, useTransition } from "react";
 import CopyButton from "@/components/CopyButton";
 import { CERT_ZIP_BATCH, type Participant } from "@/lib/db";
+import { DEFAULT_ROLE } from "@/lib/cert-types";
 import EditParticipantDialog, { type EditField } from "./EditParticipantDialog";
 import { deleteParticipants, resendCertificateEmails, revokeParticipants, setParticipantStatus } from "../../../actions";
 
@@ -20,6 +21,8 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
   const zipIds = useRef<HTMLInputElement>(null);
   const [filter, setFilter] = useState<"all" | Participant["status"]>("all");
   const [q, setQ] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const roles = useMemo(() => [...new Set(rows.map((r) => r.role || DEFAULT_ROLE))].sort((a, b) => (a === DEFAULT_ROLE ? -1 : b === DEFAULT_ROLE ? 1 : a.localeCompare(b))), [rows]);
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [msg, setMsg] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -30,9 +33,10 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
     return rows.filter(
       (r) =>
         (filter === "all" || r.status === filter) &&
+        (roleFilter === "all" || (r.role || DEFAULT_ROLE) === roleFilter) &&
         (!needle || Object.values(r.data).some((v) => String(v).toLowerCase().includes(needle)) || (r.cert_number ?? "").toLowerCase().includes(needle)),
     );
-  }, [rows, filter, q]);
+  }, [rows, filter, q, roleFilter]);
   const PAGE = 50;
   const pages = Math.max(1, Math.ceil(shown.length / PAGE));
   const cur = Math.min(page, pages);
@@ -105,6 +109,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
           fields={fields}
           nameId={nameId}
           initial={editing.data as Record<string, string>}
+          initialRole={editing.role || DEFAULT_ROLE}
           issued={editing.status === "approved" || editing.status === "revoked"}
           onClose={() => setEditing(null)}
         />
@@ -117,6 +122,12 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
           <option value="rejected">Ditolak</option>
           <option value="revoked">Dicabut</option>
         </select>
+        {roles.length > 1 && (
+          <select className="input !w-auto" value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }} aria-label="Filter peran">
+            <option value="all">Semua peran</option>
+            {roles.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+        )}
         <input className="input !w-64" placeholder="Cari nama, email, atau nomor…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
         <span className="ml-auto text-sm text-slate-500">{shown.length} peserta</span>
       </div>
@@ -145,6 +156,7 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
               <th className="w-10 px-3 py-2"><input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Pilih semua" /></th>
               <th className="px-3 py-2">Waktu</th>
               {fields.map((f) => <th key={f.id} className="px-3 py-2">{f.label}</th>)}
+              <th className="px-3 py-2">Peran</th>
               <th className="px-3 py-2">Status</th>
               <th className="px-3 py-2">No. sertifikat</th>
               <th className="px-3 py-2">Link sertifikat</th>
@@ -154,13 +166,14 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
           </thead>
           <tbody className="divide-y divide-slate-100">
             {shown.length === 0 && (
-              <tr><td colSpan={fields.length + (canEdit ? 7 : 6)} className="px-3 py-14 text-center"><p className="font-medium text-slate-700">Belum ada peserta</p><p className="mt-1 text-sm text-slate-500">Bagikan link atau QR pendaftaran dari tab Ringkasan agar peserta mulai mengisi.</p></td></tr>
+              <tr><td colSpan={fields.length + (canEdit ? 8 : 7)} className="px-3 py-14 text-center"><p className="font-medium text-slate-700">Belum ada peserta</p><p className="mt-1 text-sm text-slate-500">Bagikan link atau QR pendaftaran dari tab Ringkasan agar peserta mulai mengisi.</p></td></tr>
             )}
             {visible.map((r) => (
               <tr key={r.id} className={`transition hover:bg-slate-50/70 ${sel.has(r.id) ? "bg-brand-50/50" : ""}`}>
                 <td className="px-3 py-2"><input type="checkbox" checked={sel.has(r.id)} onChange={() => toggle(r.id)} /></td>
                 <td className="whitespace-nowrap px-3 py-2 text-slate-500">{new Date(r.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
                 {fields.map((f) => <td key={f.id} className="max-w-56 truncate px-3 py-2">{r.data[f.id] ?? ""}</td>)}
+                <td className="whitespace-nowrap px-3 py-2">{(r.role || DEFAULT_ROLE) === DEFAULT_ROLE ? <span className="text-slate-500">{DEFAULT_ROLE}</span> : <span className="badge bg-brand-50 text-brand-700">{r.role}</span>}</td>
                 <td className="px-3 py-2"><span className={`badge ${STATUS[r.status][1]}`} title={r.status === "revoked" ? (r.revoked_reason ? `Alasan: ${r.revoked_reason}` : "Dicabut oleh panitia") : undefined}>{STATUS[r.status][0]}</span></td>
                 <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{r.cert_number ?? "—"}</td>
                 <td className="whitespace-nowrap px-3 py-2">
