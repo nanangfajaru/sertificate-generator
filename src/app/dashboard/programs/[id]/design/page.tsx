@@ -14,7 +14,7 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
   const ctx = sampleContext(program, fields);
   const [images, { data: rows }] = await Promise.all([
     signatureUrls(createAdminClient(), program),
-    supabase.from("program_designs").select("id, name, kind, layout, preview_path, updated_at").eq("program_id", id).order("created_at"),
+    supabase.from("program_designs").select("id, name, kind, layout, preview_path, updated_at").eq("owner_id", program.owner_id).order("created_at"),
   ]);
   const logoUrl = images.logo ?? null;
   const paths = (rows ?? []).map((r) => r.preview_path);

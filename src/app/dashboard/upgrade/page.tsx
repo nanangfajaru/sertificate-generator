@@ -15,7 +15,7 @@ const ROWS: Row[] = [
   ["Jumlah program / kegiatan", `${FREE_PROGRAM_LIMIT} program`, "Tanpa batas"],
   ["Peserta per program", `${FREE_PARTICIPANT_LIMIT} peserta`, "Tanpa batas"],
   ["Template sertifikat", "20 template dasar", "20 dasar + 22 bertema (bunga, rumah sakit, olahraga, perusahaan, dll)"],
-  ["Desain sendiri (unggah PDF/PNG/JPG)", "Boleh membuat & menyimpan 3, tidak bisa dipakai", "Hingga 20 desain, bisa dipakai"],
+  ["Desain sendiri (unggah PDF/PNG/JPG)", "Boleh membuat & menyimpan 3, tidak bisa dipakai", "Hingga 50 desain, dipakai di semua program"],
   ["Watermark sertifikatku.com", "Ada", "Tanpa watermark"],
   ["Hapus program", false, true],
   ["Formulir pendaftaran & pemetaan kolom", true, true],

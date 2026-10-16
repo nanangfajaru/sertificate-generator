@@ -3,7 +3,9 @@
 import { Check, ImagePlus, Lock, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
-import type { CertContext } from "@/lib/certificate/sources";
+import CertificateSvg from "@/components/CertificateSvg";
+import LazyMount from "@/components/LazyMount";
+import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
 import { DESIGN_LIMITS, type DesignDTO } from "@/lib/designs";
 import { createDesign, deleteDesign, useDesign } from "../../../design-actions";
 import DesignEditor from "./DesignEditor";
@@ -11,7 +13,8 @@ import { MAX_DESIGN_BYTES, readDesign, uploadDesignFiles } from "./design-upload
 
 type Props = {
   logoUrl: string | null;
-  programId: string;
+  /** null = halaman pustaka (di luar program): tidak ada tombol Gunakan */
+  programId: string | null;
   userId: string;
   isPro: boolean;
   /** admin melihat program milik pengguna lain: tidak boleh mengubah */
@@ -56,6 +59,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
   }
 
   async function use(d: DesignDTO): Promise<string | null> {
+    if (!programId) return null;
     const r = await useDesign(programId, d.id);
     if (r.error) return r.error;
     onActiveChange(d.id);
@@ -64,7 +68,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
 
   function remove(d: DesignDTO) {
     const active = d.id === activeId;
-    if (!confirm(`Hapus desain "${d.name}"?${active ? "\n\nDesain ini sedang dipakai; sertifikat akan kembali memakai template." : ""}`)) return;
+    if (!confirm(`Hapus desain "${d.name}" dari pustaka?\n\nProgram yang sedang memakainya${active ? " (termasuk program ini)" : ""} akan kembali memakai template.`)) return;
     start(async () => {
       const r = await deleteDesign(d.id);
       if (r.error) return setMsg({ ok: false, text: r.error });
@@ -87,7 +91,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
         fields={fields}
         onBack={() => setEditingId(null)}
         onSaved={(d) => onDesignsChange(designs.map((x) => (x.id === d.id ? { ...x, name: d.name, layout: d.layout, updatedAt: d.updatedAt } : x)))}
-        onUse={() => use(editing)}
+        onUse={programId ? () => use(editing) : undefined}
       />
     );
   }
@@ -97,13 +101,13 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
       <div className="card flex flex-wrap items-center justify-between gap-4 !p-4">
         <div className="min-w-[14rem] flex-1">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Desain sendiri</span>
+            <span className="font-semibold">Pustaka desain Anda</span>
             <span className="font-medium text-slate-600">{designs.length} / {limit}</span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
             <div className={`h-full rounded-full ${full ? "bg-amber-500" : "bg-brand-500"}`} style={{ width: `${Math.min(100, (designs.length / limit) * 100)}%` }} />
           </div>
-          <p className="mt-2 text-xs text-slate-500">Unggah PDF (halaman pertama), PNG, atau JPG hingga 10 MB, lalu geser nama, tanggal, nomor, dan QR ke posisi yang diinginkan.</p>
+          <p className="mt-2 text-xs text-slate-500">Satu desain bisa dipakai di semua program Anda. Unggah PDF (halaman pertama), PNG, atau JPG hingga 10 MB, lalu atur posisi nama, tanggal, nomor, dan QR.</p>
         </div>
         <div>
           <input ref={fileRef} type="file" accept="application/pdf,image/png,image/jpeg" hidden onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
@@ -127,9 +131,10 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
             const active = d.id === activeId;
             return (
               <div key={d.id} className={`overflow-hidden rounded-xl border bg-white ${active ? "border-brand-600 ring-2 ring-brand-100" : "border-slate-200"}`}>
-                <button type="button" className="block aspect-[4/3] w-full bg-slate-50" onClick={() => setEditingId(d.id)} aria-label={`Edit ${d.name}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {d.previewUrl ? <img src={d.previewUrl} alt={d.name} className="h-full w-full object-contain" /> : <span className="text-xs text-slate-400">Tanpa pratinjau</span>}
+                <button type="button" className="flex aspect-[4/3] w-full items-center justify-center bg-slate-50 p-2" onClick={() => setEditingId(d.id)} aria-label={`Edit ${d.name}`}>
+                  <LazyMount aspect={`${d.layout.width} / ${d.layout.height}`} className="max-h-full w-full overflow-hidden rounded shadow-sm">
+                    <CertificateSvg layout={resolveLayout(d.layout, sample)} backgroundUrl={d.previewUrl} images={logoUrl ? { logo: logoUrl } : undefined} logoPlaceholder={!logoUrl} className="block h-full w-full" />
+                  </LazyMount>
                 </button>
                 <div className="space-y-2 border-t border-slate-100 p-3">
                   <div className="flex items-center justify-between gap-2">
@@ -138,12 +143,12 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm flex-1" onClick={() => setEditingId(d.id)}><Pencil className="h-3.5 w-3.5" /> Edit</button>
-                    {active ? (
+                    {!programId ? null : active ? (
                       <span className="btn btn-sm flex-1 cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-3.5 w-3.5" /> Dipakai</span>
                     ) : isPro ? (
-                      <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan untuk template</button>
+                      <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan</button>
                     ) : (
-                      <Link href="/dashboard/upgrade" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan untuk template</Link>
+                      <Link href="/dashboard/upgrade" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
                     )}
                     <button className="btn btn-danger btn-sm !px-2" onClick={() => remove(d)} aria-label={`Hapus ${d.name}`}><Trash2 className="h-4 w-4" /></button>
                   </div>

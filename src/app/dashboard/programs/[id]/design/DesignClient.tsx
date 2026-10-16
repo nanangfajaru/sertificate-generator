@@ -148,7 +148,7 @@ export default function DesignClient(p: Props) {
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/15 sm:h-11 sm:w-11 sm:rounded-xl"><Upload className="h-4 w-4 sm:h-5 sm:w-5" /></span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2 text-sm font-semibold sm:text-base"><span className="sm:hidden">Pakai desain sendiri</span><span className="hidden sm:inline">Punya desain sendiri dari Canva atau Photoshop?</span> <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-300 px-1.5 py-0.5 text-[10px] font-bold text-amber-950"><Crown className="h-2.5 w-2.5" />Pro</span></span>
-                <span className="mt-0.5 block text-xs text-brand-100 sm:text-sm"><span className="sm:hidden">Unggah dari Canva/Photoshop. </span><span className="hidden sm:inline">Unggah PDF/PNG/JPG, lalu geser posisi nama peserta dan QR. </span>{p.isPro ? "Hingga 20 desain." : "Coba gratis hingga 3 desain."}</span>
+                <span className="mt-0.5 block text-xs text-brand-100 sm:text-sm"><span className="sm:hidden">Unggah dari Canva/Photoshop. </span><span className="hidden sm:inline">Unggah PDF/PNG/JPG, lalu geser posisi nama peserta dan QR. </span>{p.isPro ? "Satu desain untuk semua program." : "Coba gratis hingga 3 desain."}</span>
               </span>
               <span className="hidden items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-brand-700 shadow-sm transition group-hover:bg-brand-50 sm:inline-flex"><Sparkles className="h-4 w-4" /> Coba desain sendiri</span>
               <ChevronRight className="h-5 w-5 shrink-0 text-white/80 sm:hidden" />

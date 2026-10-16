@@ -35,9 +35,9 @@ export async function readDesign(file: File): Promise<ReadDesign> {
 }
 
 /** Mengunggah file asli + pratinjau ke bucket "designs" milik pengguna. */
-export async function uploadDesignFiles(userId: string, programId: string, file: File, d: ReadDesign) {
+export async function uploadDesignFiles(userId: string, programId: string | null, file: File, d: ReadDesign) {
   const sb = createClient();
-  const base = `${userId}/${programId}/${crypto.randomUUID()}`;
+  const base = `${userId}/${programId ?? "lib"}/${crypto.randomUUID()}`;
   const path = `${base}.${d.kind}`;
   const previewPath = `${base}-preview.${d.kind === "jpg" ? "jpg" : "png"}`;
   const up1 = await sb.storage.from("designs").upload(path, file, { contentType: file.type });

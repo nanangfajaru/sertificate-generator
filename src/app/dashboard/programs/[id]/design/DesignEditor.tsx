@@ -2,7 +2,7 @@
 
 import { AlignCenter, AlignLeft, AlignRight, ArrowLeft, Check, Download, Lock, MousePointerClick, Plus, ImagePlus, QrCode, Save, Trash2, Type } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
 import { EVENT_SOURCES, resolveSource, type CertContext } from "@/lib/certificate/sources";
 import { FONT_OPTIONS, type ImageItem, type Item, type Layout, type QrItem, type TextItem } from "@/lib/certificate/types";
@@ -18,8 +18,8 @@ type Props = {
   fields: { id: string; label: string }[];
   onBack: () => void;
   onSaved: (d: DesignDTO) => void;
-  /** mengembalikan pesan error, atau null jika berhasil */
-  onUse: () => Promise<string | null>;
+  /** mengembalikan pesan error, atau null jika berhasil; tidak ada di halaman pustaka */
+  onUse?: () => Promise<string | null>;
 };
 
 const SAVED_MSG = "Desain tersimpan.";
@@ -36,7 +36,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
   const dirty = JSON.stringify({ n: name, l: layout }) !== saved;
 
   const sources = useMemo(
-    () => [...EVENT_SOURCES.map((s) => ({ value: s.value, label: s.label })), ...fields.map((f) => ({ value: `field:${f.id}`, label: `Form: ${f.label}` }))],
+    () => [{ value: "slot:name", label: "Nama peserta" }, ...EVENT_SOURCES.map((s) => ({ value: s.value, label: s.label })), ...fields.map((f) => ({ value: `field:${f.id}`, label: `Form: ${f.label}` }))],
     [fields],
   );
   const labelOf = useMemo(() => new Map(sources.map((s) => [s.value, s.label])), [sources]);
@@ -78,6 +78,21 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
     if (selected === id) setSelected(null);
   };
 
+  // Tombol Delete / Backspace menghapus elemen terpilih (kecuali sedang mengetik di kolom isian).
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
+      e.preventDefault();
+      setLayout((l) => ({ ...l, items: l.items.filter((x) => x.id !== selected) }));
+      setSelected(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selected]);
+
   const usedSources = new Set(layout.items.flatMap((i) => (i.type === "text" && i.source ? [i.source] : [])));
   const unused = sources.filter((s) => !usedSources.has(s.value));
   const hasQr = layout.items.some((i) => i.type === "qr");
@@ -116,7 +131,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
 
   function useIt() {
     const run = async () => {
-      const err = await onUse();
+      const err = onUse ? await onUse() : null;
       setMsg(err ? { ok: false, text: err } : { ok: true, text: "Desain ini sekarang dipakai untuk sertifikat." });
     };
     if (dirty) doSave(() => void run());
@@ -141,7 +156,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {isPro && <a href={`/api/designs/${design.id}/sample`} target="_blank" className="btn btn-sm"><Download className="h-4 w-4" /> Contoh PDF</a>}
           <button className={`btn btn-sm ${dirty ? "btn-primary" : ""}`} disabled={pending || !dirty} onClick={() => doSave()}><Save className="h-4 w-4" /> {pending ? "Menyimpan…" : "Simpan"}</button>
-          {isActive ? (
+          {!onUse ? null : isActive ? (
             <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai untuk sertifikat</span>
           ) : isPro ? (
             <button className="btn btn-primary btn-sm" disabled={pending} onClick={useIt}>Gunakan untuk sertifikat</button>
