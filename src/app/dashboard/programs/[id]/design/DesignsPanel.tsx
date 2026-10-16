@@ -14,6 +14,8 @@ type Props = {
   programId: string;
   userId: string;
   isPro: boolean;
+  /** admin melihat program milik pengguna lain: tidak boleh mengubah */
+  readOnly?: boolean;
   designs: DesignDTO[];
   activeId: string | null;
   sample: CertContext;
@@ -22,7 +24,7 @@ type Props = {
   onActiveChange: (id: string | null) => void;
 };
 
-export default function DesignsPanel({ programId, userId, isPro, designs, activeId, sample, fields, logoUrl, onDesignsChange, onActiveChange }: Props) {
+export default function DesignsPanel({ programId, userId, isPro, readOnly, designs, activeId, sample, fields, logoUrl, onDesignsChange, onActiveChange }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -35,6 +37,7 @@ export default function DesignsPanel({ programId, userId, isPro, designs, active
 
   async function onFile(file: File) {
     setMsg(null);
+    if (readOnly) return setMsg({ ok: false, text: "Program ini milik pengguna lain. Sebagai admin Anda hanya bisa melihat; unggah desain harus dilakukan pemilik program." });
     if (file.size > MAX_DESIGN_BYTES) return setMsg({ ok: false, text: "Ukuran file maksimal 10 MB" });
     setBusy(true);
     try {

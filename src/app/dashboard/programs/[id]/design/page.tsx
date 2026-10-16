@@ -40,6 +40,7 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
       programId={id}
       userId={profile.id}
       isPro={isPro}
+      readOnly={program.owner_id !== profile.id}
       mode={program.cert_mode}
       templateId={program.template_id}
       templates={templates}

@@ -36,10 +36,14 @@ export async function createDesign(programId: string, meta: unknown): Promise<De
 
   const cleanup = () => supabase.storage.from("designs").remove([m.path, m.previewPath]);
 
-  const { data: prog } = await supabase.from("programs").select("mapping").eq("id", programId).maybeSingle();
+  const { data: prog } = await supabase.from("programs").select("mapping, owner_id").eq("id", programId).maybeSingle();
   if (!prog) {
     await cleanup();
     return { error: "Program tidak ditemukan" };
+  }
+  if (prog.owner_id !== profile.id) {
+    await cleanup();
+    return { error: "Program ini milik pengguna lain. Sebagai admin Anda hanya bisa melihat; perubahan harus dilakukan pemilik program." };
   }
   const { count } = await supabase.from("program_designs").select("id", { count: "exact", head: true }).eq("program_id", programId);
   const nameField = (prog.mapping as Record<string, string | null>)?.name;

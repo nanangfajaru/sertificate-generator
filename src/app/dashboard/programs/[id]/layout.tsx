@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, MapPin } from "lucide-react";
+import { ArrowLeft, CalendarDays, Eye, MapPin } from "lucide-react";
 import { formatDateRange } from "@/lib/certificate/sources";
 import { getOwnedProgram } from "@/lib/program-server";
 import ProgramTabs from "./ProgramTabs";
 
 export default async function ProgramLayout({ children, params }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { program } = await getOwnedProgram(id);
+  const { program, profile } = await getOwnedProgram(id);
+  const viewOnly = program.owner_id !== profile.id;
   return (
     <div>
       <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Semua program</Link>
@@ -28,6 +29,12 @@ export default async function ProgramLayout({ children, params }: { children: Re
           </div>
         </div>
       </div>
+      {viewOnly && (
+        <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+          <Eye className="mt-0.5 h-4 w-4 shrink-0" />
+          <span><b>Mode lihat (admin).</b> Program ini milik pengguna lain. Perubahan form, desain, dan peserta hanya bisa dilakukan oleh pemiliknya.</span>
+        </p>
+      )}
       <ProgramTabs id={id} />
       <div className="mt-6">{children}</div>
     </div>

@@ -26,6 +26,7 @@ type Props = {
   programId: string;
   userId: string;
   isPro: boolean;
+  readOnly?: boolean;
   mode: "template" | "custom";
   templateId: string;
   templates: TplMeta[];
@@ -218,6 +219,7 @@ export default function DesignClient(p: Props) {
             programId={p.programId}
             userId={p.userId}
             isPro={p.isPro}
+            readOnly={p.readOnly}
             designs={designs}
             activeId={mode === "custom" ? activeDesignId : null}
             sample={p.sample}
