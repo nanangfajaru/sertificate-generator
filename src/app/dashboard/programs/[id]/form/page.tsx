@@ -25,7 +25,10 @@ export default async function FormPage({ params, searchParams }: { params: Promi
   const [bgUrl, images, { data: designRows }] = await Promise.all([
     custom ? previewUrl(admin, program) : Promise.resolve(null),
     signatureUrls(admin, program),
-    supabase.from("program_designs").select("id, name, kind, layout, preview_path, updated_at").eq("owner_id", program.owner_id).order("created_at"),
+    // Desain sendiri hanya bisa dipakai paket Pro; paket Free tidak perlu memuat pustakanya.
+    isPro
+      ? supabase.from("program_designs").select("id, name, kind, layout, preview_path, updated_at").eq("owner_id", program.owner_id).order("created_at")
+      : Promise.resolve({ data: [] as { id: string; name: string; kind: "pdf" | "png" | "jpg"; layout: unknown; preview_path: string; updated_at: string }[] }),
   ]);
   // Pustaka desain sendiri untuk popup Ganti sertifikat.
   const paths = (designRows ?? []).map((r) => r.preview_path);

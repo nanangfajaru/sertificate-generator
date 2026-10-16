@@ -6,7 +6,10 @@ import { TEMPLATES } from "@/lib/certificate/templates";
 import type { DesignDTO } from "@/lib/designs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/util";
-import NewProgramClient from "./NewProgramClient";
+import NewProgramClient, { type Sel } from "./NewProgramClient";
+import { brandLayout } from "@/lib/certificate/branding";
+import { resolveLayout } from "@/lib/certificate/sources";
+import { librarySample } from "@/lib/designs";
 
 export const metadata = { title: "Program baru" };
 
@@ -31,7 +34,12 @@ export default async function NewProgramPage({ searchParams }: { searchParams: P
   // Template / desain yang dipilih dari menu Template (Pro dijaga lagi di server saat menyimpan).
   const tpl = TEMPLATES.find((t) => t.id === sp.template && (t.tier === "free" || isPro));
   const design = designs.find((d) => d.id === sp.design);
-  const initial = design ? { kind: "design" as const, id: design.id } : tpl ? { kind: "template" as const, id: tpl.id } : null;
+  const sample = librarySample(`${siteUrl()}/v/contoh`);
+  const initial: Sel = design
+    ? { kind: "design", id: design.id, name: `Desain sendiri: ${design.name}`, layout: resolveLayout(design.layout, sample), bg: design.previewUrl }
+    : tpl
+      ? { kind: "template", id: tpl.id, name: tpl.name, layout: brandLayout(resolveLayout(tpl.layout, sample), { certMode: "template", templateId: tpl.id, logo: true, sig1: false, sig2: false }), bg: null }
+      : null;
 
   return (
     <div>

@@ -11,8 +11,10 @@ import { resolveLayout, type CertContext } from "@/lib/certificate/sources";
 import { TEMPLATE_GROUPS, templateGroup, type TemplateGroupKey } from "@/lib/certificate/template-groups";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import type { DesignDTO } from "@/lib/designs";
+import type { Layout } from "@/lib/certificate/types";
 
-export type PickerChoice = { kind: "template" | "design"; id: string; name: string };
+/** Pilihan beserta layout pratinjaunya (sudah terisi data contoh), agar pemanggil tak perlu memuat data template. */
+export type PickerChoice = { kind: "template" | "design"; id: string; name: string; layout: Layout; bg: string | null };
 
 type Props = {
   isPro: boolean;
@@ -101,7 +103,7 @@ export default function TemplatePicker({ isPro, sample, images, current, designs
                 const active = current.mode === "template" && current.templateId === t.id;
                 const choose = () => {
                   if (locked) return router.push("/dashboard/upgrade");
-                  if (!active && busy === null) pick({ kind: "template", id: t.id, name: t.name });
+                  if (!active && busy === null) pick({ kind: "template", id: t.id, name: t.name, layout: t.layout, bg: null });
                 };
                 return (
                   <Card key={t.id} name={t.name} active={active} busy={busy === t.id} disabled={busy !== null} locked={locked} pro={t.tier === "pro"} onChoose={choose}>
@@ -129,7 +131,7 @@ export default function TemplatePicker({ isPro, sample, images, current, designs
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
               {designs.map((d) => {
                 const active = current.mode === "custom" && current.designId === d.id;
-                const choose = () => { if (!active && busy === null) pick({ kind: "design", id: d.id, name: d.name }); };
+                const choose = () => { if (!active && busy === null) pick({ kind: "design", id: d.id, name: `Desain sendiri: ${d.name}`, layout: resolveLayout(d.layout, sample), bg: d.previewUrl }); };
                 return (
                   <Card key={d.id} name={d.name} active={active} busy={busy === d.id} disabled={busy !== null} onChoose={choose}>
                     <LazyMount aspect={`${d.layout.width} / ${d.layout.height}`}>

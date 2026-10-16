@@ -13,7 +13,10 @@ import { FIELD_TYPES, type FieldType } from "@/lib/db";
 import { chooseTemplate, saveFields } from "../../../actions";
 import { useDesign } from "../../../design-actions";
 import type { DesignDTO } from "@/lib/designs";
-import TemplatePicker from "./TemplatePicker";
+import dynamic from "next/dynamic";
+
+// Popup (beserta data 42 template) baru dimuat saat tombol Ganti diklik.
+const TemplatePicker = dynamic(() => import("./TemplatePicker"), { ssr: false });
 
 type Row = { id: string; label: string; type: FieldType; required: boolean; options: string; slot: "" | "name" | "extra" };
 
