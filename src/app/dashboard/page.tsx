@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, Clock, FolderOpen, Plus, SearchX, Users } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, Clock, FolderOpen, LayoutTemplate, Plus, SearchX, Users } from "lucide-react";
 import ProgramToolbar from "./ProgramToolbar";
 import TemplateThumb from "./TemplateThumb";
 import { requireUser } from "@/lib/auth";
@@ -24,7 +24,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const [{ data }, approved, pendingRows] = await Promise.all([
     supabase
       .from("programs")
-      .select("id, name, org_name, cert_type, description, location, start_date, end_date, approval_mode, is_open, setup_done, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, created_at, participants(count)")
+      .select("id, name, org_name, cert_type, description, location, start_date, end_date, approval_mode, is_open, setup_done, cert_chosen, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, created_at, participants(count)")
       .order("created_at", { ascending: false }),
     supabase.from("participants").select("id", { count: "exact", head: true }).eq("status", "approved"),
     supabase.from("participants").select("program_id").eq("status", "pending").limit(1000),
@@ -176,7 +176,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 return (
                   <Link key={p.id} href={hrefOf(p)} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
                     <div className="relative border-b border-slate-100 bg-slate-100">
-                      {p.cert_mode === "template" || design ? (
+                      {p.cert_chosen === false ? (
+                        // Draf yang belum memilih sertifikat: jangan tampilkan template bawaan.
+                        <div className="grid aspect-[842/595] place-items-center border-2 border-dashed border-amber-200 bg-amber-50/50 text-center">
+                          <span>
+                            <LayoutTemplate className="mx-auto h-6 w-6 text-amber-500" />
+                            <span className="mt-1.5 block text-xs font-medium text-slate-600">Belum pilih sertifikat</span>
+                          </span>
+                        </div>
+                      ) : p.cert_mode === "template" || design ? (
                         <TemplateThumb
                           program={{ org_name: p.org_name, name: p.name, cert_type: p.cert_type, description: p.description, start_date: p.start_date, end_date: p.end_date, location: p.location, signer1_name: p.signer1_name, signer1_title: p.signer1_title, signer2_name: p.signer2_name, signer2_title: p.signer2_title }}
                           certMode={p.cert_mode}
