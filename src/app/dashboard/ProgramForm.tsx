@@ -19,6 +19,8 @@ type Props = {
   submitLabel: string;
   /** Tampilkan sebagai wizard 3 langkah (dipakai saat membuat program baru). */
   wizard?: boolean;
+  /** template / desain yang sudah dipilih dari halaman Template */
+  preset?: { templateId?: string; designId?: string };
 };
 
 const STEPS = [
@@ -27,7 +29,7 @@ const STEPS = [
   { title: "Alur sertifikat", icon: Workflow },
 ];
 
-export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg, logoUrl, wizard = false }: Props) {
+export default function ProgramForm({ action, program: p, submitLabel, sigUrls, defaultOrg, logoUrl, wizard = false, preset }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const edit = !!p;
 
@@ -73,6 +75,8 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
       }}
     >
       {wizard && <SetupSteps current={step} onSelect={setStep} />}
+      {preset?.templateId && <input type="hidden" name="template_id" value={preset.templateId} />}
+      {preset?.designId && <input type="hidden" name="design_id" value={preset.designId} />}
 
       <section ref={(el) => { sections.current[0] = el; }} className={`card space-y-4 ${show(0)}`}>
         <SectionTitle icon={CalendarDays} title="Data acara" hint="Informasi kegiatan yang tampil di formulir dan sertifikat." />

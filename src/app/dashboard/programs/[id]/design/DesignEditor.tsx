@@ -20,11 +20,13 @@ type Props = {
   onSaved: (d: DesignDTO) => void;
   /** mengembalikan pesan error, atau null jika berhasil; tidak ada di halaman pustaka */
   onUse?: () => Promise<string | null>;
+  /** halaman Template: tautan buat program baru dengan desain ini */
+  createHref?: string;
 };
 
 const SAVED_MSG = "Desain tersimpan.";
 
-export default function DesignEditor({ design, isPro, isActive, sample, fields, logoUrl, onBack, onSaved, onUse }: Props) {
+export default function DesignEditor({ design, isPro, isActive, sample, fields, logoUrl, onBack, onSaved, onUse, createHref }: Props) {
   const [name, setName] = useState(design.name);
   const [layout, setLayout] = useState<Layout>(design.layout);
   const [saved, setSaved] = useState(() => JSON.stringify({ n: design.name, l: design.layout }));
@@ -156,7 +158,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {isPro && <a href={`/api/designs/${design.id}/sample`} target="_blank" className="btn btn-sm"><Download className="h-4 w-4" /> Contoh PDF</a>}
           <button className={`btn btn-sm ${dirty ? "btn-primary" : ""}`} disabled={pending || !dirty} onClick={() => doSave()}><Save className="h-4 w-4" /> {pending ? "Menyimpan…" : "Simpan"}</button>
-          {!onUse ? null : isActive ? (
+          {!onUse ? (createHref ? <Link href={createHref} className="btn btn-primary btn-sm" onClick={(e) => { if (dirty && !confirm("Perubahan belum disimpan. Tetap lanjut?")) e.preventDefault(); }}>{isPro ? <Plus className="h-4 w-4" /> : <Lock className="h-3.5 w-3.5" />} Buat program dengan desain ini</Link> : null) : isActive ? (
             <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai untuk sertifikat</span>
           ) : isPro ? (
             <button className="btn btn-primary btn-sm" disabled={pending} onClick={useIt}>Gunakan untuk sertifikat</button>

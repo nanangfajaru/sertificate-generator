@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Sparkles, Upload, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Crown, Download, Eye, LayoutTemplate, Lock, Palette, Plus, Sparkles, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SetupSteps from "@/components/SetupSteps";
@@ -36,10 +36,14 @@ type Props = {
   fields: { id: string; label: string }[];
   /** sedang dalam alur pembuatan program baru (langkah 4) */
   setup?: boolean;
+  /** halaman Template di sidebar: tombol "Buat program" alih-alih "Gunakan" */
+  library?: boolean;
 };
 
 export default function DesignClient(p: Props) {
   const templates = useMemo<Tpl[]>(() => TEMPLATES.map((t) => ({ id: t.id, name: t.name, tier: t.tier, layout: brandLayout(resolveLayout(t.layout, p.sample), { certMode: "template", templateId: t.id, logo: true, sig1: !!p.images.sig1, sig2: !!p.images.sig2 }) })), [p.sample, p.images.sig1, p.images.sig2]);
+  const lib = !!p.library;
+  const newWith = (q: string) => `/dashboard/programs/new?${q}`;
   const [tab, setTab] = useState<"template" | "custom">(p.mode);
   const [mode, setMode] = useState(p.mode);
   const [activeId, setActiveId] = useState(p.templateId);
@@ -125,10 +129,14 @@ export default function DesignClient(p: Props) {
               <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tab === "custom" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"}`}><Crown className="h-2.5 w-2.5" />Pro</span>
             </button>
           </div>
-          <p className="hidden min-w-0 flex-1 truncate text-sm text-slate-600 sm:block">
-            Dipakai: <b className="text-slate-900">{activeName}</b>
-          </p>
-          <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+          {lib ? (
+            <p className="hidden min-w-0 flex-1 truncate text-sm text-slate-600 sm:block">Pilih template, lalu <b className="text-slate-900">Buat program</b> dengan template itu.</p>
+          ) : (
+            <p className="hidden min-w-0 flex-1 truncate text-sm text-slate-600 sm:block">
+              Dipakai: <b className="text-slate-900">{activeName}</b>
+            </p>
+          )}
+          {!lib && <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
             <p className="min-w-0 truncate text-xs text-slate-600 sm:hidden">Dipakai: <b className="text-slate-900">{activeName}</b></p>
             {toast && (
               <span className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium ${toast.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
@@ -136,7 +144,7 @@ export default function DesignClient(p: Props) {
               </span>
             )}
             <a href={`/api/programs/${p.programId}/sample`} target="_blank" className="btn btn-sm shrink-0"><Download className="h-4 w-4" /> Contoh PDF</a>
-          </div>
+          </div>}
         </div>
       </div>
 
@@ -169,7 +177,7 @@ export default function DesignClient(p: Props) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {sec.items.map((t) => {
                 const locked = t.tier === "pro" && !p.isPro;
-                const active = mode === "template" && t.id === activeId;
+                const active = !lib && mode === "template" && t.id === activeId;
                 return (
                   <div key={t.id} className={`overflow-hidden rounded-xl border bg-white ${active ? "border-brand-600 ring-2 ring-brand-100" : "border-slate-200"}`}>
                     <button type="button" className="group relative block w-full text-left" onClick={() => setPreview(t)} aria-label={`Pratinjau ${t.name}`}>
@@ -187,7 +195,9 @@ export default function DesignClient(p: Props) {
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <button type="button" className="btn btn-sm" onClick={() => setPreview(t)}><Eye className="h-4 w-4" /> Pratinjau</button>
-                        {active ? (
+                        {lib ? (
+                          <Link href={locked ? "/dashboard/upgrade" : newWith(`template=${t.id}`)} className={`btn btn-sm ${locked ? "" : "btn-primary"}`}>{locked ? <Lock className="h-3.5 w-3.5" /> : <Plus className="h-4 w-4" />} Buat program</Link>
+                        ) : active ? (
                           <span className="btn btn-sm cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Dipakai</span>
                         ) : locked ? (
                           <Link href="/dashboard/upgrade" className="btn btn-sm"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
@@ -204,7 +214,7 @@ export default function DesignClient(p: Props) {
                 </div>
               </section>
             ))}
-            {mode === "custom" && (
+            {mode === "custom" && !lib && (
               <button
                 className="btn"
                 onClick={() => start(async () => { const r = await switchToTemplate(p.programId); if (!r.error) { setMode("template"); setToast({ ok: true, text: "Kembali memakai template." }); } })}
@@ -216,7 +226,7 @@ export default function DesignClient(p: Props) {
         ) : (
           <DesignsPanel
             logoUrl={p.logoUrl}
-            programId={p.programId}
+            programId={lib ? null : p.programId}
             userId={p.userId}
             isPro={p.isPro}
             readOnly={p.readOnly}
@@ -260,7 +270,9 @@ export default function DesignClient(p: Props) {
               </p>
               <div className="flex gap-2">
                 <button className="btn" onClick={() => setPreview(null)}>Tutup</button>
-                {mode === "template" && preview.id === activeId ? (
+                {lib ? (
+                  <Link href={preview.tier === "pro" && !p.isPro ? "/dashboard/upgrade" : newWith(`template=${preview.id}`)} className="btn btn-primary">{preview.tier === "pro" && !p.isPro ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />} Buat program dengan template ini</Link>
+                ) : mode === "template" && preview.id === activeId ? (
                   <span className="btn cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-4 w-4" /> Sedang dipakai</span>
                 ) : preview.tier === "pro" && !p.isPro ? (
                   <Link href="/dashboard/upgrade" className="btn btn-primary"><Lock className="h-4 w-4" /> Gunakan template ini</Link>

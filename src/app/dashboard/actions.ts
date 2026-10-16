@@ -11,6 +11,7 @@ import { approveParticipants } from "@/lib/approve";
 import { notifyApproved } from "@/lib/notify";
 import { dbError } from "@/lib/db-errors";
 import { slugify } from "@/lib/util";
+import { useDesign as applyDesign } from "./design-actions";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -69,6 +70,10 @@ export async function createProgram(_: ActionState, fd: FormData): Promise<Actio
     { id: orgField, program_id: id, label: "Instansi / asal", type: "text", required: false, sort: 2 },
   ]);
   if (fErr) return { error: dbError(fErr.message) };
+
+  // Desain sendiri dipilih dari halaman Template: langsung dipakai (khusus Pro, dijaga di useDesign).
+  const designId = String(raw.design_id ?? "");
+  if (/^[0-9a-f-]{36}$/.test(designId)) await applyDesign(id, designId);
 
   revalidatePath("/dashboard");
   // Lanjut ke langkah 4 (pilih sertifikat) dari alur pembuatan program.

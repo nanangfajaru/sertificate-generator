@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ImagePlus, Lock, Pencil, Trash2 } from "lucide-react";
+import { Check, ImagePlus, Lock, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
@@ -92,6 +92,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
         onBack={() => setEditingId(null)}
         onSaved={(d) => onDesignsChange(designs.map((x) => (x.id === d.id ? { ...x, name: d.name, layout: d.layout, updatedAt: d.updatedAt } : x)))}
         onUse={programId ? () => use(editing) : undefined}
+        createHref={programId ? undefined : isPro ? `/dashboard/programs/new?design=${editing.id}` : "/dashboard/upgrade"}
       />
     );
   }
@@ -143,7 +144,9 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm flex-1" onClick={() => setEditingId(d.id)}><Pencil className="h-3.5 w-3.5" /> Edit</button>
-                    {!programId ? null : active ? (
+                    {!programId ? (
+                      <Link href={isPro ? `/dashboard/programs/new?design=${d.id}` : "/dashboard/upgrade"} className={`btn btn-sm flex-1 ${isPro ? "btn-primary" : ""}`} title={isPro ? undefined : "Menggunakan desain sendiri khusus paket Pro"}>{isPro ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} Buat program</Link>
+                    ) : active ? (
                       <span className="btn btn-sm flex-1 cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-3.5 w-3.5" /> Dipakai</span>
                     ) : isPro ? (
                       <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan</button>

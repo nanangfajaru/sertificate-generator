@@ -29,7 +29,7 @@ function row2dto(r: { id: string; name: string; kind: "pdf" | "png" | "jpg"; lay
 }
 
 function revalidateDesigns(programIds: (string | null | undefined)[]) {
-  revalidatePath("/dashboard/designs");
+  revalidatePath("/dashboard/templates");
   for (const id of new Set(programIds)) if (id) revalidatePath(`/dashboard/programs/${id}`, "layout");
 }
 
