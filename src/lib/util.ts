@@ -33,3 +33,19 @@ export function publicLink(p: { slug: string; alias?: string | null }) {
 export function siteUrl() {
   return (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 }
+
+/** Nama file aman untuk semua OS (huruf non-ASCII dipertahankan). */
+export function safeFileName(s: string, max = 120) {
+  return s.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max).trim();
+}
+
+/** Nama file sertifikat: "Nama Kegiatan - Nama Peserta". */
+export function certFileName(eventName: string, participantName: string) {
+  return safeFileName(`${safeFileName(eventName, 70) || "Sertifikat"} - ${safeFileName(participantName, 60) || "Peserta"}`);
+}
+
+/** Header Content-Disposition dengan nama UTF-8 (RFC 5987) dan cadangan ASCII. */
+export function contentDisposition(name: string, type: "attachment" | "inline" = "attachment") {
+  const ascii = name.normalize("NFKD").replace(/[^\x20-\x7e]/g, "").replace(/"/g, "") || "file";
+  return `${type}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(name)}`;
+}

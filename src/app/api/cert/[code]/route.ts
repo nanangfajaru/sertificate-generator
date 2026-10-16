@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { Participant, Program } from "@/lib/db";
-import { loadBackground, ownerIsPro, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
+import { loadBackground, resolvedFor, signatureImages, withBranding } from "@/lib/certificate/load";
+import { certFileName, contentDisposition } from "@/lib/util";
 import { renderCertificatePdf } from "@/lib/certificate/pdf";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -17,17 +18,17 @@ export async function GET(_: Request, { params }: { params: Promise<{ code: stri
   const participant = rest as Participant;
 
   // Status paket pemilik, latar desain, dan tanda tangan diambil bersamaan.
-  const [isPro, bg, images] = await Promise.all([ownerIsPro(admin, program.owner_id), loadBackground(admin, program), signatureImages(admin, program)]);
-  const layout = withBranding(resolvedFor(program, participant, !isPro), program);
+  const [bg, images] = await Promise.all([loadBackground(admin, program), signatureImages(admin, program)]);
+  const layout = withBranding(resolvedFor(program, participant), program);
   const bytes = await renderCertificatePdf(layout, bg, images);
 
   const nameId = program.mapping?.name;
   const who = (nameId && participant.data[nameId]) || "peserta";
-  const file = `sertifikat-${who}`.replace(/[^a-z0-9]+/gi, "-").slice(0, 60);
+  const file = `${certFileName(program.name, String(who))}.pdf`;
   return new NextResponse(Buffer.from(bytes), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${file}.pdf"`,
+      "Content-Disposition": contentDisposition(file),
       "Cache-Control": "private, max-age=300",
     },
   });

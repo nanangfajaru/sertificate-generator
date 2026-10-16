@@ -6,7 +6,6 @@ import { resolveLayout, type CertContext } from "./sources";
 import { getTemplate } from "./templates";
 import { brandLayout } from "./branding";
 import { isProProfile } from "../db";
-import { withWatermark } from "./watermark";
 import type { ImageItem, Item, Layout } from "./types";
 import type { Background, ImageMap } from "./pdf";
 
@@ -30,10 +29,9 @@ export async function ownerIsPro(admin: SupabaseClient, ownerId: string): Promis
   return isProProfile(data);
 }
 
-/** Sertifikat milik paket Free diberi watermark; Pro tanpa watermark. */
-export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cert_number" | "code">, watermark = false) {
-  const l = resolveLayout(programLayout(program), buildContext(program, p.data, p.cert_number, p.code));
-  return watermark ? withWatermark(l) : l;
+/** Layout sertifikat seorang peserta dengan data yang sudah terisi. */
+export function resolvedFor(program: Program, p: Pick<Participant, "data" | "cert_number" | "code">) {
+  return resolveLayout(programLayout(program), buildContext(program, p.data, p.cert_number, p.code));
 }
 
 export async function loadBackground(admin: SupabaseClient, program: Program): Promise<Background> {

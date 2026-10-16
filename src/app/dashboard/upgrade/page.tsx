@@ -16,7 +16,6 @@ const ROWS: Row[] = [
   ["Peserta per program", `${FREE_PARTICIPANT_LIMIT} peserta`, "Tanpa batas"],
   ["Template sertifikat", "20 template dasar", "20 dasar + 22 bertema (bunga, rumah sakit, olahraga, perusahaan, dll)"],
   ["Desain sendiri (unggah PDF/PNG/JPG)", "Boleh membuat & menyimpan 3, tidak bisa dipakai", "Hingga 50 desain, dipakai di semua program"],
-  ["Watermark sertifikatku.com", "Ada", "Tanpa watermark"],
   ["Program referral (kode & link pribadi, dapat komisi)", false, true],
   ["Hapus program", false, true],
   ["Formulir pendaftaran & pemetaan kolom", true, true],
@@ -59,7 +58,7 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
       <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Kembali</Link>
       <div className="mt-3 text-center">
         <h1 className="text-3xl font-bold">Pilih paket yang sesuai</h1>
-        <p className="mt-2 text-slate-600">Buka seluruh template bertema, desain sendiri, program tanpa batas, dan sertifikat tanpa watermark.</p>
+        <p className="mt-2 text-slate-600">Buka seluruh template bertema, desain sendiri, program dan peserta tanpa batas.</p>
       </div>
 
       {orderStatus === "paid" && <p className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><b>Pembayaran berhasil.</b> Paket Pro Anda sudah aktif. Terima kasih!</p>}

@@ -52,7 +52,7 @@ export default async function ProgramOverview({ params, searchParams }: { params
         {!isPro && stat.total >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8) && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <p className="font-semibold">{stat.total >= FREE_PARTICIPANT_LIMIT ? "Kuota peserta penuh" : "Kuota peserta hampir penuh"} ({stat.total}/{FREE_PARTICIPANT_LIMIT})</p>
-            <p className="mt-1">Upgrade ke Pro agar peserta tak terbatas dan sertifikat tanpa watermark.</p>
+            <p className="mt-1">Upgrade ke Pro agar peserta tak terbatas.</p>
             <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3">Lihat paket Pro</Link>
           </div>
         )}
