@@ -101,22 +101,16 @@ export default function TemplatePicker({ programId, isPro, sample, images, curre
               {visible.map((t) => {
                 const locked = t.tier === "pro" && !isPro;
                 const active = current.mode === "template" && current.templateId === t.id;
-                const cls = `group relative block overflow-hidden rounded-xl border bg-white text-left transition ${active ? "border-brand-600 ring-2 ring-brand-200" : "border-slate-200 hover:border-brand-400 hover:shadow-md"}`;
-                const body = (
-                  <>
+                const choose = () => {
+                  if (locked) return router.push("/dashboard/upgrade");
+                  if (!active && busy === null) pick(t.id, t.name, () => chooseTemplate(programId, t.id));
+                };
+                return (
+                  <Card key={t.id} name={t.name} active={active} busy={busy === t.id} disabled={busy !== null} locked={locked} pro={t.tier === "pro"} onChoose={choose}>
                     <div className={locked ? "opacity-60" : undefined}>
                       <LazyMount><CertificateSvg layout={t.layout} images={images} logoPlaceholder={!images.logo} className="block h-auto w-full" /></LazyMount>
                     </div>
-                    <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-2.5 py-2">
-                      <span className="truncate text-xs font-medium">{busy === t.id ? "Memasang…" : t.name}</span>
-                      {active ? <Check className="h-4 w-4 shrink-0 text-brand-600" /> : locked ? <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" /> : t.tier === "pro" ? <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" /> : null}
-                    </div>
-                  </>
-                );
-                return locked ? (
-                  <Link key={t.id} href="/dashboard/upgrade" className={cls} title="Template Pro">{body}</Link>
-                ) : (
-                  <button key={t.id} type="button" className={cls} disabled={busy !== null || active} onClick={() => pick(t.id, t.name, () => chooseTemplate(programId, t.id))}>{body}</button>
+                  </Card>
                 );
               })}
             </div>
@@ -137,21 +131,51 @@ export default function TemplatePicker({ programId, isPro, sample, images, curre
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
               {designs.map((d) => {
                 const active = current.mode === "custom" && current.designId === d.id;
+                const choose = () => { if (!active && busy === null) pick(d.id, d.name, () => useDesign(programId, d.id)); };
                 return (
-                  <button key={d.id} type="button" disabled={busy !== null || active} onClick={() => pick(d.id, d.name, () => useDesign(programId, d.id))} className={`overflow-hidden rounded-xl border bg-white text-left transition ${active ? "border-brand-600 ring-2 ring-brand-200" : "border-slate-200 hover:border-brand-400 hover:shadow-md"}`}>
+                  <Card key={d.id} name={d.name} active={active} busy={busy === d.id} disabled={busy !== null} onChoose={choose}>
                     <LazyMount aspect={`${d.layout.width} / ${d.layout.height}`}>
                       <CertificateSvg layout={resolveLayout(d.layout, sample)} backgroundUrl={d.previewUrl} images={images} logoPlaceholder={!images.logo} className="block h-full w-full" />
                     </LazyMount>
-                    <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-2.5 py-2">
-                      <span className="truncate text-xs font-medium">{busy === d.id ? "Memasang…" : d.name}</span>
-                      {active && <Check className="h-4 w-4 shrink-0 text-brand-600" />}
-                    </div>
-                  </button>
+                  </Card>
                 );
               })}
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Kartu pilihan: klik gambar atau tombol "Gunakan" sama-sama memilih; yang terpilih bertanda centang. */
+function Card({ name, active, busy, disabled, locked, pro, onChoose, children }: {
+  name: string;
+  active: boolean;
+  busy: boolean;
+  disabled: boolean;
+  locked?: boolean;
+  pro?: boolean;
+  onChoose: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`overflow-hidden rounded-xl border bg-white transition ${active ? "border-brand-600 ring-2 ring-brand-200" : "border-slate-200 hover:border-brand-400 hover:shadow-md"}`}>
+      <button type="button" className="block w-full text-left disabled:cursor-default" onClick={onChoose} disabled={active || (disabled && !locked)} aria-label={`Pilih ${name}`}>
+        {children}
+      </button>
+      <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-2.5 py-2">
+        <span className="flex min-w-0 items-center gap-1 text-xs font-medium">
+          <span className="truncate">{name}</span>
+          {pro && !locked && <Crown className="h-3 w-3 shrink-0 text-amber-500" />}
+        </span>
+        {active ? (
+          <span className="inline-flex h-7 shrink-0 items-center gap-1 rounded-lg bg-emerald-50 px-2 text-xs font-semibold text-emerald-700"><Check className="h-3.5 w-3.5" /> Dipakai</span>
+        ) : locked ? (
+          <button type="button" onClick={onChoose} className="btn btn-sm h-7 shrink-0 !px-2 text-xs"><Lock className="h-3 w-3" /> Pro</button>
+        ) : (
+          <button type="button" onClick={onChoose} disabled={disabled} className="btn btn-primary btn-sm h-7 shrink-0 !px-2.5 text-xs">{busy ? "…" : "Gunakan"}</button>
+        )}
       </div>
     </div>
   );
