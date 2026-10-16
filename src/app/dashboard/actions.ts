@@ -62,6 +62,8 @@ export async function createProgram(_: ActionState, fd: FormData): Promise<Actio
     template_id: template.id,
     mapping: { name: nameField, extra: orgField },
     setup_done: false,
+    // Tanpa pilihan dari menu Template, sertifikat wajib dipilih di langkah Formulir & sertifikat.
+    cert_chosen: !!raw.template_id || !!raw.design_id,
   });
   if (error) return { error: dbError(error.message) };
 
@@ -146,8 +148,9 @@ export async function saveFields(programId: string, input: unknown, finishSetup 
   if (fields.filter((f) => f.slot === "extra").length > 1) return { error: 'Hanya satu field yang boleh menjadi "Keterangan tambahan"' };
   for (const f of fields) if (f.type === "select" && f.options.length === 0) return { error: `Field "${f.label}" butuh minimal satu pilihan` };
 
-  const { data: prog } = await supabase.from("programs").select("id").eq("id", programId).maybeSingle();
+  const { data: prog } = await supabase.from("programs").select("id, cert_chosen").eq("id", programId).maybeSingle();
   if (!prog) return { error: "Program tidak ditemukan" };
+  if (finishSetup && !prog.cert_chosen) return { error: "Pilih template sertifikat terlebih dahulu." };
 
   const { data: existing } = await supabase.from("program_fields").select("id").eq("program_id", programId);
   const keep = new Set(fields.map((f) => f.id));
@@ -184,7 +187,7 @@ export async function chooseTemplate(programId: string, templateId: string): Pro
   const t = getTemplate(templateId);
   if (t.id !== templateId) return { error: "Template tidak ditemukan" };
   if (t.tier === "pro" && !isPro) return { error: "Template ini khusus paket Pro." };
-  const { error } = await supabase.from("programs").update({ template_id: t.id, cert_mode: "template" }).eq("id", programId);
+  const { error } = await supabase.from("programs").update({ template_id: t.id, cert_mode: "template", cert_chosen: true }).eq("id", programId);
   if (error) return { error: dbError(error.message) };
   revalidatePath(`/dashboard/programs/${programId}`, "layout");
   return { ok: true };

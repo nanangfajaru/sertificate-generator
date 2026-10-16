@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Check, ClipboardList, Eye, Plus, Trash2, X } from "lucide-react";
+import { AlertCircle, ArrowDown, ArrowUp, Check, ClipboardList, LayoutTemplate, Eye, Plus, Trash2, X } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,19 +34,22 @@ type Props = {
   setup?: boolean;
   /** buka popup Ganti sertifikat saat halaman dimuat (?pick=1) */
   openPicker?: boolean;
+  /** false: program baru belum memilih template/desain (wajib dipilih sebelum selesai) */
+  certChosen?: boolean;
   /** data popup Ganti sertifikat */
   picker: { isPro: boolean; current: { mode: "template" | "custom"; templateId: string; designId: string | null }; designs: DesignDTO[] };
 };
 
 const COLORS = ["#4f46e5", "#d97706", "#059669", "#db2777", "#0891b2", "#7c3aed"];
 
-export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false, openPicker = false, picker }: Props) {
+export default function FormBuilder({ programId, initial, layout, bgUrl, images, logoPlaceholder, custom, templateName, program, setup = false, openPicker = false, certChosen = true, picker }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState<Row[]>(initial);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
   const [zoom, setZoom] = useState(false);
   const [picking, setPicking] = useState(openPicker);
+  const [chosen, setChosen] = useState(certChosen);
   const pickerSample = useMemo(() => ({ program: { ...program, mapping: { name: "_n" } }, data: { _n: "Nama Peserta Contoh" }, certNumber: "001/SERT/I/2026", verifyUrl: "https://contoh" }), [program]);
   useEffect(() => {
     if (!zoom) return;
@@ -109,6 +112,11 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
 
   function save() {
     setMsg(null);
+    if (setup && !chosen) {
+      setMsg({ ok: false, text: "Pilih template sertifikat terlebih dahulu." });
+      setPicking(true);
+      return;
+    }
     start(async () => {
       const res = await saveFields(
         programId,
@@ -200,6 +208,18 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
 
     <aside className={setup ? "" : "order-first lg:order-last"}>
       <div className="space-y-3 lg:sticky lg:top-20">
+        {!chosen ? (
+          <div className="card !p-3">
+            <p className="text-xs text-slate-500">Sertifikat yang dipilih</p>
+            <button type="button" onClick={() => setPicking(true)} className="mt-2 flex aspect-[842/595] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-amber-300 bg-amber-50/60 px-4 text-center transition hover:border-brand-400 hover:bg-brand-50/50">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-white text-brand-600 shadow-sm"><LayoutTemplate className="h-5 w-5" /></span>
+              <span className="mt-2 text-sm font-semibold text-slate-800">Belum ada sertifikat dipilih</span>
+              <span className="mt-0.5 text-xs text-slate-500">Pilih template atau desain sendiri untuk sertifikat peserta.</span>
+            </button>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-amber-700"><AlertCircle className="h-3.5 w-3.5 shrink-0" /> Wajib dipilih sebelum menyimpan.</p>
+            <button type="button" className="btn btn-primary btn-sm mt-2 w-full" onClick={() => setPicking(true)}><LayoutTemplate className="h-4 w-4" /> Pilih template</button>
+          </div>
+        ) : (
         <div className="card !p-3">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="min-w-0">
@@ -216,6 +236,7 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
           </button>
           <button type="button" className="btn btn-sm mt-2 w-full" onClick={() => setZoom(true)}><Eye className="h-4 w-4" /> Pratinjau sertifikat</button>
         </div>
+        )}
 
         <div className="card !p-3 text-sm">
           <p className="font-semibold">Kolom yang tampil di sertifikat</p>
@@ -245,12 +266,13 @@ export default function FormBuilder({ programId, initial, layout, bgUrl, images,
         isPro={picker.isPro}
         sample={pickerSample}
         images={images ?? {}}
-        current={picker.current}
+        current={chosen ? picker.current : { mode: "template", templateId: "", designId: null }}
         designs={picker.designs}
         onClose={() => setPicking(false)}
         onChoose={async (c) => {
           const r = c.kind === "template" ? await chooseTemplate(programId, c.id) : await useDesign(programId, c.id);
           if (r.error) return r;
+          setChosen(true);
           router.refresh();
           setMsg({ ok: true, text: `Sertifikat diganti ke "${c.name}".` });
         }}

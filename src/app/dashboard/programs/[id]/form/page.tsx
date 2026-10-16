@@ -41,6 +41,7 @@ export default async function FormPage({ params, searchParams }: { params: Promi
     <FormBuilder
       setup={setup}
       openPicker={sp.pick === "1"}
+      certChosen={program.cert_chosen !== false}
       programId={id}
       initial={initial}
       layout={withBranding(programLayout(program), program, { placeholder: true })}

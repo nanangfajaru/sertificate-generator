@@ -40,6 +40,8 @@ export type Program = {
   approval_mode: "auto" | "manual";
   /** false selama program baru belum menyelesaikan wizard (draf) */
   setup_done: boolean;
+  /** false sampai pengguna memilih template/desain di wizard */
+  cert_chosen: boolean;
   is_open: boolean;
   cert_mode: "template" | "custom";
   template_id: string;

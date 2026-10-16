@@ -135,7 +135,7 @@ export async function useDesign(programId: string, designId: string): Promise<{ 
 
   const { error } = await supabase
     .from("programs")
-    .update({ cert_mode: "custom", design_id: d.id, design_path: d.file_path, design_preview_path: d.preview_path, design_kind: d.kind, design_layout: await layoutFor(supabase, d.layout as Layout, programId) })
+    .update({ cert_mode: "custom", cert_chosen: true, design_id: d.id, design_path: d.file_path, design_preview_path: d.preview_path, design_kind: d.kind, design_layout: await layoutFor(supabase, d.layout as Layout, programId) })
     .eq("id", programId);
   if (error) return { error: dbError(error.message) };
   revalidateDesigns([programId]);
