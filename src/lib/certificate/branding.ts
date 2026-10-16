@@ -18,9 +18,11 @@ export function brandLayout(base: Layout, o: BrandOpts): Layout {
   const layout = o.certMode === "template" && o.logo ? addLogoItem(base, o.templateId) : base;
   const k = layout.width / 842;
   const items: Item[] = [];
+  // Elemen tanda tangan yang sudah diletakkan manual (editor desain sendiri) tidak ditambah otomatis lagi.
+  const placed = new Set(layout.items.flatMap((i) => (i.type === "image" ? [i.src] : [])));
   for (const it of layout.items) {
     for (const n of [1, 2] as const) {
-      if (it.type === "text" && it.source === `event:signer${n}_name` && (n === 1 ? o.sig1 : o.sig2)) {
+      if (it.type === "text" && it.source === `event:signer${n}_name` && (n === 1 ? o.sig1 : o.sig2) && !placed.has(`sig${n}`)) {
         // Kotak tanda tangan sebesar ruang kosong antara baris tanggal dan garis penandatangan.
         const dateY = layout.items.find((x) => x.type === "text" && x.source === "event:date_location");
         const bottom = it.y - it.size * 0.7; // sedikit menimpa garis, seperti tanda tangan asli

@@ -171,7 +171,9 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, image
         if (item.type === "image") {
           const url = images?.[item.src];
           const sel = selectedId === id;
-          if (!url && !interactive && !logoPlaceholder) return null;
+          const isLogo = item.src === "logo";
+          // Tanda tangan yang belum diunggah tidak diberi penanda di pratinjau biasa (hanya di editor).
+          if (!url && !interactive && (!logoPlaceholder || !isLogo)) return null;
           return wrap(
             <>
               {url ? (
@@ -181,7 +183,7 @@ export default function CertificateSvg({ layout, highlight, backgroundUrl, image
               ) : (
                 <g>
                   <rect x={item.x} y={item.y} width={item.w} height={item.h} fill="#eef2ff" stroke="#6366f1" strokeDasharray="6 4" strokeWidth={1.5} rx={6} />
-                  <text x={item.x + item.w / 2} y={item.y + item.h / 2 + 5} textAnchor="middle" fontSize={Math.max(12, item.h * 0.25)} fill="#4f46e5" style={{ fontFamily: "CertInter, sans-serif" }}>Logo penyelenggara</text>
+                  <text x={item.x + item.w / 2} y={item.y + item.h / 2 + 5} textAnchor="middle" fontSize={Math.max(12, item.h * 0.25)} fill="#4f46e5" style={{ fontFamily: "CertInter, sans-serif" }}>{isLogo ? "Logo penyelenggara" : `Tanda tangan ${item.src === "sig2" ? 2 : 1}`}</text>
                 </g>
               )}
               {interactive && <rect x={item.x} y={item.y} width={item.w} height={item.h} fill="transparent" stroke={sel ? "#2563eb" : "none"} strokeWidth={1.5} />}

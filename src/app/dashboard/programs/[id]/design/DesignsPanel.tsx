@@ -14,6 +14,8 @@ import { MAX_DESIGN_BYTES, readDesign, uploadDesignFiles } from "./design-upload
 
 type Props = {
   logoUrl: string | null;
+  /** gambar program (logo, sig1, sig2); tidak ada di halaman Template */
+  images?: Record<string, string>;
   /** null = halaman pustaka (di luar program): tidak ada tombol Gunakan */
   programId: string | null;
   userId: string;
@@ -28,7 +30,7 @@ type Props = {
   onActiveChange: (id: string | null) => void;
 };
 
-export default function DesignsPanel({ programId, userId, isPro, readOnly, designs, activeId, sample, fields, logoUrl, onDesignsChange, onActiveChange }: Props) {
+export default function DesignsPanel({ programId, userId, isPro, readOnly, designs, activeId, sample, fields, logoUrl, images, onDesignsChange, onActiveChange }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -84,6 +86,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
     return (
       <DesignEditor
         logoUrl={logoUrl}
+        images={images}
         key={editing.id}
         design={editing}
         isPro={isPro}
@@ -135,7 +138,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
               <div key={d.id} className={`overflow-hidden rounded-xl border bg-white ${active ? "border-brand-600 ring-2 ring-brand-100" : "border-slate-200"}`}>
                 <button type="button" className="flex aspect-[4/3] w-full items-center justify-center bg-slate-50 p-2" onClick={() => setEditingId(d.id)} aria-label={`Edit ${d.name}`}>
                   <LazyMount aspect={`${d.layout.width} / ${d.layout.height}`} className="max-h-full w-full overflow-hidden rounded shadow-sm">
-                    <CertificateSvg layout={resolveLayout(d.layout, sample)} backgroundUrl={d.previewUrl} images={logoUrl ? { logo: logoUrl } : undefined} logoPlaceholder={!logoUrl} className="block h-full w-full" />
+                    <CertificateSvg layout={resolveLayout(d.layout, sample)} backgroundUrl={d.previewUrl} images={{ ...(images ?? {}), ...(logoUrl ? { logo: logoUrl } : {}) }} logoPlaceholder={!logoUrl} className="block h-full w-full" />
                   </LazyMount>
                 </button>
                 <div className="space-y-2 border-t border-slate-100 p-3">

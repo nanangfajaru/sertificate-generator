@@ -30,8 +30,19 @@ const qr = z.object({
   color,
 });
 
+const image = z.object({
+  type: z.literal("image"),
+  id: z.string().max(40),
+  x: num(-200, 3000),
+  y: num(-200, 3000),
+  w: num(10, 1500),
+  h: num(10, 1500),
+  src: z.enum(["logo", "sig1", "sig2"]),
+  valign: z.enum(["bottom", "middle"]).optional(),
+});
+
 export const customLayoutSchema = z.object({
   width: z.literal(1000),
   height: num(300, 3000),
-  items: z.array(z.discriminatedUnion("type", [text, qr])).max(40),
+  items: z.array(z.discriminatedUnion("type", [text, qr, image])).max(40),
 });

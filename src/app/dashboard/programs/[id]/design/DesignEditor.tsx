@@ -1,6 +1,6 @@
 "use client";
 
-import { AlignCenter, AlignLeft, AlignRight, ArrowLeft, Check, Download, Lock, MousePointerClick, Plus, ImagePlus, QrCode, Save, Trash2, Type } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowLeft, Check, Download, Lock, MousePointerClick, Plus, ImagePlus, QrCode, Save, Trash2, Type, PenLine } from "lucide-react";
 import Link from "next/link";
 import ConfirmLink from "@/components/ConfirmLink";
 import { useEffect, useMemo, useState, useTransition } from "react";
@@ -12,6 +12,8 @@ import { saveDesign } from "../../../design-actions";
 
 type Props = {
   logoUrl: string | null;
+  /** gambar program: logo, sig1, sig2 (kosong di halaman Template) */
+  images?: Record<string, string>;
   design: DesignDTO;
   isPro: boolean;
   isActive: boolean;
@@ -27,7 +29,9 @@ type Props = {
 
 const SAVED_MSG = "Desain tersimpan.";
 
-export default function DesignEditor({ design, isPro, isActive, sample, fields, logoUrl, onBack, onSaved, onUse, createHref }: Props) {
+export default function DesignEditor({ design, isPro, isActive, sample, fields, logoUrl, images: imagesProp, onBack, onSaved, onUse, createHref }: Props) {
+  const images = useMemo<Record<string, string>>(() => ({ ...(imagesProp ?? {}), ...(logoUrl ? { logo: logoUrl } : {}) }), [imagesProp, logoUrl]);
+  const imageLabel = (src: string) => (src === "logo" ? "Logo penyelenggara" : `Tanda tangan ${src === "sig2" ? 2 : 1}`);
   const [name, setName] = useState(design.name);
   const [layout, setLayout] = useState<Layout>(design.layout);
   const [saved, setSaved] = useState(() => JSON.stringify({ n: design.name, l: design.layout }));
@@ -65,10 +69,10 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
   const numberOf = (id?: string) => layout.items.findIndex((i) => i.id === id) + 1;
   const highlight = showBadges ? (it: TextItem | QrItem) => ({ color: it.id === selected ? "#4f46e5" : "#64748b", n: String(numberOf(it.id)) }) : undefined;
 
-  const rowLabel = (it: Item) => (it.type === "image" ? "Logo penyelenggara" : it.type === "qr" ? "Kode QR verifikasi" : it.type === "text" ? (it.source ? (labelOf.get(it.source) ?? it.source) : "Teks tetap") : "");
+  const rowLabel = (it: Item) => (it.type === "image" ? imageLabel(it.src) : it.type === "qr" ? "Kode QR verifikasi" : it.type === "text" ? (it.source ? (labelOf.get(it.source) ?? it.source) : "Teks tetap") : "");
   const rowValue = (it: Item) => {
     if (it.type === "qr") return `${Math.round(it.size)} px`;
-    if (it.type === "image") return logoUrl ? `${Math.round(it.w)} × ${Math.round(it.h)} px` : "belum diunggah";
+    if (it.type === "image") return images[it.src] ? `${Math.round(it.w)} × ${Math.round(it.h)} px` : "belum diunggah";
     if (it.type !== "text") return "";
     const v = it.source ? resolveSource(it.source, sample) : (it.text ?? "");
     return v || "kosong pada contoh ini";
@@ -99,7 +103,8 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
   const usedSources = new Set(layout.items.flatMap((i) => (i.type === "text" && i.source ? [i.source] : [])));
   const unused = sources.filter((s) => !usedSources.has(s.value));
   const hasQr = layout.items.some((i) => i.type === "qr");
-  const hasLogo = layout.items.some((i) => i.type === "image" && i.src === "logo");
+  const hasImage = (src: string) => layout.items.some((i) => i.type === "image" && i.src === src);
+  const hasLogo = hasImage("logo");
 
   /** Posisi Y pertama yang belum ditempati elemen lain, agar elemen baru tidak menumpuk. */
   function freeY() {
@@ -118,6 +123,14 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
   };
   const addStatic = () => add({ type: "text", id: uid("t"), x: 500, y: freeY(), size: 24, font: "sans", color: "#1f2937", align: "center", text: "Teks tetap", maxWidth: 800 });
   const addLogo = () => add({ type: "image", id: uid("l"), x: 60, y: 40, w: 220, h: 90, src: "logo" });
+  /** Tanda tangan diletakkan tepat di atas nama penandatangan bila elemen namanya sudah ada. */
+  const addSig = (n: 1 | 2) => {
+    const name = layout.items.find((i): i is TextItem => i.type === "text" && i.source === `event:signer${n}_name`);
+    const w = 200, h = 80;
+    const x = name ? Math.round(name.x - (name.align === "left" ? 0 : name.align === "right" ? w : w / 2)) : n === 1 ? 150 : 650;
+    const y = name ? Math.round(name.y - name.size - h) : layout.height - 200;
+    add({ type: "image", id: uid("s"), x, y, w, h, src: `sig${n}`, valign: "bottom" });
+  };
   const addQr = () => add({ type: "qr", id: uid("q"), x: 880, y: layout.height - 120, size: 80, color: "#111827" });
 
   function doSave(after?: () => void) {
@@ -206,6 +219,8 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
             <div className="flex flex-wrap gap-1.5">
               <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addStatic}><Type className="h-4 w-4" />Teks tetap</button>
               {!hasLogo && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addLogo}><ImagePlus className="h-4 w-4" />Logo penyelenggara</button>}
+              {!hasImage("sig1") && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={() => addSig(1)}><PenLine className="h-4 w-4" />Tanda tangan 1</button>}
+              {!hasImage("sig2") && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={() => addSig(2)}><PenLine className="h-4 w-4" />Tanda tangan 2</button>}
               {!hasQr && <button type="button" className="btn btn-sm border-brand-300 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={addQr}><QrCode className="h-4 w-4" />Kode QR</button>}
             </div>
             <p className={`${sectionTitle} mt-3`}>Parameter data</p>
@@ -218,7 +233,7 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
 
         {/* Tengah: kanvas */}
         <div className="order-1 min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white lg:order-2">
-          <CertificateSvg layout={preview} backgroundUrl={design.previewUrl} images={logoUrl ? { logo: logoUrl } : undefined} highlight={highlight} className="block h-auto w-full" selectedId={selected} onSelect={setSelected} onMove={(id, x, y) => patch(id, { x, y })} />
+          <CertificateSvg layout={preview} backgroundUrl={design.previewUrl} images={images} highlight={highlight} className="block h-auto w-full" selectedId={selected} onSelect={setSelected} onMove={(id, x, y) => patch(id, { x, y })} />
         </div>
 
         {/* Kanan: properti elemen terpilih */}
@@ -277,8 +292,12 @@ export default function DesignEditor({ design, isPro, isActive, sample, fields, 
 
                 {current.type === "image" && (
                   <section>
-                    <p className={sectionTitle}>Ukuran logo</p>
-                    {!logoUrl && <p className="mb-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-800">Logo belum diunggah. Unggah di tab Ringkasan, bagian Data acara.</p>}
+                    <p className={sectionTitle}>Ukuran {current.src === "logo" ? "logo" : "tanda tangan"}</p>
+                    {!images[current.src] && (
+                      <p className="mb-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-800">
+                        {current.src === "logo" ? "Logo belum diunggah." : "Gambar tanda tangan belum diunggah."} {imagesProp ? `Unggah di tab Ringkasan, bagian ${current.src === "logo" ? "Data acara" : "Penandatangan"}.` : "Gambar diambil dari data tiap program yang memakai desain ini."}
+                      </p>
+                    )}
                     <label className="label !text-xs">Lebar ({Math.round(current.w)}px)</label>
                     <input type="range" min={40} max={500} className="w-full" value={current.w} onChange={(e) => patch(current.id!, { w: Number(e.target.value) })} />
                     <label className="label mt-2 !text-xs">Tinggi ({Math.round(current.h)}px)</label>

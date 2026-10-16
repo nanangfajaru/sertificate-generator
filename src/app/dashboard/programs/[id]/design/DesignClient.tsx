@@ -224,6 +224,7 @@ export default function DesignClient(p: Props) {
           <DesignsPanel
             logoUrl={p.logoUrl}
             programId={lib ? null : p.programId}
+            images={lib ? undefined : p.images}
             userId={p.userId}
             isPro={p.isPro}
             readOnly={p.readOnly}
