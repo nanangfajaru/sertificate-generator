@@ -1,8 +1,15 @@
 import LegalPage from "@/components/LegalPage";
+import { getPricing } from "@/lib/billing";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+// Harga diambil dari pengaturan master admin; diperbarui saat admin menyimpan harga (revalidatePath) atau tiap jam.
+export const revalidate = 3600;
+const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
 export const metadata = { title: "Syarat & Ketentuan" };
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const pricing = await getPricing(createAdminClient());
   return (
     <LegalPage title="Syarat & Ketentuan" updated="14 Oktober 2026">
       <p>Dengan menggunakan SertifikatKu (sertifikatku.com), Anda menyetujui syarat berikut.</p>
@@ -23,7 +30,7 @@ export default function TermsPage() {
         <h2>Paket dan pembayaran</h2>
         <ul>
           <li>Paket <b>Free</b> memiliki batasan jumlah program, peserta, dan template, serta sertifikat diberi watermark.</li>
-          <li>Paket <b>Pro</b> tersedia dalam langganan bulanan (Rp49.000) dan tahunan (Rp499.000) dan diaktifkan setelah pembayaran berhasil lewat Midtrans.</li>
+          <li>Paket <b>Pro</b> tersedia dalam langganan bulanan (harga normal {rp(pricing.monthly.list)}) dan tahunan (harga normal {rp(pricing.yearly.list)}), dan diaktifkan setelah pembayaran berhasil lewat Midtrans. Harga yang dibayar bisa lebih rendah karena promo atau kode voucher yang berlaku, dan selalu ditampilkan sebelum pembayaran.</li>
           <li>Masa aktif Pro berlaku sesuai paket yang dibeli dan tidak diperpanjang otomatis. Anda dapat memperpanjang kapan saja.</li>
           <li>Pembayaran yang sudah berhasil tidak dapat dikembalikan, kecuali terdapat kesalahan dari pihak kami. Hubungi kami untuk bantuan.</li>
         </ul>
