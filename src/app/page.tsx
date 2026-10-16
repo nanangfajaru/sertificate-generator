@@ -1,6 +1,6 @@
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, Mail, QrCode, Send, X } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, Mail, Palette, QrCode, Send, ShieldCheck, X, Zap } from "lucide-react";
 import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
 import SampleCert from "@/components/SampleCert";
@@ -101,21 +101,31 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Ringkasan angka */}
-      <section className="border-b border-slate-100 bg-slate-50/60">
-        <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-y-6 px-5 py-8 text-center md:grid-cols-4">
-          {[
-            [`${TEMPLATES.length}+`, "Template siap pakai"],
-            ["PDF + QR", "Sertifikat terverifikasi"],
-            ["Massal", "Persetujuan peserta"],
-            ["CSV", "Ekspor rekap kehadiran"],
-          ].map(([v, l]) => (
-            <div key={l}>
-              <dt className="text-2xl font-bold tracking-tight">{v}</dt>
-              <dd className="mt-1 text-sm text-slate-500">{l}</dd>
-            </div>
-          ))}
-        </dl>
+      {/* Manfaat utama */}
+      <section className="border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white">
+        <div className="mx-auto max-w-6xl px-5 py-12">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {[
+              { icon: Link2, tone: "bg-brand-50 text-brand-600 ring-brand-100", big: "1 link", text: "Pendaftaran sampai sertifikat, cukup bagikan satu tautan atau QR." },
+              { icon: Zap, tone: "bg-amber-50 text-amber-600 ring-amber-100", big: "Langsung", text: "Sertifikat terbit begitu peserta mengisi form, tanpa bikin satu‑satu." },
+              { icon: ShieldCheck, tone: "bg-emerald-50 text-emerald-600 ring-emerald-100", big: "Bisa dicek", text: "Setiap sertifikat punya nomor dan QR untuk verifikasi keaslian." },
+              { icon: Palette, tone: "bg-violet-50 text-violet-600 ring-violet-100", big: `${TEMPLATES.length} template`, text: "20 gratis, atau unggah desain sendiri dari Canva." },
+            ].map(({ icon: Icon, tone, big, text }) => (
+              <div key={big} className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-brand-200 hover:shadow-md sm:p-5">
+                <span className={`grid h-11 w-11 place-items-center rounded-xl ring-1 ${tone}`}><Icon className="h-5 w-5" /></span>
+                <p className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{big}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{text}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-slate-500">
+            <span className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-600" /> Mulai gratis</span>
+            <span className="text-slate-300">·</span>
+            <span>10 program</span>
+            <span className="text-slate-300">·</span>
+            <span>tanpa kartu kredit</span>
+          </p>
+        </div>
       </section>
 
       {/* Sorotan fitur dengan mockup */}
