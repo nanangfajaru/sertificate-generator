@@ -301,11 +301,13 @@ export default function Landing() {
       <footer className="border-t border-slate-200">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500">
           <Logo size={26} uid="lm-foot" />
-          <nav className="flex gap-6">
+          <nav className="flex flex-wrap gap-x-6 gap-y-2">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
             <Link href="/login" className="hover:text-slate-900">Masuk</Link>
             <a href="#kegunaan" className="hover:text-slate-900">Kegunaan</a>
+            <Link href="/tentang" className="hover:text-slate-900">Tentang kami</Link>
+            <Link href="/kontak" className="hover:text-slate-900">Hubungi kami</Link>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>

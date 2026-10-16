@@ -7,6 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: base, changeFrequency: "weekly", priority: 1 },
     ...SEO_PAGES.map((p) => ({ url: `${base}/sertifikat/${p.slug}`, changeFrequency: "monthly" as const, priority: 0.7 })),
+    { url: `${base}/tentang`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${base}/kontak`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${base}/privasi`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/syarat`, changeFrequency: "yearly", priority: 0.2 },
   ];

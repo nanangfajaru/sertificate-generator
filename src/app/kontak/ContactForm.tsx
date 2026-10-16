@@ -1,0 +1,39 @@
+"use client";
+
+import { CheckCircle2, Send } from "lucide-react";
+import { useActionState } from "react";
+import { sendContact, type ContactState } from "./actions";
+
+const TOPICS = ["Pertanyaan umum", "Bantuan akun & teknis", "Paket Pro & pembayaran", "Kerja sama / mitra", "Lainnya"];
+
+export default function ContactForm() {
+  const [s, action, pending] = useActionState<ContactState, FormData>(sendContact, {});
+  if (s.ok) {
+    return (
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+        <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600" />
+        <h2 className="mt-3 text-lg font-semibold text-slate-900">Pesan terkirim</h2>
+        <p className="mt-1 text-sm text-slate-600">Terima kasih. Kami akan membalas ke email Anda, biasanya dalam 1 hari kerja.</p>
+      </div>
+    );
+  }
+  return (
+    <form action={action} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div><label className="label" htmlFor="c-name">Nama</label><input id="c-name" name="name" className="input" required maxLength={80} autoComplete="name" /></div>
+        <div><label className="label" htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" className="input" required maxLength={120} autoComplete="email" /></div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div><label className="label" htmlFor="c-org">Instansi / penyelenggara <span className="font-normal text-slate-400">(opsional)</span></label><input id="c-org" name="org" className="input" maxLength={120} /></div>
+        <div>
+          <label className="label" htmlFor="c-topic">Topik</label>
+          <select id="c-topic" name="topic" className="input" defaultValue={TOPICS[0]}>{TOPICS.map((t) => <option key={t}>{t}</option>)}</select>
+        </div>
+      </div>
+      <div><label className="label" htmlFor="c-msg">Pesan</label><textarea id="c-msg" name="message" className="input" rows={6} required minLength={10} maxLength={3000} placeholder="Ceritakan kebutuhan atau kendala Anda…" /></div>
+      <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+      {s.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{s.error}</p>}
+      <button className="btn btn-primary w-full py-2.5" disabled={pending}><Send className="h-4 w-4" /> {pending ? "Mengirim…" : "Kirim pesan"}</button>
+    </form>
+  );
+}
