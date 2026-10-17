@@ -111,9 +111,9 @@ export default function Landing() {
         <dl className="mx-auto grid max-w-6xl grid-cols-2 px-5 lg:grid-cols-4">
           {[
             { icon: Palette, big: `${TEMPLATES.length} template`, text: "Siap pakai untuk berbagai acara, atau unggah desain sendiri." },
-            { icon: Zap, big: "Langsung terbit", text: "Peserta kirim form, sertifikat langsung jadi. Bisa juga lewat persetujuan Anda dulu." },
+            { icon: Zap, big: "Langsung terbit", text: "Peserta isi form, sertifikat langsung jadi. Bisa juga lewat persetujuan Anda dulu." },
             { icon: ShieldCheck, big: "Bisa diverifikasi", text: "Setiap sertifikat punya nomor dan QR untuk cek keaslian." },
-            { icon: FileDown, big: "Unduh laporan", text: "Rekap kehadiran dan semua isian peserta, termasuk kesan dan saran." },
+            { icon: FileDown, big: "Unduh laporan", text: "Rekap kehadiran dan seluruh data peserta." },
           ].map(({ icon: Icon, big, text }, i) => (
             <div key={big} className={`py-8 pr-4 ${i % 2 ? "pl-5 lg:pl-8" : "lg:pl-8 lg:first:pl-0"} ${i > 0 ? "lg:border-l lg:border-slate-100" : ""} ${i % 2 ? "border-l border-slate-100 lg:border-l" : ""} ${i > 1 ? "border-t border-slate-100 lg:border-t-0" : ""}`}>
               <dt className="flex items-start gap-2 text-base font-semibold leading-snug text-slate-900"><Icon className="mt-[3px] h-4 w-4 shrink-0 text-brand-600" /> {big}</dt>
