@@ -1,4 +1,4 @@
-import { Receipt } from "lucide-react";
+import { Download, Receipt } from "lucide-react";
 
 export type HistoryRow = { order_id: string; plan: string; base_amount: number | null; discount_amount: number | null; amount: number; voucher_code: string | null; status: string; payment_url: string | null; paid_at: string | null; created_at: string };
 
@@ -23,7 +23,9 @@ export default function OrderHistory({ rows }: { rows: HistoryRow[] }) {
     </>
   );
   const action = (r: HistoryRow) =>
-    r.status === "pending" && r.payment_url ? <a href={r.payment_url} className="btn btn-primary btn-sm">Lanjutkan bayar</a> : null;
+    r.status === "pending" && r.payment_url ? <a href={r.payment_url} className="btn btn-primary btn-sm">Lanjutkan bayar</a>
+    : r.status === "paid" ? <a href={`/api/orders/${encodeURIComponent(r.order_id)}/invoice`} className="btn btn-sm" title="Unduh bukti pembelian (PDF)"><Download className="h-4 w-4" /> Invoice</a>
+    : null;
   return (
     <section className="mt-10">
       <h2 className="flex items-center gap-2 text-lg font-semibold"><Receipt className="h-5 w-5 text-brand-600" /> Riwayat pembelian</h2>

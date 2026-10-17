@@ -142,7 +142,7 @@ export default async function VouchersPage({ searchParams }: { searchParams: Pro
               {orders.length === 0 && <tr><td colSpan={8} className="px-3 py-6 text-center text-slate-500">Belum ada transaksi.</td></tr>}
               {orders.slice((tpage - 1) * TSIZE, tpage * TSIZE).map((o) => (
                 <tr key={o.id}>
-                  <td className="px-3 py-2 font-mono text-xs">{o.order_id}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{o.status === "paid" ? <a className="hover:text-brand-700 hover:underline" href={`/api/orders/${encodeURIComponent(o.order_id)}/invoice`} title="Unduh invoice">{o.order_id}</a> : o.order_id}</td>
                   <td className="px-3 py-2">{o.profiles?.email ?? "—"}</td>
                   <td className="px-3 py-2">{o.plan === "yearly" ? "Tahunan" : "Bulanan"}</td>
                   <td className="px-3 py-2 text-right">{rp(o.amount)}</td>
