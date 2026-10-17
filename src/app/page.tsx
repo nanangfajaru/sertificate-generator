@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, ListChecks, FileDown, Mail, Palette, QrCode, Send, ShieldCheck, Sparkles, X, Zap } from "lucide-react";
 import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
+import MobileNav from "@/components/landing/MobileNav";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import { formatDateRange } from "@/lib/certificate/sources";
@@ -48,7 +49,7 @@ export default function Landing() {
   return (
     <div className="text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
           <Logo size={34} />
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
@@ -60,9 +61,10 @@ export default function Landing() {
               <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Solusi dari kami
             </Link>
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 sm:block">Masuk</Link>
-            <Link href="/login" className="btn btn-primary">Mulai Sekarang</Link>
+            <Link href="/login" className="btn btn-primary !px-3 sm:!px-4">Mulai Sekarang</Link>
+            <MobileNav />
           </div>
         </div>
       </header>
