@@ -35,7 +35,7 @@ export default function MobileNav() {
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white shadow-sm"><Sparkles className="h-4 w-4 text-amber-500" /></span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold text-brand-800">Solusi dari kami</span>
-                <span className="block text-xs text-slate-600">Sertifikat resmi dan dapat divalidasi</span>
+                <span className="block text-xs text-slate-600">Hemat waktu panitia, sertifikat resmi dan dapat divalidasi</span>
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 text-brand-600" />
             </Link>
