@@ -20,7 +20,8 @@ export default function SetupSteps({ current, onSelect }: { current: number; onS
         );
         const cls = `flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-1.5 text-left ${cur ? "bg-brand-50 text-brand-700" : done ? "text-slate-700" : "text-slate-400"}`;
         return (
-          <li key={title} className="flex min-w-0 flex-1 items-center gap-1">
+          // HP: langkah aktif mengambil sisa ruang agar labelnya terbaca; langkah lain cukup nomornya.
+          <li key={title} className={`flex min-w-0 items-center gap-1 md:flex-1 ${cur ? "flex-[1_1_auto]" : "flex-none"}`}>
             {clickable ? <button type="button" onClick={() => onSelect!(i)} className={`${cls} hover:bg-slate-50`}>{inner}</button> : <div className={cls}>{inner}</div>}
             {i < SETUP_STEPS.length - 1 && <span className={`h-px w-3 shrink-0 lg:w-6 ${done ? "bg-emerald-400" : "bg-slate-200"}`} />}
           </li>

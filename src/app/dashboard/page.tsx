@@ -130,7 +130,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${tone}`}><Icon className="h-[18px] w-[18px]" /></span>
             <div className="min-w-0">
               <p className="text-xl font-bold leading-none">{value}</p>
-              <p className="mt-1 truncate text-xs text-slate-500">{label}</p>
+              <p className="mt-1 text-xs leading-tight text-slate-500">{label}</p>
               {sub && <p className="truncate text-[11px] text-slate-400">{sub}</p>}
             </div>
           </div>

@@ -73,20 +73,20 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
       <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} pricing={pricing} configured={midtransConfigured()} />
 
       <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full min-w-[34rem] text-sm">
+        <table className="w-full table-fixed text-xs sm:text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-left">
-              <th className="px-4 py-3 font-semibold">Fitur</th>
-              <th className="w-1/4 px-4 py-3 text-center font-semibold">Free</th>
-              <th className="w-1/3 bg-brand-50 px-4 py-3 text-center font-semibold text-brand-700"><Crown className="mr-1 inline h-4 w-4" />Pro</th>
+              <th className="w-[38%] px-3 py-3 font-semibold sm:w-auto sm:px-4">Fitur</th>
+              <th className="w-[27%] px-2 py-3 text-center font-semibold sm:w-1/4 sm:px-4">Free</th>
+              <th className="w-[35%] bg-brand-50 px-2 py-3 text-center font-semibold text-brand-700 sm:w-1/3 sm:px-4"><Crown className="mr-1 inline h-4 w-4" />Pro</th>
             </tr>
           </thead>
           <tbody>
             {ROWS.map(([f, free, pro]) => (
               <tr key={f} className="border-b border-slate-100 last:border-0">
-                <td className="px-4 py-3 font-medium text-slate-800">{f}</td>
-                <td className="px-4 py-3 text-center text-slate-600"><Cell v={free} /></td>
-                <td className="bg-brand-50/40 px-4 py-3 text-center text-slate-800"><Cell v={pro} /></td>
+                <td className="break-words px-3 py-3 font-medium text-slate-800 sm:px-4">{f}</td>
+                <td className="break-words px-2 py-3 text-center text-slate-600 sm:px-4"><Cell v={free} /></td>
+                <td className="break-words bg-brand-50/40 px-2 py-3 text-center text-slate-800 sm:px-4"><Cell v={pro} /></td>
               </tr>
             ))}
           </tbody>
