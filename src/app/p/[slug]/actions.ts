@@ -1,6 +1,7 @@
 "use server";
 
 import { findProgramByKey } from "@/lib/program-lookup";
+import { isProgramLocked } from "@/lib/program-lock";
 import { redirect } from "next/navigation";
 import { approveParticipants } from "@/lib/approve";
 import type { Program, ProgramField } from "@/lib/db";
@@ -18,7 +19,7 @@ export async function submitRegistration(slug: string, _: RegisterState, fd: For
   const prog = await findProgramByKey(admin, slug);
   if (!prog) return { error: "Program tidak ditemukan." };
   const program = prog as Program;
-  if (!program.is_open) return { error: "Pendaftaran sudah ditutup." };
+  if (!program.is_open || (await isProgramLocked(admin, program))) return { error: "Pendaftaran sudah ditutup." };
 
   const { data: f } = await admin.from("program_fields").select("*").eq("program_id", program.id).order("sort");
   const fields = (f ?? []) as ProgramField[];

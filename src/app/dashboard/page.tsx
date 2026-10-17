@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, Clock, FolderOpen, LayoutTemplate, Plus, SearchX, Users } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, Clock, Crown, FolderOpen, LayoutTemplate, Lock, Plus, SearchX, Users } from "lucide-react";
 import ProgramToolbar from "./ProgramToolbar";
 import TemplateThumb from "./TemplateThumb";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
+import { lockedFromList } from "@/lib/program-lock";
 import { formatDateRange } from "@/lib/certificate/sources";
 import type { Layout } from "@/lib/certificate/types";
 
@@ -24,7 +25,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const [{ data }, approved, pendingRows] = await Promise.all([
     supabase
       .from("programs")
-      .select("id, name, org_name, cert_type, description, location, start_date, end_date, approval_mode, is_open, setup_done, cert_chosen, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, created_at, participants(count)")
+      .select("id, name, org_name, cert_type, description, location, start_date, end_date, owner_id, approval_mode, is_open, setup_done, cert_chosen, cert_mode, template_id, design_id, logo_path, signer1_name, signer1_title, signer2_name, signer2_title, signer1_sig_path, signer2_sig_path, created_at, participants(count)")
       .order("created_at", { ascending: false }),
     supabase.from("participants").select("id", { count: "exact", head: true }).eq("status", "approved"),
     supabase.from("participants").select("program_id").eq("status", "pending").limit(1000),
@@ -42,6 +43,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const totalParticipants = programs.reduce((a, p) => a + countOf(p), 0);
   const pendingTotal = [...pendingBy.values()].reduce((a, b) => a + b, 0);
   const activeCount = programs.filter((p) => p.is_open).length;
+  // Pro berakhir & program melebihi batas Free: program yang dibuat paling akhir terkunci.
+  const locked = lockedFromList(programs.filter((p) => p.owner_id === profile.id), isPro);
   const atLimit = !isPro && programs.length >= FREE_PROGRAM_LIMIT;
   const first = (profile.full_name ?? "").trim().split(/\s+/)[0];
 
@@ -113,6 +116,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         )}
       </div>
 
+      {locked.size > 0 && (
+        <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:px-4">
+          <Lock className="hidden h-4 w-4 shrink-0 text-amber-600 sm:block" />
+          <p className="min-w-0 flex-1"><b>{locked.size} program terkunci.</b> Paket Pro berakhir dan jumlah program melebihi batas Free ({FREE_PROGRAM_LIMIT}). Program yang dibuat paling akhir dikunci dan pendaftarannya ditutup.</p>
+          <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm shrink-0 justify-center"><Crown className="h-4 w-4" /> Perpanjang Pro</Link>
+        </div>
+      )}
+
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map(({ label, value, sub, icon: Icon, tone }) => (
           <div key={label} className="card flex items-center gap-3 !p-3.5">
@@ -154,7 +165,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     const pending = pendingBy.get(p.id) ?? 0;
                     return (
                       <tr key={p.id} className="hover:bg-slate-50/70">
-                        <td className="px-4 py-3"><Link href={hrefOf(p)} className="font-medium text-slate-900 hover:text-brand-700">{p.name}</Link>{!p.setup_done && <span className="badge badge-warn ml-2">Draf</span>}<p className="text-xs text-slate-500">{p.org_name}</p></td>
+                        <td className="px-4 py-3"><Link href={hrefOf(p)} className="font-medium text-slate-900 hover:text-brand-700">{p.name}</Link>{locked.has(p.id) ? <span className="badge ml-2 gap-1 bg-slate-800 text-white"><Lock className="h-3 w-3" /> Terkunci</span> : !p.setup_done && <span className="badge badge-warn ml-2">Draf</span>}<p className="text-xs text-slate-500">{p.org_name}</p></td>
                         <td className="whitespace-nowrap px-4 py-3 text-slate-600">{formatDateRange(p.start_date, p.end_date)}</td>
                         <td className="px-4 py-3 text-right">{isPro ? countOf(p) : <>{quotaOf(p)}<span className="text-slate-400"> / {FREE_PARTICIPANT_LIMIT}</span></>}</td>
                         <td className="px-4 py-3 text-right">{pending > 0 ? <span className="badge badge-warn">{pending}</span> : <span className="text-slate-300">—</span>}</td>
@@ -200,7 +211,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       ) : (
                         <div className="grid aspect-[842/595] place-items-center bg-gradient-to-br from-brand-50 to-slate-100 text-xs text-slate-500">Desain sendiri</div>
                       )}
-                      {p.setup_done ? (
+                      {locked.has(p.id) ? (
+                        <span className="absolute inset-0 grid place-items-center bg-slate-900/55 text-center text-white backdrop-blur-[1px]">
+                          <span><Lock className="mx-auto h-6 w-6" /><span className="mt-1 block text-xs font-semibold">Terkunci · Pro berakhir</span></span>
+                        </span>
+                      ) : p.setup_done ? (
                         <span className={`badge absolute left-3 top-3 shadow-sm ${p.is_open ? "badge-ok" : "bg-white"}`}>{p.is_open ? "Dibuka" : "Ditutup"}</span>
                       ) : (
                         <span className="badge badge-warn absolute left-3 top-3 shadow-sm">Draf · lanjutkan</span>

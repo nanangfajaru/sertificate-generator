@@ -5,6 +5,7 @@ import type { Program, ProgramField } from "@/lib/db";
 import { formatDateRange } from "@/lib/certificate/sources";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { findProgramByKey } from "@/lib/program-lookup";
+import { isProgramLocked } from "@/lib/program-lock";
 import { mailConfigured } from "@/lib/mailer";
 import RegisterForm from "./RegisterForm";
 
@@ -13,11 +14,12 @@ const loadProgram = cache(async (slug: string) => {
   const admin = createAdminClient();
   const program = await findProgramByKey(admin, slug);
   if (!program) return null;
-  const [{ data: f }, logo] = await Promise.all([
+  const [{ data: f }, logo, locked] = await Promise.all([
     admin.from("program_fields").select("*").eq("program_id", program.id).order("sort"),
     program.logo_path ? admin.storage.from("signatures").createSignedUrl(program.logo_path, 3600).then((r) => r.data?.signedUrl ?? null) : Promise.resolve(null),
+    isProgramLocked(admin, program),
   ]);
-  return { program, fields: (f ?? []) as ProgramField[], logo };
+  return { program, fields: (f ?? []) as ProgramField[], logo, locked };
 });
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -30,7 +32,7 @@ export default async function PublicRegisterPage({ params }: { params: Promise<{
   const { slug } = await params;
   const loaded = await loadProgram(slug);
   if (!loaded) notFound();
-  const { program, fields, logo } = loaded;
+  const { program, fields, logo, locked } = loaded;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
@@ -49,7 +51,7 @@ export default async function PublicRegisterPage({ params }: { params: Promise<{
         </div>
 
         <div className="card mt-4">
-          {program.is_open ? (
+          {program.is_open && !locked ? (
             <>
               <h2 className="mb-4 font-semibold">Form pendaftaran</h2>
               <RegisterForm slug={slug} fields={fields.map((x) => ({ id: x.id, label: x.label, type: x.type, required: x.required, options: x.options }))} manual={program.approval_mode === "manual"} emailNotify={program.notify_email && mailConfigured() && fields.some((x) => x.type === "email")} />
