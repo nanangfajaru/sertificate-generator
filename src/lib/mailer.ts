@@ -38,7 +38,9 @@ export function parseFrom(raw: string | undefined): { name: string; address: str
   return { name, address };
 }
 
-export async function sendMail(msg: { to: string; subject: string; html: string; text: string; replyTo?: string }) {
+export type MailAttachment = { filename: string; content: Buffer; contentType?: string };
+
+export async function sendMail(msg: { to: string; subject: string; html: string; text: string; replyTo?: string; attachments?: MailAttachment[] }) {
   if (!mailConfigured()) throw new Error("SMTP_NOT_CONFIGURED");
   await getTransport().sendMail({
     from: parseFrom(process.env.SMTP_FROM),

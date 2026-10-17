@@ -139,3 +139,40 @@ export function certificateIssuedEmail(o: { name: string | null; eventName: stri
     ),
   };
 }
+
+export function invoiceEmail(o: { invoiceNo: string; orderId: string; paidAt: string; plan: string; amount: number; period: { start: string; end: string | null } | null; buyer: { name: string | null }; url: string }) {
+  const date = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" });
+  const plan = o.plan === "yearly" ? "Pro Tahunan" : o.plan === "monthly" ? "Pro Bulanan" : o.plan;
+  const period = o.period ? `${date(o.period.start)} – ${o.period.end ? date(o.period.end) : "tanpa batas"}` : null;
+  const rows = [
+    ["No. invoice", o.invoiceNo],
+    ["Paket", `${BRAND} ${plan}`],
+    ...(period ? [["Masa berlaku", period]] : []),
+    ["Tanggal bayar", date(o.paidAt)],
+    ["Total dibayar", `Rp${Math.round(o.amount).toLocaleString("id-ID")}`],
+  ];
+  const table = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0 0;border:1px solid ${C.line};border-radius:8px">
+    ${rows
+      .map(
+        ([k, v], i) =>
+          `<tr><td style="padding:10px 14px;width:38%;font-size:13px;color:${C.muted};${i ? `border-top:1px solid ${C.line};` : ""}">${k}</td><td style="padding:10px 14px;font-size:14px;font-weight:600;color:${C.ink};${i ? `border-top:1px solid ${C.line};` : ""}">${escapeHtml(v)}</td></tr>`,
+      )
+      .join("")}
+  </table>`;
+  const hello = o.buyer.name ? `Yth. ${o.buyer.name},` : "Halo,";
+  return {
+    subject: `Invoice ${o.invoiceNo} – Pembayaran ${BRAND} ${plan} berhasil`,
+    ...shell(
+      {
+        preheader: `Terima kasih! Paket ${plan} Anda sudah aktif${period ? ` (${period})` : ""}.`,
+        title: "Pembayaran berhasil",
+        body: `<p style="margin:0 0 14px">${o.buyer.name ? `Yth. <b>${escapeHtml(o.buyer.name)}</b>,` : "Halo,"}</p>
+          <p style="margin:0">Terima kasih telah berlangganan ${BRAND} ${plan}. Paket Pro Anda sudah aktif. Invoice (bukti pembelian) terlampir dalam format PDF.</p>${table}`,
+        button: { label: "Lihat Riwayat Berlangganan", url: o.url },
+        note: { heading: "Invoice terlampir", text: "Simpan lampiran PDF email ini sebagai bukti pembelian. Invoice juga bisa diunduh kapan saja dari menu <b>Berlangganan</b>." },
+        plain: `${hello}\n\nTerima kasih telah berlangganan ${BRAND} ${plan}. Paket Pro Anda sudah aktif. Invoice terlampir (PDF).\n\n${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}`,
+      },
+      host(),
+    ),
+  };
+}

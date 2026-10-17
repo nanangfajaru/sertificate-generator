@@ -1,7 +1,7 @@
 "use server";
 
 import { requireUser } from "@/lib/auth";
-import { PLANS, createSnapTransaction, findVoucher, getPricing, grantPro, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
+import { PLANS, createSnapTransaction, findVoucher, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
 import { randomCode } from "@/lib/util";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -53,7 +53,7 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
   if (price.amount <= 0) {
     const { error } = await admin.from("orders").insert({ ...row, status: "paid", paid_at: new Date().toISOString() });
     if (error) return { error: "Gagal membuat pesanan" };
-    await grantPro(admin, profile.id, PLANS[plan].months);
+    await activatePaidOrder(admin, orderId, profile.id, PLANS[plan].months);
     return { url: `/dashboard/upgrade?order=${orderId}` };
   }
 

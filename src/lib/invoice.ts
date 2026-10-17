@@ -8,7 +8,6 @@ import fontkit from "@pdf-lib/fontkit";
 export const SELLER = {
   name: "SertifikatKu",
   site: "sertifikatku.com",
-  email: "nanangfajaru@gmail.com",
 };
 
 export type InvoiceData = {
@@ -20,6 +19,8 @@ export type InvoiceData = {
   discountAmount: number;
   amount: number;
   voucherCode: string | null;
+  /** masa berlaku Pro dari pembelian ini; end null = tanpa batas */
+  period: { start: string; end: string | null } | null;
   buyer: { name: string | null; email: string | null; organization: string | null };
 };
 
@@ -40,7 +41,8 @@ const GREEN = rgb(0.02, 0.59, 0.41);
 const idr = (n: number) => `Rp${Math.round(n).toLocaleString("id-ID")}`;
 const longDate = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" });
 const planName = (p: string) => (p === "yearly" ? "SertifikatKu Pro Tahunan" : p === "monthly" ? "SertifikatKu Pro Bulanan" : `SertifikatKu ${p}`);
-const planPeriod = (p: string) => (p === "yearly" ? "Masa aktif 1 tahun" : p === "monthly" ? "Masa aktif 1 bulan" : "");
+const planPeriod = (d: InvoiceData) =>
+  d.period ? `Masa berlaku: ${longDate(d.period.start)} – ${d.period.end ? longDate(d.period.end) : "tanpa batas"}` : d.plan === "yearly" ? "Masa aktif 1 tahun" : d.plan === "monthly" ? "Masa aktif 1 bulan" : "";
 
 const fontFile = (f: string) => fs.readFileSync(path.join(process.cwd(), "src", "fonts", f));
 
@@ -63,7 +65,7 @@ export async function renderInvoicePdf(d: InvoiceData): Promise<Uint8Array> {
   page.drawRectangle({ x: 0, y: 841.89 - 6, width: W, height: 6, color: INDIGO });
   text(page, "Sertifikat", M, 770, 22, bold);
   text(page, "Ku", M + bold.widthOfTextAtSize("Sertifikat", 22), 770, 22, bold, INDIGO);
-  text(page, `${SELLER.site}  ·  ${SELLER.email}`, M, 752, 9, reg, MUTED);
+  text(page, SELLER.site, M, 752, 9, reg, MUTED);
   right("INVOICE", W - M, 772, 20, bold);
   right("Bukti pembelian", W - M, 755, 10, reg, MUTED);
 
@@ -84,7 +86,7 @@ export async function renderInvoicePdf(d: InvoiceData): Promise<Uint8Array> {
     ["No. invoice", d.invoiceNo],
     ["No. pesanan", d.orderId],
     ["Tanggal bayar", longDate(d.paidAt)],
-    ["Metode", "Pembayaran online (Midtrans)"],
+    ["Metode pembayaran", d.amount > 0 ? "Online" : "Voucher (gratis)"],
   ];
   info.forEach(([k, v], i) => {
     const yy = y - 8 - i * 16;
@@ -99,7 +101,7 @@ export async function renderInvoicePdf(d: InvoiceData): Promise<Uint8Array> {
   right("JUMLAH", W - M - 10, y + 2, 8, bold, MUTED);
   y -= 34;
   text(page, planName(d.plan), M + 10, y, 11, bold);
-  if (planPeriod(d.plan)) text(page, planPeriod(d.plan), M + 10, y - 15, 9, reg, MUTED);
+  if (planPeriod(d)) text(page, planPeriod(d), M + 10, y - 15, 9, reg, MUTED);
   right(idr(d.baseAmount), W - M - 10, y, 11);
   y -= 40;
   if (d.discountAmount > 0) {

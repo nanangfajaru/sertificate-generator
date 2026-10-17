@@ -1,7 +1,9 @@
 import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
+import { after } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isProProfile, type Profile } from "./db";
+import { sendInvoiceEmail } from "./invoice-mail";
 import { siteUrl } from "./util";
 
 export type PlanKey = "monthly" | "yearly";
@@ -142,17 +144,29 @@ function addMonths(d: Date, m: number) {
   return r;
 }
 
-/** Aktifkan Pro untuk pengguna; memperpanjang jika masih Pro. */
-export async function grantPro(admin: SupabaseClient, userId: string, months: number) {
+/**
+ * Aktifkan Pro untuk pengguna; memperpanjang jika masih Pro.
+ * Mengembalikan periode yang dibeli (end null = tanpa batas) untuk dicatat di pesanan/invoice.
+ */
+export async function grantPro(admin: SupabaseClient, userId: string, months: number): Promise<{ start: string; end: string | null }> {
   const { data: p } = await admin.from("profiles").select("plan, plan_expires_at").eq("id", userId).maybeSingle();
   const now = new Date();
+  let start = now;
   let expires: string | null;
   if (p?.plan === "pro" && !p.plan_expires_at) expires = null; // sudah tanpa batas
   else {
-    const start = p?.plan === "pro" && p.plan_expires_at && new Date(p.plan_expires_at) > now ? new Date(p.plan_expires_at) : now;
+    if (p?.plan === "pro" && p.plan_expires_at && new Date(p.plan_expires_at) > now) start = new Date(p.plan_expires_at);
     expires = addMonths(start, months).toISOString();
   }
   await admin.from("profiles").update({ plan: "pro", plan_expires_at: expires }).eq("id", userId);
+  return { start: start.toISOString(), end: expires };
+}
+
+/** Pesanan baru lunas: aktifkan Pro, catat periodenya, lalu kirim invoice ke email pembeli (di latar belakang). */
+export async function activatePaidOrder(admin: SupabaseClient, orderId: string, userId: string, months: number) {
+  const period = await grantPro(admin, userId, months);
+  await admin.from("orders").update({ period_start: period.start, period_end: period.end }).eq("order_id", orderId);
+  after(() => sendInvoiceEmail(admin, orderId));
 }
 
 /** Terapkan status dari Midtrans ke order (idempotent). Mengembalikan status order sekarang. */
@@ -165,7 +179,7 @@ export async function applyMidtransStatus(admin: SupabaseClient, p: MidtransStat
   if (paid) {
     if (p.gross_amount && Math.round(Number(p.gross_amount)) !== o.amount) return o.status;
     const { data: upd } = await admin.from("orders").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", o.id).neq("status", "paid").select("id");
-    if (upd?.length) await grantPro(admin, o.user_id, PLANS[o.plan as PlanKey].months);
+    if (upd?.length) await activatePaidOrder(admin, o.order_id, o.user_id, PLANS[o.plan as PlanKey].months);
     return "paid";
   }
   if (ts === "expire") {
