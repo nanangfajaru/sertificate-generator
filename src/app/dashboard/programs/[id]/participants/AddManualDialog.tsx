@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, ChevronDown, Mic, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronDown, Mic, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { MANUAL_ROLES } from "@/lib/cert-types";
@@ -22,7 +22,8 @@ export default function AddManualDialog({ programId, fields, nameId, emailOn }: 
   const [more, setMore] = useState(false);
   const [sendEmail, setSendEmail] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  /** notifikasi setelah dialog tertutup (hijau = berhasil, kuning = sertifikat tertahan) */
+  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
 
   const nameField = fields.find((f) => f.id === nameId);
@@ -37,10 +38,15 @@ export default function AddManualDialog({ programId, fields, nameId, emailOn }: 
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   function reset() {
     setValues({});
     setErr(null);
-    setDone(null);
     setMore(false);
   }
 
@@ -51,8 +57,10 @@ export default function AddManualDialog({ programId, fields, nameId, emailOn }: 
     start(async () => {
       const r = await addManualParticipant(programId, { role: finalRole, data: values, sendEmail: emailOn && sendEmail && !!(emailField && values[emailField.id]?.trim()) });
       if (r.error) return setErr(r.error);
-      setDone(`${r.name} ditambahkan sebagai ${finalRole}. Sertifikat sudah terbit.`);
+      // Berhasil: tutup form agar jelas datanya sudah masuk ke daftar.
+      setOpen(false);
       setValues({});
+      setToast(r.warning ? { ok: false, text: r.warning } : { ok: true, text: `${r.name} ditambahkan sebagai ${finalRole}. Sertifikat sudah terbit.` });
       router.refresh();
     });
   }
@@ -66,6 +74,13 @@ export default function AddManualDialog({ programId, fields, nameId, emailOn }: 
 
   return (
     <>
+      {toast && (
+        <div role="status" className={`fixed bottom-4 left-1/2 z-[60] flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-2 rounded-xl border px-4 py-3 text-sm shadow-lg ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
+          {toast.ok ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />}
+          <span className="min-w-0 flex-1">{toast.text}</span>
+          <button type="button" className="shrink-0 rounded p-0.5 opacity-60 hover:opacity-100" onClick={() => setToast(null)} aria-label="Tutup"><X className="h-4 w-4" /></button>
+        </div>
+      )}
       <button type="button" className="btn btn-sm border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100" onClick={() => { reset(); setOpen(true); }} title="Tambah pembicara, narasumber, moderator, panitia, dll. (selain peserta)">
         <Mic className="h-4 w-4" /> Tambah pembicara / narasumber
       </button>
@@ -81,9 +96,6 @@ export default function AddManualDialog({ programId, fields, nameId, emailOn }: 
             </div>
 
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
-              {done && (
-                <p className="flex items-start gap-2 rounded-lg bg-emerald-50 p-2.5 text-sm text-emerald-800"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> {done} Isi lagi untuk menambah orang berikutnya.</p>
-              )}
               <div>
                 <p className="label">Peran</p>
                 <div className="flex flex-wrap gap-1.5">
@@ -137,7 +149,7 @@ export default function AddManualDialog({ programId, fields, nameId, emailOn }: 
             </div>
 
             <div className="flex justify-end gap-2 border-t border-slate-100 px-4 py-3">
-              <button type="button" className="btn" onClick={() => setOpen(false)}>{done ? "Selesai" : "Batal"}</button>
+              <button type="button" className="btn" onClick={() => setOpen(false)}>Batal</button>
               <button className="btn btn-primary" disabled={pending}>{pending ? "Menyimpan…" : `Tambah ${finalRole || "orang"}`}</button>
             </div>
           </form>

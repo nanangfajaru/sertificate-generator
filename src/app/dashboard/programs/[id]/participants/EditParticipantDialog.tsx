@@ -7,6 +7,8 @@ import type { FieldType } from "@/lib/db";
 import { updateParticipantData } from "./edit-actions";
 import { DEFAULT_ROLE, MANUAL_ROLES } from "@/lib/cert-types";
 
+const OTHER = "__other__";
+
 export type EditField = { id: string; label: string; type: FieldType; required: boolean; options: string[] };
 
 /** Modal panitia untuk memperbaiki isian peserta (mis. salah ketik nama). */
@@ -23,7 +25,12 @@ export default function EditParticipantDialog({ programId, participantId, fields
 }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((f) => [f.id, initial[f.id] ?? ""])));
-  const [role, setRole] = useState(initialRole || DEFAULT_ROLE);
+  // Dropdown peran: pilihan bawaan + "Lainnya…" (ketik sendiri). Peran khusus yang sudah ada tampil sebagai pilihan juga.
+  const presets = [DEFAULT_ROLE, ...MANUAL_ROLES];
+  const startRole = initialRole || DEFAULT_ROLE;
+  const [roleSel, setRoleSel] = useState(presets.includes(startRole) ? startRole : OTHER);
+  const [customRole, setCustomRole] = useState(presets.includes(startRole) ? "" : startRole);
+  const role = roleSel === OTHER ? customRole : roleSel;
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
@@ -37,6 +44,7 @@ export default function EditParticipantDialog({ programId, participantId, fields
     e.preventDefault();
     setErr(null);
     start(async () => {
+      if (!role.trim()) return setErr("Tulis nama perannya.");
       const r = await updateParticipantData(programId, participantId, values, role);
       if (r.error) return setErr(r.error);
       router.refresh();
@@ -57,8 +65,11 @@ export default function EditParticipantDialog({ programId, participantId, fields
           {issued && <p className="rounded-lg bg-brand-50 p-2.5 text-xs text-brand-800">Sertifikat peserta ini sudah terbit. Perubahan (mis. nama) langsung terlihat pada sertifikat dan unduhan berikutnya; nomor dan link sertifikat tetap sama.</p>}
           <div>
             <label className="label" htmlFor="edit-role">Peran</label>
-            <input id="edit-role" className="input" list="edit-role-list" value={role} maxLength={40} onChange={(e) => setRole(e.target.value)} placeholder={DEFAULT_ROLE} />
-            <datalist id="edit-role-list">{[DEFAULT_ROLE, ...MANUAL_ROLES].map((r) => <option key={r} value={r} />)}</datalist>
+            <select id="edit-role" className="input" value={roleSel} onChange={(e) => setRoleSel(e.target.value)}>
+              {presets.map((r) => <option key={r} value={r}>{r}</option>)}
+              <option value={OTHER}>Lainnya… (ketik sendiri)</option>
+            </select>
+            {roleSel === OTHER && <input className="input mt-2" value={customRole} maxLength={40} onChange={(e) => setCustomRole(e.target.value)} placeholder="mis. MC, Host, Pemateri" autoFocus />}
             <p className="hint">Menentukan judul sertifikat, mis. <b>SERTIFIKAT {(role.trim() || DEFAULT_ROLE).toUpperCase()}</b>. Peran selain Peserta tidak dihitung kuota.</p>
           </div>
           {fields.map((f) => {

@@ -5,7 +5,6 @@ import { requireUser } from "@/lib/auth";
 import type { Program, ProgramField } from "@/lib/db";
 import { cleanParticipantData } from "@/lib/participant-data";
 import { approveParticipants } from "@/lib/approve";
-import { PRO_ENDED_MESSAGE } from "@/lib/pro-gate";
 import { DEFAULT_ROLE, normRole } from "@/lib/cert-types";
 import { randomCode } from "@/lib/util";
 
@@ -44,7 +43,7 @@ export async function updateParticipantData(programId: string, participantId: st
  * Hanya nama yang wajib; kolom formulir lain opsional. Langsung disetujui & sertifikat terbit.
  * Peran selain Peserta tidak dihitung kuota paket Free (dijaga trigger database).
  */
-export async function addManualParticipant(programId: string, input: { role: string; data: Record<string, string>; sendEmail: boolean }): Promise<{ error?: string; ok?: boolean; name?: string }> {
+export async function addManualParticipant(programId: string, input: { role: string; data: Record<string, string>; sendEmail: boolean }): Promise<{ error?: string; ok?: boolean; name?: string; warning?: string }> {
   const { supabase, profile } = await requireUser();
   const [{ data: prog }, { data: f }] = await Promise.all([
     supabase.from("programs").select("*").eq("id", programId).maybeSingle(),
@@ -67,6 +66,8 @@ export async function addManualParticipant(programId: string, input: { role: str
   }
   const { blocked } = await approveParticipants({ ...program, notify_email: !!input.sendEmail }, [ins.id as string]);
   revalidatePath(`/dashboard/programs/${programId}`, "layout");
-  if (blocked) return { error: `Data tersimpan sebagai menunggu. ${PRO_ENDED_MESSAGE}` };
-  return { ok: true, name: (nameId && res.data[nameId]) || (role === DEFAULT_ROLE ? "Peserta" : role) };
+  const name = (nameId && res.data[nameId]) || (role === DEFAULT_ROLE ? "Peserta" : role);
+  // Data sudah tersimpan; bila sertifikat tertahan (Pro berakhir) cukup beri catatan, bukan error.
+  if (blocked) return { ok: true, name, warning: `${name} ditambahkan, tetapi sertifikatnya masih menunggu: Pro sudah berakhir dan program memakai template Pro / desain sendiri.` };
+  return { ok: true, name };
 }
