@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import CopyButton from "@/components/CopyButton";
 import { siteUrl } from "@/lib/util";
 import { getPricing, getReferralDefaults } from "@/lib/billing";
+import { isProProfile } from "@/lib/db";
 import PricingForm from "./PricingForm";
 import ReferralForUserForm from "./ReferralForUserForm";
 import DefaultsForm from "./DefaultsForm";
@@ -43,6 +44,11 @@ export default async function VouchersPage({ searchParams }: { searchParams: Pro
     admin.from("orders").select("id, order_id, plan, amount, discount_amount, commission_amount, voucher_id, voucher_code, status, paid_at, created_at, profiles(email)").order("created_at", { ascending: false }).limit(1000),
   ]);
   const vouchers = (vs ?? []) as Voucher[];
+  // Kode referral pengguna hanya berlaku selama pemiliknya masih Pro.
+  const ownerIds = [...new Set(vouchers.flatMap((v) => (v.owner_id ? [v.owner_id] : [])))];
+  const { data: owners } = ownerIds.length ? await admin.from("profiles").select("id, plan, plan_expires_at").in("id", ownerIds) : { data: [] };
+  const ownerOf = new Map((owners ?? []).map((o) => [o.id as string, o as { plan: "free" | "pro"; plan_expires_at: string | null }]));
+  const proEnded = (v: Voucher) => !!v.owner_id && !isProProfile(ownerOf.get(v.owner_id) ?? null);
   const orders = (os ?? []) as unknown as Order[];
   const paid = orders.filter((o) => o.status === "paid");
   const stat = new Map<string, { uses: number; revenue: number; commission: number }>();
@@ -105,7 +111,8 @@ export default async function VouchersPage({ searchParams }: { searchParams: Pro
                   <td className="px-3 py-2 text-right">{rp(s.revenue)}</td>
                   <td className="px-3 py-2 text-right font-medium">{rp(s.commission)}</td>
                   <td className="px-3 py-2">
-                    <span className={`badge ${!v.active || expired || full ? "badge-bad" : "badge-ok"}`}>{!v.active ? "Nonaktif" : expired ? "Kedaluwarsa" : full ? "Kuota habis" : "Aktif"}</span>
+                    <span className={`badge ${!v.active || proEnded(v) || expired || full ? "badge-bad" : "badge-ok"}`}>{!v.active ? "Nonaktif" : proEnded(v) ? "Nonaktif · Pro berakhir" : expired ? "Kedaluwarsa" : full ? "Kuota habis" : "Aktif"}</span>
+                    {proEnded(v) && v.active && <div className="mt-0.5 text-[11px] text-slate-500">{ownerOf.get(v.owner_id!)?.plan_expires_at ? `Pro berakhir ${date(ownerOf.get(v.owner_id!)!.plan_expires_at!)}` : "Pemilik paket Free"}; aktif lagi bila Pro diperpanjang</div>}
                     {v.expires_at && <div className="mt-0.5 text-[11px] text-slate-500">s.d. {date(v.expires_at)}</div>}
                   </td>
                   <td className="px-3 py-2">
