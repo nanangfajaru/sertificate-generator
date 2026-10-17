@@ -13,13 +13,13 @@ export default function Pager({ path, params, page, total, size, param = "page",
   };
   const from = total ? (page - 1) * size + 1 : 0;
   return (
-    <nav className="flex flex-wrap items-center justify-between gap-2 text-sm" aria-label="Halaman">
-      <p className="text-slate-500">{total ? `${from}–${Math.min(page * size, total)} dari ${total} ${noun}` : `Tidak ada ${noun}`}</p>
+    <nav className="flex flex-col-reverse gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between" aria-label="Halaman">
+      <p className="text-center text-xs text-slate-500 sm:text-left sm:text-sm">{total ? `${from}–${Math.min(page * size, total)} dari ${total} ${noun}` : `Tidak ada ${noun}`}</p>
       {pages > 1 && (
-        <div className="flex items-center gap-1.5">
-          {page > 1 ? <Link href={href(page - 1)} className="btn btn-sm" aria-label="Sebelumnya"><ChevronLeft className="h-4 w-4" /></Link> : <span className="btn btn-sm cursor-not-allowed opacity-40"><ChevronLeft className="h-4 w-4" /></span>}
-          <span className="px-2 text-slate-600">{page} / {pages}</span>
-          {page < pages ? <Link href={href(page + 1)} className="btn btn-sm" aria-label="Berikutnya"><ChevronRight className="h-4 w-4" /></Link> : <span className="btn btn-sm cursor-not-allowed opacity-40"><ChevronRight className="h-4 w-4" /></span>}
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:flex sm:gap-1.5">
+          {page > 1 ? <Link href={href(page - 1)} className="btn btn-sm" aria-label="Sebelumnya"><ChevronLeft className="h-4 w-4" /><span className="sm:hidden">Sebelumnya</span></Link> : <span className="btn btn-sm cursor-not-allowed opacity-40"><ChevronLeft className="h-4 w-4" /><span className="sm:hidden">Sebelumnya</span></span>}
+          <span className="px-2 text-center font-medium text-slate-600">{page} / {pages}</span>
+          {page < pages ? <Link href={href(page + 1)} className="btn btn-sm" aria-label="Berikutnya"><span className="sm:hidden">Berikutnya</span><ChevronRight className="h-4 w-4" /></Link> : <span className="btn btn-sm cursor-not-allowed opacity-40"><span className="sm:hidden">Berikutnya</span><ChevronRight className="h-4 w-4" /></span>}
         </div>
       )}
     </nav>

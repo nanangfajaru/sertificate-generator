@@ -192,12 +192,12 @@ export default function ParticipantsTable({ programId, fields, rows, siteUrl, na
         </table>
       </div>
       {pages > 1 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-          <p className="text-slate-500">{(cur - 1) * PAGE + 1}–{Math.min(cur * PAGE, shown.length)} dari {shown.length} peserta</p>
-          <div className="flex items-center gap-1.5">
-            <button className="btn btn-sm" disabled={cur <= 1} onClick={() => setPage(cur - 1)} aria-label="Sebelumnya">‹</button>
-            <span className="px-2 text-slate-600">{cur} / {pages}</span>
-            <button className="btn btn-sm" disabled={cur >= pages} onClick={() => setPage(cur + 1)} aria-label="Berikutnya">›</button>
+        <div className="flex flex-col-reverse gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <p className="text-center text-xs text-slate-500 sm:text-left sm:text-sm">{(cur - 1) * PAGE + 1}–{Math.min(cur * PAGE, shown.length)} dari {shown.length} peserta</p>
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:flex sm:gap-1.5">
+            <button className="btn btn-sm" disabled={cur <= 1} onClick={() => setPage(cur - 1)} aria-label="Sebelumnya">‹<span className="sm:hidden">Sebelumnya</span></button>
+            <span className="px-2 text-center font-medium text-slate-600">{cur} / {pages}</span>
+            <button className="btn btn-sm" disabled={cur >= pages} onClick={() => setPage(cur + 1)} aria-label="Berikutnya"><span className="sm:hidden">Berikutnya</span>›</button>
           </div>
         </div>
       )}
