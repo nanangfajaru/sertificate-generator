@@ -5,9 +5,10 @@ import { requireUser } from "@/lib/auth";
 import { applyMidtransStatus, getPricing, fetchTransactionStatus, midtransConfigured } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Checkout from "./Checkout";
+import OrderHistory, { type HistoryRow } from "./OrderHistory";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 
-export const metadata = { title: "Paket Free & Pro" };
+export const metadata = { title: "Berlangganan" };
 
 
 type Row = [feature: string, free: string | boolean, pro: string | boolean];
@@ -51,7 +52,12 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
       if (orderStatus === "paid") proNow = true;
     }
   }
-  const pricing = await getPricing(admin);
+  const [pricing, { data: ordersData }] = await Promise.all([
+    getPricing(admin),
+    // Riwayat pembelian milik pengguna ini saja.
+    admin.from("orders").select("order_id, plan, base_amount, discount_amount, amount, voucher_code, status, payment_url, paid_at, created_at").eq("user_id", profile.id).order("created_at", { ascending: false }).limit(50),
+  ]);
+  const history = (ordersData ?? []) as HistoryRow[];
 
   return (
     <div>
@@ -71,6 +77,8 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
         </div>
       ) : null}
       <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} pricing={pricing} configured={midtransConfigured()} />
+
+      <OrderHistory rows={history} />
 
       <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full table-fixed text-xs sm:text-sm">

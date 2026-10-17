@@ -26,7 +26,7 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
     { href: "/dashboard", label: "Program", icon: FolderOpen, active: path === "/dashboard" || path.startsWith("/dashboard/programs") },
     { href: "/dashboard/templates", label: "Template", icon: LayoutTemplate, active: path.startsWith("/dashboard/templates") || path.startsWith("/dashboard/designs") },
     { href: "/dashboard/referral", label: "Referral", icon: Gift, active: path.startsWith("/dashboard/referral"), pro: true },
-    { href: "/dashboard/upgrade", label: isPro ? "Paket & perpanjang" : "Paket Pro", icon: Sparkles, active: path.startsWith("/dashboard/upgrade") },
+    { href: "/dashboard/upgrade", label: "Berlangganan", icon: Sparkles, active: path.startsWith("/dashboard/upgrade") },
   ];
   const until = planUntil ? new Date(planUntil).toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" }) : null;
 
