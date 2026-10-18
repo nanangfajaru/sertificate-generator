@@ -91,7 +91,7 @@ export default function RegisterView({ slug, program, fields, nameId, logo, open
           <li className="flex flex-col items-center gap-1.5"><Lock className="h-4 w-4 text-slate-400" />Data hanya untuk penyelenggara</li>
         </ul>
 
-        <Link href="/" className="mx-auto mt-8 flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-xs text-slate-400 transition hover:bg-white hover:text-slate-600">
+        <Link href="/" className="mx-auto mt-8 flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-xs text-slate-500 transition hover:bg-white hover:text-slate-600">
           <LogoMark size={18} uid="reg-foot" /> Dibuat dengan <b className="font-semibold text-slate-600">SertifikatKu</b>
         </Link>
       </div>

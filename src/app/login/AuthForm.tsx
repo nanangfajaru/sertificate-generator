@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { registerWithEmail, requestPasswordReset, resendConfirmation } from "./actions";
+
+// Klien Supabase (±80 KB) baru dimuat saat tombol dipakai, bukan saat halaman dibuka.
+const supabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
 type Mode = "login" | "register" | "forgot";
 
@@ -37,7 +39,7 @@ export default function AuthForm({ next }: { next?: string }) {
     const email = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
     const name = String(fd.get("name") ?? "").trim();
-    const supabase = createClient();
+    const supabase = await supabaseClient();
         setBusy(true);
     try {
       if (mode === "login") {
@@ -69,7 +71,7 @@ export default function AuthForm({ next }: { next?: string }) {
       {mode !== "forgot" && (
         <div className="mb-4 grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
           {(["login", "register"] as const).map((m) => (
-            <button key={m} type="button" onClick={() => { setMode(m); setError(null); setInfo(null); setUnconfirmed(null); }} className={`rounded-md py-1.5 font-medium ${mode === m ? "bg-white shadow-sm" : "text-slate-500"}`}>
+            <button key={m} type="button" onClick={() => { setMode(m); setError(null); setInfo(null); setUnconfirmed(null); }} className={`rounded-md py-1.5 font-medium ${mode === m ? "bg-white shadow-sm" : "text-slate-600"}`}>
               {m === "login" ? "Masuk" : "Daftar"}
             </button>
           ))}

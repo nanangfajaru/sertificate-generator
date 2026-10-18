@@ -12,6 +12,7 @@ export default function SampleCert({ templateId, name = "Nama Peserta", classNam
       width={842}
       height={595}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
       decoding="async"
       className={className ?? "block h-auto w-full"}
     />

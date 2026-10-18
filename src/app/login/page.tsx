@@ -15,12 +15,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         {error && <p className="mt-4 rounded-lg bg-red-50 p-2 text-sm text-red-700">{error === "link" ? "Tautan tidak valid atau sudah kedaluwarsa. Minta tautan baru." : "Login gagal. Silakan coba lagi."}</p>}
         <div className="mt-6 space-y-4">
           <GoogleButton next={next} />
-          <div className="flex items-center gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-3 text-xs text-slate-500">
             <span className="h-px flex-1 bg-slate-200" /> atau dengan email <span className="h-px flex-1 bg-slate-200" />
           </div>
           <AuthForm next={next} />
         </div>
-        <p className="mt-6 text-xs text-slate-400">Dengan masuk, Anda menyetujui ketentuan penggunaan layanan.</p>
+        <p className="mt-6 text-xs text-slate-500">Dengan masuk, Anda menyetujui ketentuan penggunaan layanan.</p>
       </div>
     </main>
   );

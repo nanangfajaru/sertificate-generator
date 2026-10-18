@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     const longCache = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
     return [
       { source: "/samples/:path*", headers: longCache },
-      { source: "/fonts/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=2592000" }] },
+      { source: "/fonts/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, stale-while-revalidate=86400" }] },
     ];
   },
   // Alamat lama (vercel.app) dialihkan ke domain utama.

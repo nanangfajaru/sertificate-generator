@@ -7,7 +7,7 @@ function Frame({ url, children, className = "" }: { url: string; children: React
     <div className={`overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-slate-900/5 ${className}`}>
       <div className="flex items-center gap-1.5 border-b border-slate-200 bg-slate-50 px-3 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-red-300" /><span className="h-2.5 w-2.5 rounded-full bg-amber-300" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-        <span className="ml-3 flex-1 truncate rounded-md bg-white px-3 py-1 text-[11px] text-slate-400">{url}</span>
+        <span className="ml-3 flex-1 truncate rounded-md bg-white px-3 py-1 text-[11px] text-slate-500">{url}</span>
       </div>
       {children}
     </div>
@@ -81,7 +81,7 @@ export function VerifyMockup() {
           <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4">
             <div className="flex items-center gap-3">
               <BadgeCheck className="h-8 w-8 text-emerald-600" />
-              <div><p className="font-semibold">Sertifikat valid</p><p className="text-xs text-slate-500">Aisyah Putri Rahma</p><p className="font-mono text-[11px] text-slate-400">001/SERT/X/2026</p></div>
+              <div><p className="font-semibold">Sertifikat valid</p><p className="text-xs text-slate-500">Aisyah Putri Rahma</p><p className="font-mono text-[11px] text-slate-500">001/SERT/X/2026</p></div>
             </div>
             <span className="inline-flex items-center gap-1 rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white"><Download className="h-3.5 w-3.5" /> PDF</span>
           </div>

@@ -2,7 +2,9 @@
 
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+
+// Klien Supabase (±80 KB) baru dimuat saat tombol dipakai, bukan saat halaman dibuka.
+const supabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -48,7 +50,7 @@ function GisButton({ next, clientId }: { next?: string; clientId: string }) {
         client_id: clientId,
         nonce: await sha256Hex(nonce),
         callback: async ({ credential }) => {
-          const { error } = await createClient().auth.signInWithIdToken({ provider: "google", token: credential, nonce });
+          const { error } = await (await supabaseClient()).auth.signInWithIdToken({ provider: "google", token: credential, nonce });
           if (error) setErr("Login gagal. Silakan coba lagi.");
           else window.location.assign(safe(next));
         },
@@ -76,7 +78,7 @@ function OAuthButton({ next }: { next?: string }) {
   async function login() {
     setBusy(true);
     const safeNext = safe(next);
-    const { error } = await createClient().auth.signInWithOAuth({
+    const { error } = await (await supabaseClient()).auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}` },
     });
