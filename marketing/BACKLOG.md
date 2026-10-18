@@ -14,5 +14,6 @@
 - [ ] Google Search Console: verifikasi domain + kirim sitemap (https://sertifikatku.com/sitemap.xml)
 - [ ] Metricool + akun sosmed + konektor Metricool di claude.ai
 - [ ] Izin jaringan environment ke jvfzbthfemhviogfwzeu.supabase.co + secret SUPABASE_SERVICE_ROLE_KEY (upload video)
-- [ ] Buku panduan 4 agen AI (Strategi & Analitik, Konten, SEO, Pencari Pelanggan) + tugas terjadwal
+- [x] Buku panduan 4 agen AI (`.claude/skills/agen-*`)
+- [ ] Aktifkan tugas terjadwal 4 agen
 - [ ] Sesi "Markas Pemasaran" untuk persetujuan (bukan halaman web)
