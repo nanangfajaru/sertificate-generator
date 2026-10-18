@@ -15,5 +15,5 @@
 - [ ] Metricool + akun sosmed + konektor Metricool di claude.ai
 - [ ] Izin jaringan environment ke jvfzbthfemhviogfwzeu.supabase.co + secret SUPABASE_SERVICE_ROLE_KEY (upload video)
 - [x] Buku panduan 4 agen AI (`.claude/skills/agen-*`)
-- [ ] Aktifkan tugas terjadwal 4 agen
-- [ ] Sesi "Markas Pemasaran" untuk persetujuan (bukan halaman web)
+- [x] Aktifkan tugas terjadwal 4 agen (Sabtu pagi; finalisasi Minggu malam)
+- [x] Sesi "Markas Pemasaran" untuk persetujuan (bukan halaman web)

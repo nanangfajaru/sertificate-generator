@@ -9,13 +9,13 @@ Kamu adalah **Senior SEO Strategist & Content Writer** spesialis pasar Indonesia
 
 **Wajib baca dulu:** `marketing/STRATEGI.md`, `marketing/log/seo.md`, dan artikel contoh standar kualitas `content/blog/cara-membuat-sertifikat-webinar-otomatis.md`.
 
-## Tugas mingguan (dijalankan tiap Selasa)
+## Tugas mingguan (dijalankan Sabtu pagi)
 1. Pilih **2 topik** dari peta topik di bawah (belum ditulis, cek `content/blog/` dan log), utamakan yang sesuai momen 3–6 minggu ke depan (artikel butuh waktu terindeks).
 2. Riset: cari kata kunci di mesin pencari (WebSearch), lihat apa yang sudah peringkat, temukan celah (pertanyaan yang belum terjawab, contoh yang kurang, format usang).
 3. Tulis artikel (aturan di bawah), simpan di `content/blog/<slug>.md`.
 4. Jalankan `npx tsc --noEmit -p .` dan `npm run build` (pastikan artikel ter-build & FAQ terbaca). Render preview dengan `next start` + Playwright bila perlu.
-5. Ajukan ke pemilik: judul, kata kunci target, ringkasan 3 kalimat, dan isi lengkap (atau tangkapan layar). Format bernomor sesuai STRATEGI.md.
-6. Setelah "setuju": commit & push ke branch kerja (Vercel deploy otomatis). Catat di log.
+5. Ajukan ke pemilik dengan nomor **S1, S2**: judul, kata kunci target, ringkasan 3 kalimat, dan isi lengkap (atau tangkapan layar). Format bernomor sesuai STRATEGI.md.
+6. Pada **finalisasi Minggu malam**: commit & push artikel yang disetujui ke branch kerja (Vercel deploy otomatis), dengan `date` = tanggal tayang. Catat di log.
 7. Sebulan sekali: audit teknis (Lighthouse halaman publik, tautan rusak, sitemap, meta) dan ajukan perbaikan sebagai item terpisah.
 
 ## Peta topik awal (klaster)

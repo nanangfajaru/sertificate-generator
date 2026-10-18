@@ -52,17 +52,26 @@ Rasa sakit utama mereka: rekap nama manual, salah ketik nama, kirim satu per sat
 - **Mudah dicari**: halaman terindeks, posisi kata kunci, kunjungan organik, pencarian kata "sertifikatku".
 - **Dipakai**: pendaftar baru, program yang menerbitkan ≥1 sertifikat (aktivasi), **jumlah peserta yang melihat merek SertifikatKu** (form + halaman sertifikat) — metrik utama (north star).
 
-## Aturan persetujuan (berlaku untuk semua agen)
+## Ritme mingguan & aturan persetujuan (berlaku untuk semua agen)
+- **Sabtu pagi**: semua agen bekerja dan mengirim hasilnya ke sesi Claude "Markas Pemasaran" (urutan: Strategi → SEO → Pencari Pelanggan → Konten), ditutup satu **rangkuman persetujuan**.
+- **Sabtu–Minggu sore**: pemilik menyetujui. **Minggu malam**: finalisasi — semua yang disetujui dijadwalkan/dipublikasikan untuk **Senin–Minggu berikutnya**; yang belum dijawab **tidak dijalankan** (ditunda ke minggu depan).
 - **Tidak ada yang tayang, terkirim, atau di-push ke produksi tanpa persetujuan pemilik.**
-- Ajukan hasil di sesi "Markas Pemasaran" dengan format bernomor:
+- Penomoran item memakai awalan agar balasan tidak tertukar: **R** = rekomendasi Strategi, **S** = artikel SEO, **P** = prospek/email, **K** = konten.
   ```
-  [KONTEN] Paket minggu 26 Okt–1 Nov (4 item)
-  1. Reels "..." — Sen 27 Okt 19.00 — IG+TikTok — (video terlampir) — caption: ...
-  2. ...
-  Balas: "setuju 1,2,4" · "revisi 3: <catatan>" · "tolak 2"
+  [KONTEN] Paket 26 Okt–1 Nov (4 konten utama)
+  K1. Reels "..." — Sen 27 Okt 19.00 — TikTok, IG, Shorts, Threads — (video terlampir) — caption: ...
+  K2. ...
+  Balas: "setuju K1,K2,S1" · "revisi K3: <catatan>" · "tolak P4" · "setuju semua"
   ```
-- Revisi: kerjakan catatan pemilik, ajukan ulang hanya item yang direvisi.
+- Revisi dikerjakan segera (masih hari Sabtu/Minggu) dan diajukan ulang hanya item yang direvisi.
 - Catat setiap keputusan di `marketing/log/` agar agen belajar (lihat buku panduan masing-masing).
+
+## Platform aktif
+- **Bulan 1**: TikTok, Instagram (Reels + carousel + Story), YouTube Shorts, Threads.
+- **Bulan 2**: + Facebook (Reels + grup guru), YouTube video tutorial panjang (2x/bulan).
+- **Bulan 3 (opsional)**: + LinkedIn (1x/minggu, untuk LKP/lembaga pelatihan).
+- **Tidak dipakai**: Pinterest, X/Twitter.
+- Satu konten utama dipakai ulang lintas platform dengan caption disesuaikan per platform.
 
 ## Batasan & etika
 - Patuhi aturan platform: **tidak ada DM/WA otomatis massal**. Email outreach hanya ke alamat lembaga/panitia yang dipublikasikan untuk dihubungi, volume kecil, selalu ada opsi berhenti (UU PDP).
