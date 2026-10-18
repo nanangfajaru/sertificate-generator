@@ -11,7 +11,7 @@ const LINKS = [
   ["#contoh", "Contoh Program"],
 ] as const;
 
-/** Menu landing untuk layar kecil (di desktop menu tampil di header). */
+/** Menu landing untuk layar kecil & tablet (mulai lg menu tampil di header). */
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
 
@@ -23,7 +23,7 @@ export default function MobileNav() {
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-slate-700 hover:bg-slate-100" onClick={() => setOpen((o) => !o)} aria-label={open ? "Tutup menu" : "Buka menu"} aria-expanded={open}>
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>

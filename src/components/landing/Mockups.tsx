@@ -32,7 +32,7 @@ export function FormMockup() {
           <div className="rounded-lg bg-brand-600 px-4 py-2.5 text-center text-sm font-semibold text-white">Daftar Hadir &amp; Dapatkan Sertifikat</div>
         </div>
       </Frame>
-      <div className="absolute -bottom-10 -right-3 flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl sm:-right-6">
+      <div className="absolute -bottom-10 right-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl lg:-right-6">
         <div className="grid h-14 w-14 place-items-center rounded-lg bg-slate-900 text-white"><QrCode className="h-9 w-9" /></div>
         <div className="pr-1"><p className="text-xs font-semibold">Pindai untuk daftar</p><p className="text-[11px] text-slate-500">QR siap cetak</p></div>
       </div>

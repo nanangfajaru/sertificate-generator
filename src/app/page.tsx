@@ -51,7 +51,7 @@ export default function Landing() {
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
           <Logo size={34} />
-          <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
+          <nav className="hidden items-center gap-7 whitespace-nowrap text-sm text-slate-600 lg:flex">
             <a href="#fitur" className="hover:text-slate-900">Fitur</a>
             <a href="#template" className="hover:text-slate-900">Template</a>
             <a href="#kegunaan" className="hover:text-slate-900">Kegunaan</a>
@@ -73,10 +73,10 @@ export default function Landing() {
       <section className="relative overflow-hidden border-b border-slate-100">
         <div className="bg-grid absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
         <div className="absolute -top-40 right-0 h-[480px] w-[480px] rounded-full bg-brand-100/70 blur-3xl" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 py-20 lg:grid-cols-[1.05fr_1fr] lg:py-28">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-20 md:grid-cols-[1.05fr_1fr] lg:gap-14 lg:py-28">
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Platform sertifikat digital</p>
-            <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+            <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-[2.6rem] lg:text-[3.4rem]">
               Terbitkan sertifikat peserta dalam hitungan detik.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
@@ -108,14 +108,14 @@ export default function Landing() {
 
       {/* Manfaat utama */}
       <section className="border-y border-slate-100">
-        <dl className="mx-auto grid max-w-6xl grid-cols-2 px-5 lg:grid-cols-4">
+        <dl className="mx-auto grid max-w-6xl grid-cols-2 px-5 md:grid-cols-4">
           {[
             { icon: Palette, big: `${TEMPLATES.length} template`, text: "Siap pakai untuk berbagai acara, atau unggah desain sendiri." },
             { icon: Zap, big: "Langsung terbit", text: "Peserta isi form, sertifikat langsung jadi. Bisa juga lewat persetujuan Anda dulu." },
             { icon: ShieldCheck, big: "Bisa diverifikasi", text: "Setiap sertifikat punya nomor dan QR untuk cek keaslian." },
             { icon: FileDown, big: "Unduh laporan", text: "Rekap kehadiran dan seluruh data peserta." },
           ].map(({ icon: Icon, big, text }, i) => (
-            <div key={big} className={`py-8 pr-4 ${i % 2 ? "pl-5 lg:pl-8" : "lg:pl-8 lg:first:pl-0"} ${i > 0 ? "lg:border-l lg:border-slate-100" : ""} ${i % 2 ? "border-l border-slate-100 lg:border-l" : ""} ${i > 1 ? "border-t border-slate-100 lg:border-t-0" : ""}`}>
+            <div key={big} className={`py-8 pr-4 ${i % 2 ? "pl-5 md:pl-6 lg:pl-8" : "md:pl-6 md:first:pl-0 lg:pl-8 lg:first:pl-0"} ${i > 0 ? "md:border-l md:border-slate-100" : ""} ${i % 2 ? "border-l border-slate-100" : ""} ${i > 1 ? "border-t border-slate-100 md:border-t-0" : ""}`}>
               <dt className="flex items-start gap-2 text-base font-semibold leading-snug text-slate-900"><Icon className="mt-[3px] h-4 w-4 shrink-0 text-brand-600" /> {big}</dt>
               <dd className="mt-1.5 text-sm leading-relaxed text-slate-500">{text}</dd>
             </div>
@@ -124,13 +124,13 @@ export default function Landing() {
       </section>
 
       {/* Sorotan fitur dengan mockup */}
-      <section id="fitur" className="mx-auto max-w-6xl scroll-mt-16 space-y-28 px-5 py-24">
+      <section id="fitur" className="mx-auto max-w-6xl scroll-mt-16 space-y-20 overflow-x-clip px-5 py-24 md:space-y-28">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Fitur</p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight">Seluruh proses penerbitan, dalam satu tempat.</h2>
         </div>
 
-        <div className="grid items-center gap-14 lg:grid-cols-2">
+        <div className="grid items-center gap-10 md:grid-cols-2 lg:gap-14">
           <div>
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600"><Link2 className="h-5 w-5" /></span>
             <h3 className="mt-4 text-2xl font-bold tracking-tight">Satu tautan, peserta mengisi sendiri.</h3>
@@ -142,8 +142,8 @@ export default function Landing() {
           <FormMockup />
         </div>
 
-        <div className="grid items-center gap-14 lg:grid-cols-2">
-          <div className="lg:order-2">
+        <div className="grid items-center gap-10 md:grid-cols-2 lg:gap-14">
+          <div className="md:order-2">
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600"><ListChecks className="h-5 w-5" /></span>
             <h3 className="mt-4 text-2xl font-bold tracking-tight">Terbit otomatis atau setelah Anda setujui.</h3>
             <p className="mt-3 text-slate-600">Pilih langsung terbit, atau tinjau dulu siapa yang benar-benar hadir lalu setujui sekaligus. Peserta bisa diberi tahu lewat email begitu sertifikatnya siap.</p>
@@ -151,10 +151,10 @@ export default function Landing() {
               {["Persetujuan massal dalam satu klik", "Cabut sertifikat bila terjadi kesalahan", "Unduh rekap kehadiran dalam CSV"].map((t) => (<li key={t} className="flex gap-2.5"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {t}</li>))}
             </ul>
           </div>
-          <div className="lg:order-1"><ApprovalMockup /></div>
+          <div className="md:order-1"><ApprovalMockup /></div>
         </div>
 
-        <div className="grid items-center gap-14 lg:grid-cols-2">
+        <div className="grid items-center gap-10 md:grid-cols-2 lg:gap-14">
           <div>
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600"><QrCode className="h-5 w-5" /></span>
             <h3 className="mt-4 text-2xl font-bold tracking-tight">Keaslian sertifikat bisa diverifikasi.</h3>
