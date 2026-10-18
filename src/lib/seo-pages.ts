@@ -21,7 +21,7 @@ export const SEO_PAGES: SeoPage[] = [
     contents: ["Nama peserta dan jenis sertifikat (peserta, pembicara, moderator)", "Nama dan tanggal seminar, serta lokasi", "Nomor sertifikat berurutan", "Tanda tangan ketua panitia dan dekan/pimpinan", "QR code untuk memverifikasi keaslian"],
     tips: ["Gunakan mode persetujuan jika sertifikat hanya untuk peserta yang benar-benar hadir.", "Cetak QR link pendaftaran di layar atau poster acara agar peserta mengisi saat hadir.", "Unggah gambar tanda tangan agar sertifikat tampak resmi."],
     templates: ["classic-navy", "frame-crimson"],
-    sampleEvent: { name: "Seminar Nasional Teknologi 2026", certType: "Peserta" },
+    sampleEvent: { name: "Seminar Nasional Transformasi Digital Pendidikan", certType: "Peserta" },
     faq: [["Apakah sertifikat seminar bisa memakai nomor otomatis?", "Ya. Format nomor dapat diatur, misalnya 001/SEM/X/2026, dan bertambah otomatis untuk setiap sertifikat."], ["Bagaimana peserta mendapatkan sertifikatnya?", "Setelah mengisi formulir, peserta langsung melihat halaman sertifikat dan dapat mengunduh PDF. Tautan juga bisa dikirim ke email peserta."]],
   },
   {

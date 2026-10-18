@@ -28,7 +28,7 @@ export function InfoForm({ p }: { p: P }) {
       </div>
       <div>
         <label className="label" htmlFor="organization">Instansi / organisasi <span className="font-normal text-slate-400">(opsional)</span></label>
-        <input id="organization" name="organization" className="input" maxLength={120} defaultValue={p.organization} placeholder="mis. Universitas Contoh Nusantara" />
+        <input id="organization" name="organization" className="input" maxLength={120} defaultValue={p.organization} placeholder="mis. Universitas Cendekia Nusantara" />
         <p className="hint">Terisi otomatis sebagai nama penyelenggara saat membuat program baru.</p>
       </div>
       {state.error && <p className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{state.error}</p>}

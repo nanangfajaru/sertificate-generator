@@ -1,8 +1,8 @@
 // Contoh sertifikat untuk landing & halaman SEO. Gambar WebP statis dibuat oleh scripts/gen-samples.mts
 // sehingga halaman tidak perlu menyertakan SVG sertifikat di HTML-nya.
 export const SAMPLE_PROGRAM = {
-  org_name: "Universitas Contoh Nusantara",
-  name: "Seminar Nasional Teknologi 2026",
+  org_name: "Universitas Cendekia Nusantara",
+  name: "Seminar Nasional Transformasi Digital Pendidikan",
   cert_type: "Peserta",
   description: "atas partisipasinya dalam kegiatan",
   start_date: "2026-10-12",

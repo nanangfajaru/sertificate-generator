@@ -17,13 +17,13 @@ function Frame({ url, children, className = "" }: { url: string; children: React
 export function FormMockup() {
   return (
     <div className="relative">
-      <Frame url="sertifikatku.com/p/seminar-teknologi">
+      <Frame url="sertifikatku.com/p/semnas-digital">
         <div className="space-y-4 p-6">
           <div>
-            <p className="text-[11px] font-medium text-brand-700">Universitas Contoh Nusantara</p>
-            <p className="text-lg font-bold leading-snug">Seminar Nasional Teknologi 2026</p>
+            <p className="text-[11px] font-medium text-brand-700">Universitas Cendekia Nusantara</p>
+            <p className="text-lg font-bold leading-snug">Seminar Nasional Transformasi Digital Pendidikan</p>
           </div>
-          {[["Nama lengkap", "Aisyah Putri Rahma"], ["Email", "aisyah@contoh.id"], ["Instansi", "Universitas Contoh"]].map(([l, v]) => (
+          {[["Nama lengkap", "Aisyah Putri Rahma"], ["Email", "aisyah@contoh.id"], ["Instansi", "Universitas Cendekia"]].map(([l, v]) => (
             <div key={l}>
               <p className="text-xs font-medium text-slate-600">{l}</p>
               <div className="mt-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700">{v}</div>

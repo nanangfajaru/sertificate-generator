@@ -83,11 +83,11 @@ export default function ProgramForm({ action, program: p, submitLabel, sigUrls, 
         {p ? <LogoUpload programId={p.id} initialUrl={logoUrl ?? null} /> : <p className="hint">Logo penyelenggara dapat diunggah setelah program dibuat.</p>}
         <div>
           <label className="label" htmlFor="org_name">Nama instansi / penyelenggara</label>
-          <input id="org_name" name="org_name" className="input" required defaultValue={p?.org_name ?? defaultOrg} placeholder="mis. Universitas Contoh Nusantara" />
+          <input id="org_name" name="org_name" className="input" required defaultValue={p?.org_name ?? defaultOrg} placeholder="mis. Universitas Cendekia Nusantara" />
         </div>
         <div>
           <label className="label" htmlFor="name">Nama kegiatan</label>
-          <input id="name" name="name" className="input" required defaultValue={p?.name} placeholder="mis. Seminar Nasional Teknologi 2026" />
+          <input id="name" name="name" className="input" required defaultValue={p?.name} placeholder="mis. Seminar Nasional Transformasi Digital Pendidikan" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
