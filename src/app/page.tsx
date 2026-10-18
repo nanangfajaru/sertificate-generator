@@ -308,6 +308,7 @@ export default function Landing() {
           <Logo size={26} uid="lm-foot" />
           <nav className="flex flex-wrap gap-x-6 gap-y-2">
             <a href="#faq" className="hover:text-slate-900">FAQ</a>
+            <Link href="/blog" className="hover:text-slate-900">Blog</Link>
             <Link href="/tentang" className="hover:text-slate-900">Tentang Kami</Link>
             <Link href="/kontak" className="hover:text-slate-900">Hubungi Kami</Link>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>

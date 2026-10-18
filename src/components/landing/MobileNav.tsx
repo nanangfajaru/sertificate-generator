@@ -42,6 +42,7 @@ export default function MobileNav() {
             {LINKS.map(([href, label]) => (
               <a key={href} href={href} onClick={() => setOpen(false)} className="block border-b border-slate-100 px-1 py-3 text-sm font-medium text-slate-700 last:border-0">{label}</a>
             ))}
+            <Link href="/blog" onClick={() => setOpen(false)} className="block px-1 py-3 text-sm font-medium text-slate-700">Blog</Link>
             <Link href="/login" onClick={() => setOpen(false)} className="btn mt-3 w-full">Masuk</Link>
           </nav>
         </>

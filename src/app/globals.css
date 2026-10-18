@@ -44,3 +44,25 @@ body { @apply bg-white text-slate-900 antialiased; }
   background-image: radial-gradient(circle at 1px 1px, rgb(15 23 42 / 0.07) 1px, transparent 0);
   background-size: 24px 24px;
 }
+
+/* Tipografi artikel blog */
+@layer components {
+  .prose-blog { @apply text-[17px] leading-[1.8] text-slate-700; }
+  .prose-blog > * + * { @apply mt-5; }
+  .prose-blog h2 { @apply mt-12 scroll-mt-20 text-2xl font-bold leading-snug tracking-tight text-slate-900; }
+  .prose-blog h3 { @apply mt-8 text-lg font-semibold leading-snug text-slate-900; }
+  .prose-blog h2 + *, .prose-blog h3 + * { @apply mt-3; }
+  .prose-blog a { @apply font-medium text-brand-700 underline decoration-brand-200 underline-offset-2 hover:decoration-brand-600; }
+  .prose-blog strong { @apply font-semibold text-slate-900; }
+  .prose-blog ul { @apply list-disc space-y-2 pl-6 marker:text-brand-500; }
+  .prose-blog ol { @apply list-decimal space-y-2 pl-6 marker:font-semibold marker:text-brand-600; }
+  .prose-blog li > p { @apply mt-0; }
+  .prose-blog blockquote { @apply rounded-r-xl border-l-4 border-brand-500 bg-brand-50/60 px-5 py-4 text-slate-800; }
+  .prose-blog code { @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.9em] text-slate-800; }
+  .prose-blog hr { @apply my-10 border-slate-200; }
+  .prose-blog .table-wrap { @apply overflow-x-auto rounded-xl border border-slate-200; }
+  .prose-blog table { @apply w-full border-collapse text-left text-[15px]; }
+  .prose-blog th { @apply bg-slate-50 px-4 py-2.5 font-semibold text-slate-900; }
+  .prose-blog td { @apply border-t border-slate-100 px-4 py-2.5 align-top; }
+  .prose-blog img { @apply rounded-xl border border-slate-200; }
+}

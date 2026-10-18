@@ -9,6 +9,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
           <Logo size={30} />
           <nav className="flex items-center gap-5 text-sm">
+            <Link href="/blog" className="hidden text-slate-600 hover:text-slate-900 sm:inline">Blog</Link>
             <Link href="/tentang" className="hidden text-slate-600 hover:text-slate-900 sm:inline">Tentang</Link>
             <Link href="/kontak" className="hidden text-slate-600 hover:text-slate-900 sm:inline">Kontak</Link>
             <Link href="/login" className="btn btn-primary btn-sm">Mulai gratis</Link>
@@ -21,6 +22,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
           <Logo size={24} uid="lm-pub-foot" />
           <nav className="flex flex-wrap gap-5">
             <Link href="/#faq" className="hover:text-slate-900">FAQ</Link>
+            <Link href="/blog" className="hover:text-slate-900">Blog</Link>
             <Link href="/tentang" className="hover:text-slate-900">Tentang Kami</Link>
             <Link href="/kontak" className="hover:text-slate-900">Hubungi Kami</Link>
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
