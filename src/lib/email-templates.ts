@@ -1,6 +1,6 @@
 const BRAND = "SertifikatKu";
 
-const C = { brand: "#4f46e5", ink: "#0f172a", body: "#334155", muted: "#64748b", faint: "#94a3b8", line: "#e2e8f0", bg: "#f1f5f9", panel: "#f8fafc" };
+const C = { brand: "#1e45b4", ink: "#0f172a", body: "#334155", muted: "#64748b", faint: "#94a3b8", line: "#e2e8f0", bg: "#f1f5f9", panel: "#f8fafc" };
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 export function escapeHtml(s: string) {

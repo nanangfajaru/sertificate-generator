@@ -32,7 +32,7 @@ export function invoiceNumber(orderId: string, paidAt: string) {
   return `INV/${jkt.getUTCFullYear()}/${String(jkt.getUTCMonth() + 1).padStart(2, "0")}/${suffix}`;
 }
 
-const INDIGO = rgb(0.31, 0.27, 0.9);
+const INDIGO = rgb(0.118, 0.271, 0.706); // navy brand #1e45b4
 const INK = rgb(0.06, 0.09, 0.16);
 const MUTED = rgb(0.39, 0.45, 0.55);
 const LINE = rgb(0.89, 0.91, 0.94);

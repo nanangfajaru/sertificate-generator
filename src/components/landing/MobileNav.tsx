@@ -24,7 +24,7 @@ export default function MobileNav() {
 
   return (
     <div className="lg:hidden">
-      <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-slate-700 hover:bg-slate-100" onClick={() => setOpen((o) => !o)} aria-label={open ? "Tutup menu" : "Buka menu"} aria-expanded={open}>
+      <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-white hover:bg-white/10" onClick={() => setOpen((o) => !o)} aria-label={open ? "Tutup menu" : "Buka menu"} aria-expanded={open}>
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
       {open && (
@@ -34,7 +34,7 @@ export default function MobileNav() {
             <Link href="/tentang" onClick={() => setOpen(false)} className="mb-2 flex items-center gap-3 rounded-xl border border-brand-100 bg-gradient-to-r from-brand-50 to-amber-50 p-3">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white shadow-sm"><Sparkles className="h-4 w-4 text-amber-500" /></span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-brand-800">Solusi dari kami</span>
+                <span className="block text-sm font-semibold text-brand-900">Solusi dari kami</span>
                 <span className="block text-xs text-slate-600">Hemat waktu panitia, sertifikat resmi dan dapat divalidasi</span>
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 text-brand-600" />

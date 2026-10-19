@@ -88,10 +88,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         <div className="mt-8"><Markdown>{post.body}</Markdown></div>
 
-        <aside className="mt-14 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-900 p-7 text-white sm:p-9">
+        <aside className="mt-14 overflow-hidden rounded-2xl bg-navy ring-1 ring-amber-400/20 p-7 text-white sm:p-9">
           <p className="text-xl font-bold leading-snug sm:text-2xl">Terbitkan sertifikat peserta otomatis, mulai hari ini.</p>
-          <p className="mt-2 text-brand-100">Bagikan satu link pendaftaran, sertifikat PDF ber-QR langsung bisa diunduh peserta. Gratis untuk memulai.</p>
-          <Link href="/login" className="btn mt-5 border-white bg-white text-brand-700 hover:bg-brand-50">Coba gratis <ArrowRight className="h-4 w-4" /></Link>
+          <p className="mt-2 text-slate-300">Bagikan satu link pendaftaran, sertifikat PDF ber-QR langsung bisa diunduh peserta. Gratis untuk memulai.</p>
+          <Link href="/login" className="btn mt-5 border-amber-400 bg-amber-400 font-semibold text-navy hover:bg-amber-300">Coba gratis <ArrowRight className="h-4 w-4" /></Link>
         </aside>
 
         {related.length > 0 && (

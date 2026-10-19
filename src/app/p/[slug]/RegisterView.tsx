@@ -26,7 +26,7 @@ export default function RegisterView({ slug, program, fields, nameId, logo, open
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <header className="relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-900 pb-24 pt-8 sm:pt-12">
+      <header className="relative overflow-hidden bg-navy pb-24 pt-8 sm:pt-12">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:22px_22px]" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
         <div className="relative mx-auto max-w-lg px-4">

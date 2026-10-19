@@ -90,7 +90,7 @@ export default async function SeoPageView({ params }: { params: Promise<{ katego
           </dl>
         </section>
 
-        <section className="mt-14 rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-900 p-8 text-center text-white">
+        <section className="mt-14 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-900 p-8 text-center text-white">
           <h2 className="text-2xl font-bold">Siap menerbitkan {p.keyword}?</h2>
           <p className="mt-2 text-brand-100">Gratis hingga 10 program dan 100 peserta per program.</p>
           <Link href={cta} className="btn mt-5 border-white bg-white font-semibold text-brand-700 hover:bg-brand-50">Daftar gratis</Link>
