@@ -1,4 +1,4 @@
-import { Ban, BadgeCheck, Clock, Download, FileArchive, Users } from "lucide-react";
+import { Download, FileArchive, Users } from "lucide-react";
 import SectionTitle from "@/components/SectionTitle";
 import { getOwnedProgram } from "@/lib/program-server";
 import { mailConfigured } from "@/lib/mailer";
@@ -26,36 +26,19 @@ export default async function ParticipantsPage({ params }: { params: Promise<{ i
       <div className="mb-5">
         <SectionTitle icon={Users} title="Daftar peserta" hint={`Mode: ${program.approval_mode === "auto" ? "sertifikat terbit otomatis" : "perlu persetujuan"}`} />
       </div>
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          ["Total", count("all"), Users, "bg-brand-50 text-brand-700"],
-          ["Menunggu", count("pending"), Clock, "bg-amber-50 text-amber-700"],
-          ["Disetujui", count("approved"), BadgeCheck, "bg-emerald-50 text-emerald-700"],
-          ["Ditolak / dicabut", count("rejected") + count("revoked"), Ban, "bg-slate-100 text-slate-600"],
-        ].map(([l, v, Icon, tone]) => {
-          const I = Icon as typeof Users;
-          return (
-            <div key={l as string} className="card flex items-center gap-3 !p-3.5">
-              <span className={`grid h-10 w-10 place-items-center rounded-xl ${tone}`}><I className="h-5 w-5" /></span>
-              <div><p className="text-xl font-bold leading-none">{v as number}</p><p className="mt-1 text-xs text-slate-500">{l as string}</p></div>
-            </div>
-          );
-        })}
-      </div>
       {(() => {
+        // Hanya tampil bila email ke peserta tidak bisa terkirim (bila berjalan normal, tidak perlu pemberitahuan).
         const hasEmail = fields.some((f) => f.type === "email");
-        const smtp = mailConfigured();
-        const tone = program.notify_email && hasEmail && smtp ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-amber-200 bg-amber-50 text-amber-900";
         const msg = !program.notify_email
           ? "Email otomatis ke peserta dinonaktifkan. Aktifkan di tab Ringkasan."
           : !hasEmail
             ? "Email ke peserta belum dapat dikirim: tambahkan field bertipe Email pada tab Formulir & sertifikat."
-            : !smtp
+            : !mailConfigured()
               ? "Email ke peserta belum dapat dikirim: SMTP belum dikonfigurasi di server."
-              : "Peserta otomatis menerima email berisi tautan sertifikat saat disetujui.";
-        return <p className={`mb-4 rounded-lg border px-3 py-2 text-sm ${tone}`}>{msg}</p>;
+              : null;
+        return msg && <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">{msg}</p>;
       })()}
-      {/* Bar aksi: di bawah ringkasan, tepat di atas tabel */}
+      {/* Bar aksi: tepat di atas tabel */}
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           <ImportDialog
