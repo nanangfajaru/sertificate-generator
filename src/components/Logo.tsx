@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LogoLink from "./LogoLink";
 
 export const APP_NAME = "SertifikatKu";
 
@@ -29,7 +29,7 @@ export default function Logo({ href = "/", size = 32, className = "", light = fa
   );
   const style = { gap: size * 0.28 };
   return href ? (
-    <Link href={href} aria-label={APP_NAME} className={`inline-flex items-center ${className}`} style={style}>{inner}</Link>
+    <LogoLink href={href} aria-label={APP_NAME} className={`inline-flex items-center ${className}`} style={style}>{inner}</LogoLink>
   ) : (
     <span className={`inline-flex items-center ${className}`} style={style}>{inner}</span>
   );
