@@ -23,7 +23,7 @@ export default function Logo({ href = "/", size = 32, className = "", light = fa
     <>
       <LogoMark className="shrink-0" size={size} uid={uid} tone={light ? "dark" : "light"} />
       <span className={`font-bold tracking-tight ${light ? "text-white" : "text-slate-900"}`} style={{ fontSize: size * 0.62 }}>
-        Sertifikat<span className={light ? "text-amber-400" : "text-brand-700"}>Ku</span>
+        Sertifikat<span className={light ? "text-amber-400" : "text-amber-500"}>Ku</span>
       </span>
     </>
   );
