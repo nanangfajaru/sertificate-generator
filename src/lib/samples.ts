@@ -17,9 +17,12 @@ export const SAMPLE_PROGRAM = {
 
 export type SampleEvent = { name: string; certType: string };
 
-/** `logo`: contoh menampilkan penanda "LOGO" di slot logo template. */
+// Ubah bila desain template / generator contoh berubah, agar nama file ikut berubah (gambar di-cache browser).
+const SAMPLE_VERSION = 2;
+
+/** `logo`: contoh menampilkan penanda "LOGO" di slot logo template. Nama file ikut berubah bila data contoh berubah. */
 export function sampleKey(templateId: string, name: string, event?: SampleEvent, logo = false) {
-  const s = `${templateId}|${name}|${event?.name ?? ""}|${event?.certType ?? ""}${logo ? "|logo" : ""}`;
+  const s = `${SAMPLE_VERSION}|${JSON.stringify(SAMPLE_PROGRAM)}|${templateId}|${name}|${event?.name ?? ""}|${event?.certType ?? ""}${logo ? "|logo" : ""}`;
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
   return `${templateId}-${h.toString(36)}`;

@@ -44,7 +44,13 @@ const planName = (p: string) => (p === "yearly" ? "SertifikatKu Pro Tahunan" : p
 const planPeriod = (d: InvoiceData) =>
   d.period ? `Masa berlaku: ${longDate(d.period.start)} – ${d.period.end ? longDate(d.period.end) : "tanpa batas"}` : d.plan === "yearly" ? "Masa aktif 1 tahun" : d.plan === "monthly" ? "Masa aktif 1 bulan" : "";
 
-const fontFile = (f: string) => fs.readFileSync(path.join(process.cwd(), "src", "fonts", f));
+// Font dibaca sekali per instance server, bukan tiap invoice.
+const fontCache = new Map<string, Buffer>();
+const fontFile = (f: string) => {
+  let b = fontCache.get(f);
+  if (!b) fontCache.set(f, (b = fs.readFileSync(path.join(process.cwd(), "src", "fonts", f))));
+  return b;
+};
 
 /** Bukti pembelian (invoice lunas) paket Pro dalam format PDF A4. */
 export async function renderInvoicePdf(d: InvoiceData): Promise<Uint8Array> {

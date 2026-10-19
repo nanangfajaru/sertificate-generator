@@ -8,9 +8,10 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["pdf-lib", "@pdf-lib/fontkit"],
   async headers() {
-    const longCache = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
     return [
-      { source: "/samples/:path*", headers: longCache },
+      // Nama file contoh tidak berubah walau gambarnya dibuat ulang, jadi jangan "immutable":
+      // cache 1 hari, lalu browser cukup memeriksa ulang (304) sambil memakai versi lama.
+      { source: "/samples/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }] },
       { source: "/fonts/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, stale-while-revalidate=86400" }] },
     ];
   },
