@@ -38,7 +38,7 @@ export default function ProgramChrome(p: Props) {
   return (
     <>
       <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Semua program</Link>
-      <div className="relative mt-3 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-800 via-brand-900 to-navy p-5 text-white shadow-md ring-1 ring-amber-400/20 sm:p-6">
+      <div className="relative mt-3 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 p-5 text-white shadow-md sm:p-6">
         <div className="pointer-events-none absolute -right-8 -top-12 h-44 w-44 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-16 right-32 h-36 w-36 rounded-full bg-white/5" />
         <div className="relative flex flex-wrap items-start justify-between gap-3">

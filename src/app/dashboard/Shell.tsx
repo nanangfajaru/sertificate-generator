@@ -57,10 +57,10 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
             <p className="mt-0.5 text-amber-800/80">{until ? `Hingga ${until}` : "Tanpa batas waktu"}</p>
           </div>
         ) : (
-          <div className="rounded-xl bg-gradient-to-br from-brand-800 to-navy p-3.5 text-xs text-white ring-1 ring-amber-400/20">
+          <div className="rounded-xl bg-gradient-to-br from-brand-600 to-brand-900 p-3.5 text-xs text-white">
             <p className="font-semibold">Buka semua fitur</p>
             <p className="mt-0.5 text-brand-100">Program tanpa batas, template bertema, desain sendiri, tanpa watermark.</p>
-            <Link href="/dashboard/upgrade" className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-400 py-1.5 font-semibold text-navy hover:bg-amber-300"><Sparkles className="h-3.5 w-3.5" /> Upgrade ke Pro</Link>
+            <Link href="/dashboard/upgrade" className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-white py-1.5 font-semibold text-brand-700 hover:bg-brand-50"><Sparkles className="h-3.5 w-3.5" /> Upgrade ke Pro</Link>
           </div>
         )}
       </div>
