@@ -70,18 +70,13 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-slate-100 bg-slate-50">
-        {/* sisi kanan: latar terang untuk tumpukan sertifikat */}
-        <div className="bg-grid absolute inset-0" />
-        <div className="absolute -right-24 top-10 h-[420px] w-[420px] rounded-full bg-brand-100/70 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-amber-100/60 blur-3xl" />
-        {/* sisi kiri (desktop): panel navy dengan tepi miring */}
-        <div className="absolute inset-y-0 left-0 hidden w-[55%] bg-navy [clip-path:polygon(0_0,100%_0,86%_100%,0_100%)] md:block">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,#1a2f73_0%,transparent_65%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:24px_24px]" />
-        </div>
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 md:grid-cols-[1.05fr_1fr] md:py-20 lg:gap-14 lg:py-28">
-          <div className="-mx-5 bg-navy px-5 pb-14 pt-16 text-white md:mx-0 md:bg-transparent md:p-0 md:pr-6">
+      <section className="relative overflow-hidden border-b border-slate-100 bg-[linear-gradient(180deg,#0b1437_0%,#0f1d4a_38%,#3a5196_55%,#dfe6f7_72%,#f8fafc_100%)] md:bg-[linear-gradient(100deg,#0b1437_0%,#0f1d4a_34%,#22397e_50%,#9fb0dc_64%,#e7ecf8_76%,#f8fafc_100%)]">
+        {/* gradasi navy → terang; pola titik halus */}
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(180deg,black,transparent_60%)] md:[mask-image:linear-gradient(90deg,black_30%,transparent_60%)]" />
+        <div className="absolute left-[-10%] top-[-20%] h-[520px] w-[520px] rounded-full bg-brand-700/30 blur-3xl" />
+        <div className="absolute bottom-0 right-[8%] h-64 w-64 rounded-full bg-amber-100/50 blur-3xl" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-[1.05fr_1fr] md:py-20 lg:gap-14 lg:py-28">
+          <div className="text-white md:pr-6">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">Platform sertifikat digital</p>
             <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-[2.6rem] lg:text-[3.4rem]">
               Terbitkan sertifikat peserta dalam hitungan detik.
