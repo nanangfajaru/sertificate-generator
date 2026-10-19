@@ -6,11 +6,13 @@ import { SEO_PAGES } from "../src/lib/seo-pages";
 import { getTemplate } from "../src/lib/certificate/templates";
 import { resolveLayout } from "../src/lib/certificate/sources";
 import { renderCertificatePdf } from "../src/lib/certificate/pdf";
+import { brandLayout } from "../src/lib/certificate/branding";
 
-const jobs = new Map<string, { t: string; name: string; ev?: SampleEvent }>();
-const add = (t: string, name = "Nama Peserta", ev?: SampleEvent) => jobs.set(sampleKey(t, name, ev), { t, name, ev });
+const jobs = new Map<string, { t: string; name: string; ev?: SampleEvent; logo?: boolean }>();
+const add = (t: string, name = "Nama Peserta", ev?: SampleEvent, logo = false) => jobs.set(sampleKey(t, name, ev, logo), { t, name, ev, logo });
 add("modern-teal", "Budi Hartono"); add("frame-crimson", "Citra Lestari"); add("classic-navy", "Aisyah Putri Rahma");
-for (const t of ["classic-navy", "flora-rose", "sport-futsal", "frame-crimson", "medic-cross", "company-skyline", "modern-teal", "batik-kawung"]) add(t);
+// Galeri template landing: dengan logo lembaga fiktif.
+for (const t of ["classic-navy", "flora-rose", "sport-futsal", "frame-crimson", "medic-cross", "company-skyline", "modern-teal", "batik-kawung"]) add(t, undefined, undefined, true);
 for (const p of SEO_PAGES) {
   add(p.templates[1], "Citra Lestari", p.sampleEvent);
   add(p.templates[0], "Aisyah Putri", p.sampleEvent);
@@ -19,14 +21,18 @@ for (const p of SEO_PAGES) {
 const tmp = process.argv[2] ?? "/tmp/samples-tmp";
 fs.mkdirSync(tmp, { recursive: true });
 fs.mkdirSync("public/samples", { recursive: true });
+const logo = { kind: "png" as const, bytes: new Uint8Array(fs.readFileSync("scripts/assets/sample-logo.png")) };
+// Hanya membuat gambar yang belum ada (hapus file di public/samples untuk membuat ulang).
 for (const [key, j] of jobs) {
-  const layout = resolveLayout(getTemplate(j.t).layout, {
+  if (fs.existsSync(`public/samples/${key}.webp`)) continue;
+  const base = getTemplate(j.t).layout;
+  const layout = resolveLayout(j.logo ? brandLayout(base, { certMode: "template", templateId: j.t, logo: true, sig1: false, sig2: false }) : base, {
     program: j.ev ? { ...SAMPLE_PROGRAM, name: j.ev.name, cert_type: j.ev.certType } : SAMPLE_PROGRAM,
     data: { n: j.name, e: "" },
     certNumber: "001/SERT/X/2026",
     verifyUrl: "https://sertifikatku.com/c/contoh",
   });
-  const pdf = await renderCertificatePdf(layout, null, {});
+  const pdf = await renderCertificatePdf(layout, null, j.logo ? { logo } : {});
   fs.writeFileSync(`${tmp}/${key}.pdf`, pdf);
   execFileSync("pdftoppm", ["-r", "72", "-png", "-singlefile", `${tmp}/${key}.pdf`, `${tmp}/${key}`]);
 }

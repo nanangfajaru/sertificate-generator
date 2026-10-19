@@ -251,7 +251,7 @@ export default function Landing() {
         <div className="mt-10 grid grid-cols-2 gap-5 lg:grid-cols-4">
           {showcaseTemplates.map((id) => (
             <div key={id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <LazyMount><SampleCert templateId={id} sizes="(min-width: 1024px) 265px, 45vw" /></LazyMount>
+              <LazyMount><SampleCert templateId={id} logo sizes="(min-width: 1024px) 265px, 45vw" /></LazyMount>
             </div>
           ))}
         </div>
