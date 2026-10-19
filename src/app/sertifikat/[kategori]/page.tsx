@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check } from "lucide-react";
 import Logo from "@/components/Logo";
+import HeaderMotif from "@/components/public/HeaderMotif";
 import SampleCert from "@/components/SampleCert";
 import { SEO_PAGES, getSeoPage } from "@/lib/seo-pages";
 import { siteUrl } from "@/lib/util";
@@ -34,10 +35,11 @@ export default async function SeoPageView({ params }: { params: Promise<{ katego
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <header className="border-b border-slate-200">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
-          <Logo size={32} />
-          <Link href={cta} className="btn btn-primary btn-sm">Mulai gratis</Link>
+      <header className="relative bg-navy shadow-[0_1px_0_0_rgba(251,191,36,.45)]">
+        <HeaderMotif />
+        <div className="relative mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
+          <Logo size={32} light />
+          <Link href={cta} className="btn btn-sm border-amber-400 bg-amber-400 font-semibold text-navy hover:bg-amber-300">Mulai gratis</Link>
         </div>
       </header>
 

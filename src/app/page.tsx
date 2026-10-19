@@ -4,6 +4,7 @@ import { ArrowRight, BadgeCheck, CalendarDays, Check, ClipboardList, Link2, List
 import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/Mockups";
 import LazyMount from "@/components/LazyMount";
 import MobileNav from "@/components/landing/MobileNav";
+import HeaderMotif from "@/components/public/HeaderMotif";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import { formatDateRange } from "@/lib/certificate/sources";
@@ -49,7 +50,8 @@ export default function Landing() {
   return (
     <div className="text-slate-900">
       <header className="sticky top-0 z-30 bg-navy shadow-[0_1px_0_0_rgba(251,191,36,.45)]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
+        <HeaderMotif />
+        <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
           <Logo size={34} light />
           <nav className="hidden items-center gap-7 whitespace-nowrap text-sm text-slate-300 lg:flex">
             <a href="#fitur" className="hover:text-white">Fitur</a>

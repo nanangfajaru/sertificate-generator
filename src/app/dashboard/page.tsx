@@ -97,7 +97,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   const stats = [
     { label: "Program", value: programs.length, sub: !isPro ? `dari ${FREE_PROGRAM_LIMIT} (paket Free)` : `${activeCount} dibuka`, icon: FolderOpen, tone: "bg-brand-50 text-brand-700" },
-    { label: "Peserta terdaftar", value: totalParticipants, icon: Users, tone: "bg-sky-50 text-sky-700" },
+    { label: "Peserta terdaftar", value: totalParticipants, icon: Users, tone: "bg-brand-50 text-brand-700" },
     { label: "Sertifikat terbit", value: approved.count ?? 0, icon: BadgeCheck, tone: "bg-emerald-50 text-emerald-700" },
     { label: "Menunggu persetujuan", value: pendingTotal, icon: Clock, tone: "bg-amber-50 text-amber-700" },
   ];

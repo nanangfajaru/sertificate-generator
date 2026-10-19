@@ -136,7 +136,7 @@ export default async function ReferralPage() {
               {stat(<Percent className="h-5 w-5" />, "bg-emerald-50 text-emerald-700", `${d.discount_percent}%`, "Diskon untuk pembeli")}
               {stat(<Wallet className="h-5 w-5" />, "bg-amber-50 text-amber-700", `${d.commission_percent}%`, "Komisi untuk Anda")}
               {stat(<BadgeCheck className="h-5 w-5" />, "bg-brand-50 text-brand-700", String(paidRows.length), "Pembayaran berhasil")}
-              {stat(<Coins className="h-5 w-5" />, "bg-sky-50 text-sky-700", rp(earned), "Total komisi")}
+              {stat(<Coins className="h-5 w-5" />, "bg-brand-50 text-brand-700", rp(earned), "Total komisi")}
             </div>
 
             <div className="card">
