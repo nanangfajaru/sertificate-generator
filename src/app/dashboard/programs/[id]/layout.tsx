@@ -19,12 +19,13 @@ export default async function ProgramLayout({ children, params }: { children: Re
   const proEnded = program.owner_id === profile.id && !isPro && program.is_open && usesProFeature(program)
     ? (profile.plan_expires_at ? new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" }) : "")
     : null;
-  // Angka ringkasan untuk banner (tampil di tab Ringkasan). Kuota Free hanya menghitung peran Peserta.
+  // Angka ringkasan untuk banner (tampil di semua tab). Kuota Free hanya menghitung peran Peserta.
   const { data: rows } = await supabase.from("participants").select("status, role").eq("program_id", id);
   const stats = {
     total: rows?.length ?? 0,
     approved: rows?.filter((r) => r.status === "approved").length ?? 0,
     pending: rows?.filter((r) => r.status === "pending").length ?? 0,
+    rejected: rows?.filter((r) => r.status === "rejected" || r.status === "revoked").length ?? 0,
     quota: isPro ? null : rows?.filter((r) => (r.role ?? "Peserta") === "Peserta").length ?? 0,
   };
   const chrome = (

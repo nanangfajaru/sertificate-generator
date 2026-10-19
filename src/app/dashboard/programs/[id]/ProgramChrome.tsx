@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowLeft, CalendarDays, Eye, MapPin } from "lucide-react";
 import ProgramTabs from "./ProgramTabs";
 import { FREE_PARTICIPANT_LIMIT } from "@/lib/db";
@@ -18,7 +18,7 @@ type Props = {
   /** tanggal Pro berakhir (teks) bila program memakai fitur Pro tetapi Pro pemilik sudah habis */
   proEnded?: string | null;
   /** angka ringkasan peserta; quota null untuk Pro */
-  stats: { total: number; approved: number; pending: number; quota: number | null };
+  stats: { total: number; approved: number; pending: number; rejected: number; quota: number | null };
 };
 
 /**
@@ -27,7 +27,6 @@ type Props = {
  */
 export default function ProgramChrome(p: Props) {
   const setup = useSearchParams().get("setup") === "1";
-  const overview = usePathname().endsWith(`/dashboard/programs/${p.id}`);
 
   if (setup) {
     return (
@@ -59,7 +58,7 @@ export default function ProgramChrome(p: Props) {
             <span className="rounded-full bg-white/15 px-3 py-1">{p.auto ? "Otomatis" : "Perlu approval"}</span>
           </div>
         </div>
-        {overview && <BannerStats id={p.id} {...p.stats} />}
+        <BannerStats id={p.id} {...p.stats} />
       </div>
       {p.proEnded != null && (
         <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900 sm:flex sm:items-start sm:gap-3 sm:px-4">
@@ -88,13 +87,13 @@ export default function ProgramChrome(p: Props) {
   );
 }
 
-/** Angka ringkas di dalam banner: sertifikat terbit, pendaftar, menunggu, dan kuota Free. */
-function BannerStats({ id, total, approved, pending, quota }: Props["stats"] & { id: string }) {
+/** Angka ringkas di dalam banner: sertifikat terbit, pendaftar, menunggu, ditolak/dicabut, dan kuota Free. */
+function BannerStats({ id, total, approved, pending, rejected, quota }: Props["stats"] & { id: string }) {
   const warn = quota != null && quota >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8);
   const item = "min-w-0 sm:border-l sm:border-white/10 sm:px-6 sm:first:border-0 sm:first:pl-0";
   const label = "mt-1 text-xs text-brand-200";
   return (
-    <dl className={`relative mt-5 grid ${quota == null ? "grid-cols-3" : "grid-cols-2"} gap-x-4 gap-y-4 border-t border-white/10 pt-4 sm:flex`}>
+    <dl className={`relative mt-5 grid ${quota == null ? "grid-cols-2" : "grid-cols-3"} gap-x-4 gap-y-4 border-t border-white/10 pt-4 sm:flex`}>
       <div className={item}>
         <dd className="text-2xl font-bold leading-none text-amber-400">{approved}</dd>
         <dt className={label}>Sertifikat terbit</dt>
@@ -108,6 +107,10 @@ function BannerStats({ id, total, approved, pending, quota }: Props["stats"] & {
         <dt className={label}>
           {pending > 0 ? <Link href={`/dashboard/programs/${id}/participants`} className="font-medium text-amber-300 hover:underline">Menunggu · tinjau →</Link> : "Menunggu persetujuan"}
         </dt>
+      </div>
+      <div className={item}>
+        <dd className="text-2xl font-bold leading-none">{rejected}</dd>
+        <dt className={label}>Ditolak / dicabut</dt>
       </div>
       {quota != null && (
         <div className={item}>
