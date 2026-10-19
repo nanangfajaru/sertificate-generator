@@ -70,12 +70,18 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-navy text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_40%,#1a2f73_0%,transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-20 md:grid-cols-[1.05fr_1fr] lg:gap-14 lg:py-28">
-          <div>
+      <section className="relative overflow-hidden border-b border-slate-100 bg-slate-50">
+        {/* sisi kanan: latar terang untuk tumpukan sertifikat */}
+        <div className="bg-grid absolute inset-0" />
+        <div className="absolute -right-24 top-10 h-[420px] w-[420px] rounded-full bg-brand-100/70 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-amber-100/60 blur-3xl" />
+        {/* sisi kiri (desktop): panel navy dengan tepi miring */}
+        <div className="absolute inset-y-0 left-0 hidden w-[55%] bg-navy [clip-path:polygon(0_0,100%_0,86%_100%,0_100%)] md:block">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,#1a2f73_0%,transparent_65%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:24px_24px]" />
+        </div>
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 md:grid-cols-[1.05fr_1fr] md:py-20 lg:gap-14 lg:py-28">
+          <div className="-mx-5 bg-navy px-5 pb-14 pt-16 text-white md:mx-0 md:bg-transparent md:p-0 md:pr-6">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">Platform sertifikat digital</p>
             <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-[2.6rem] lg:text-[3.4rem]">
               Terbitkan sertifikat peserta dalam hitungan detik.
@@ -96,7 +102,7 @@ export default function Landing() {
             <div className="absolute right-0 top-0 w-[62%] rotate-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
               <SampleCert priority templateId="frame-crimson" name="Citra Lestari" />
             </div>
-            <div className="relative ml-[12%] mt-24 w-[76%] overflow-hidden rounded-lg bg-white shadow-2xl shadow-black/40 ring-1 ring-amber-400/30">
+            <div className="relative ml-[12%] mt-24 w-[76%] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl ring-1 ring-slate-900/5">
               <SampleCert priority templateId="classic-navy" name="Aisyah Putri Rahma" />
             </div>
             <div className="absolute -bottom-4 left-0 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-lg">
