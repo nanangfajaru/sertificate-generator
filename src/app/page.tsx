@@ -70,9 +70,9 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-slate-100 bg-[linear-gradient(180deg,#0b1437_0%,#0f1d4a_38%,#3a5196_55%,#dfe6f7_72%,#f8fafc_100%)] md:bg-[linear-gradient(100deg,#0b1437_0%,#0f1d4a_34%,#22397e_50%,#9fb0dc_64%,#e7ecf8_76%,#f8fafc_100%)]">
+      <section className="relative overflow-hidden border-b border-slate-100 bg-[linear-gradient(180deg,#0b1437_0%,#0f1d4a_38%,#3a5196_55%,#dfe6f7_72%,#f8fafc_100%)] md:bg-[linear-gradient(100deg,#0b1437_0%,#0f1d4a_26%,#1d3277_40%,#8a9fd4_51%,#e7ecf8_60%,#f8fafc_100%)]">
         {/* gradasi navy → terang; pola titik halus */}
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(180deg,black,transparent_60%)] md:[mask-image:linear-gradient(90deg,black_30%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(180deg,black,transparent_60%)] md:[mask-image:linear-gradient(90deg,black_20%,transparent_45%)]" />
         <div className="absolute left-[-10%] top-[-20%] h-[520px] w-[520px] rounded-full bg-brand-700/30 blur-3xl" />
         <div className="absolute bottom-0 right-[8%] h-64 w-64 rounded-full bg-amber-100/50 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-[1.05fr_1fr] md:py-20 lg:gap-14 lg:py-28">
