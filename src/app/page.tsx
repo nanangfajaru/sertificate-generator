@@ -94,13 +94,13 @@ export default function Landing() {
 
           <div className="relative mx-auto w-full max-w-xl">
             <div className="absolute left-0 top-10 w-[62%] -rotate-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-              <SampleCert priority templateId="modern-teal" name="Budi Hartono" />
+              <SampleCert priority templateId="modern-teal" name="Budi Hartono" sizes="(min-width: 1024px) 340px, 60vw" />
             </div>
             <div className="absolute right-0 top-0 w-[62%] rotate-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-              <SampleCert priority templateId="frame-crimson" name="Citra Lestari" />
+              <SampleCert priority templateId="frame-crimson" name="Citra Lestari" sizes="(min-width: 1024px) 340px, 60vw" />
             </div>
             <div className="relative ml-[12%] mt-24 w-[76%] overflow-hidden rounded-lg border border-amber-200 bg-white shadow-2xl shadow-brand-900/15 ring-1 ring-amber-300/40">
-              <SampleCert priority templateId="classic-navy" name="Aisyah Putri Rahma" />
+              <SampleCert priority templateId="classic-navy" name="Aisyah Putri Rahma" sizes="(min-width: 1024px) 390px, 70vw" />
             </div>
             <div className="absolute -bottom-4 left-0 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-lg">
               <BadgeCheck className="h-5 w-5 text-emerald-600" />
@@ -202,10 +202,10 @@ export default function Landing() {
               <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand-50 via-slate-50 to-white">
                 <LazyMount aspect="auto" className="absolute inset-0">
                   <div className="absolute left-[30%] top-6 w-[58%] rotate-[7deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg transition duration-300 group-hover:rotate-[10deg] group-hover:translate-x-1">
-                    <SampleCert templateId={p.templates[1]} name="Citra Lestari" event={p.sampleEvent} />
+                    <SampleCert templateId={p.templates[1]} name="Citra Lestari" event={p.sampleEvent} sizes="(min-width: 1024px) 165px, 56vw" />
                   </div>
                   <div className="absolute left-[8%] top-9 w-[58%] -rotate-[6deg] overflow-hidden rounded-md border border-slate-200 bg-white shadow-xl transition duration-300 group-hover:-rotate-[9deg] group-hover:-translate-x-1">
-                    <SampleCert templateId={p.templates[0]} name="Aisyah Putri" event={p.sampleEvent} />
+                    <SampleCert templateId={p.templates[0]} name="Aisyah Putri" event={p.sampleEvent} sizes="(min-width: 1024px) 165px, 56vw" />
                   </div>
                 </LazyMount>
               </div>
@@ -251,7 +251,7 @@ export default function Landing() {
         <div className="mt-10 grid grid-cols-2 gap-5 lg:grid-cols-4">
           {showcaseTemplates.map((id) => (
             <div key={id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <LazyMount><SampleCert templateId={id} /></LazyMount>
+              <LazyMount><SampleCert templateId={id} sizes="(min-width: 1024px) 265px, 45vw" /></LazyMount>
             </div>
           ))}
         </div>
@@ -321,7 +321,7 @@ export default function Landing() {
           </nav>
           <p>© {new Date().getFullYear()} SertifikatKu</p>
         </div>
-        <nav aria-label="Jenis sertifikat" className="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-2 border-t border-white/10 px-5 py-5 text-xs text-slate-500">
+        <nav aria-label="Jenis sertifikat" className="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-2 border-t border-white/10 px-5 py-5 text-xs text-slate-400">
           {SEO_PAGES.map((p) => (<Link key={p.slug} href={`/sertifikat/${p.slug}`} className="hover:text-white">{p.title}</Link>))}
         </nav>
       </footer>

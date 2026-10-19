@@ -35,6 +35,11 @@ import sys,glob,os
 from PIL import Image
 tmp=sys.argv[1]
 for f in glob.glob(tmp+'/*.png'):
-    Image.open(f).convert('RGB').save('public/samples/'+os.path.basename(f)[:-4]+'.webp','WEBP',quality=80,method=6)
+    im=Image.open(f).convert('RGB')
+    base='public/samples/'+os.path.basename(f)[:-4]
+    im.save(base+'.webp','WEBP',quality=80,method=6)
+    # Varian kecil untuk srcSet (lihat SampleCert).
+    for w in (400, 640):
+        im.resize((w, round(im.height*w/im.width)), Image.LANCZOS).save(f'{base}-{w}.webp','WEBP',quality=80,method=6)
 `, tmp]);
 console.log(jobs.size, "samples");

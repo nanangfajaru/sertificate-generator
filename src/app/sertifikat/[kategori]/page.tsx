@@ -54,9 +54,9 @@ export default async function SeoPageView({ params }: { params: Promise<{ katego
         </div>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2">
-          {p.templates.map((id) => (
+          {p.templates.map((id, i) => (
             <div key={id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-              <SampleCert templateId={id} event={p.sampleEvent} />
+              <SampleCert templateId={id} event={p.sampleEvent} priority={i === 0} sizes="(min-width: 640px) 480px, 90vw" />
             </div>
           ))}
         </div>

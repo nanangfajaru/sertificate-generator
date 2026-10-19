@@ -81,7 +81,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <nav aria-label="Daftar isi" className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
             <p className="text-sm font-semibold text-slate-900">Daftar isi</p>
             <ol className="mt-3 space-y-1.5 text-[15px]">
-              {post.headings.map((h, i) => <li key={h.id}><a href={`#${h.id}`} className="text-slate-600 hover:text-brand-700"><span className="mr-2 text-slate-400">{i + 1}.</span>{h.text}</a></li>)}
+              {post.headings.map((h, i) => <li key={h.id}><a href={`#${h.id}`} className="text-slate-600 hover:text-brand-700"><span className="mr-2 text-slate-500">{i + 1}.</span>{h.text}</a></li>)}
             </ol>
           </nav>
         )}

@@ -85,7 +85,7 @@ export function VerifyMockup() {
             </div>
             <span className="inline-flex items-center gap-1 rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white"><Download className="h-3.5 w-3.5" /> PDF</span>
           </div>
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white"><SampleCert templateId="classic-navy" name="Aisyah Putri Rahma" /></div>
+          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white"><SampleCert templateId="classic-navy" name="Aisyah Putri Rahma" sizes="(min-width: 1024px) 405px, 80vw" /></div>
         </div>
       </Frame>
     </div>
