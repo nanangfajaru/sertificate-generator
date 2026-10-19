@@ -1,13 +1,16 @@
 "use client";
 
 import { CheckCircle2, Send } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { sendContact, type ContactState } from "./actions";
 
 const TOPICS = ["Pertanyaan umum", "Bantuan akun & teknis", "Paket Pro & pembayaran", "Kerja sama / mitra", "Lainnya"];
 
 export default function ContactForm() {
   const [s, action, pending] = useActionState<ContactState, FormData>(sendContact, {});
+  // Waktu form mulai tampil (diisi oleh JavaScript): bot yang mengirim langsung/instan tidak punya nilai wajar.
+  const [shownAt, setShownAt] = useState("");
+  useEffect(() => setShownAt(String(Date.now())), []);
   if (s.ok) {
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
@@ -31,7 +34,12 @@ export default function ContactForm() {
         </div>
       </div>
       <div><label className="label" htmlFor="c-msg">Pesan</label><textarea id="c-msg" name="message" className="input" rows={6} required minLength={10} maxLength={3000} placeholder="Ceritakan kebutuhan atau kendala Anda…" /></div>
-      <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+      {/* Jebakan bot: tidak terlihat pengunjung (di luar layar, bukan display:none yang mudah dikenali bot). */}
+      <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="c-website">Website</label>
+        <input id="c-website" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
+      <input type="hidden" name="t" value={shownAt} />
       {s.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{s.error}</p>}
       <button className="btn btn-primary w-full py-2.5" disabled={pending}><Send className="h-4 w-4" /> {pending ? "Mengirim…" : "Kirim pesan"}</button>
     </form>
