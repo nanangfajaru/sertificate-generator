@@ -1,4 +1,4 @@
-import { BadgeCheck, Clock, FolderOpen, Plus, Users } from "lucide-react";
+import { BadgeCheck, Clock, FolderOpen, Lock, Plus, Users } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -32,11 +32,14 @@ export default function DashboardHero({ greeting, programs, programLimit, active
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Program Anda</h1>
           <p className="mt-0.5 text-sm text-brand-100">{greeting}{programs ? ` · ${active} dari ${programs} program membuka pendaftaran` : ""}</p>
         </div>
-        {atLimit ? (
-          <Link href="/dashboard/upgrade" className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold ring-1 ring-white/20 hover:bg-white/15">Batas program Free tercapai · Upgrade</Link>
-        ) : (
-          <Link href="/dashboard/programs/new" className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-navy shadow-md shadow-black/20 transition hover:bg-amber-300"><Plus className="h-4 w-4" /> Program baru</Link>
-        )}
+        {/* Kuota program Free penuh: tombol tetap tampil, bergembok, mengarah ke halaman upgrade. */}
+        <Link
+          href={atLimit ? "/dashboard/upgrade" : "/dashboard/programs/new"}
+          title={atLimit ? "Batas program paket Free tercapai — upgrade ke Pro untuk menambah program" : undefined}
+          className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-navy shadow-md shadow-black/20 transition hover:bg-amber-300"
+        >
+          {atLimit ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />} Program baru
+        </Link>
       </div>
 
       <div className="relative mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
