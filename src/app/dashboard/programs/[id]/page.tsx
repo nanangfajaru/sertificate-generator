@@ -6,7 +6,6 @@ import { deleteProgram, updateProgram } from "../../actions";
 import ProgramForm from "../../ProgramForm";
 import DeleteButton from "./DeleteButton";
 import CertPreviewCard from "./CertPreviewCard";
-import SummaryStats from "./SummaryStats";
 import { previewUrl, programLayout, sampleContext, signatureUrls, withBranding } from "@/lib/certificate/load";
 import { resolveLayout } from "@/lib/certificate/sources";
 import { getTemplate } from "@/lib/certificate/templates";
@@ -16,24 +15,17 @@ export const metadata = { title: "Ringkasan program" };
 export default async function ProgramOverview({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }) {
   const { id } = await params;
   const created = (await searchParams).created === "1";
-  const { program, fields, supabase, isPro } = await getOwnedProgram(id);
+  const { program, fields, isPro } = await getOwnedProgram(id);
   const admin = createAdminClient();
   const custom = program.cert_mode === "custom" && !!program.design_layout;
   // Semua permintaan berjalan paralel.
-  const [images, bgUrl, { data: rows }] = await Promise.all([
+  const [images, bgUrl] = await Promise.all([
     signatureUrls(admin, program),
     custom ? previewUrl(admin, program) : Promise.resolve(null),
-    supabase.from("participants").select("status, role").eq("program_id", id),
   ]);
   const logoUrl = images.logo ?? null;
   const sigUrls = [images.sig1 ?? null, images.sig2 ?? null];
   const certLayout = resolveLayout(withBranding(programLayout(program), program, { placeholder: true }), sampleContext(program, fields));
-  // quota: hanya peran Peserta yang dihitung kuota paket Free (pembicara dkk. tidak).
-  const stat = { total: rows?.length ?? 0, quota: rows?.filter((r) => (r.role ?? "Peserta") === "Peserta").length ?? 0, pending: 0, approved: 0 };
-  rows?.forEach((r) => {
-    if (r.status === "pending") stat.pending++;
-    if (r.status === "approved") stat.approved++;
-  });
 
   return (
     <>
@@ -43,7 +35,6 @@ export default async function ProgramOverview({ params, searchParams }: { params
         <p className="flex-1"><b>Program siap!</b> Bagikan link atau QR pendaftaran agar peserta mulai mengisi. Logo dan tanda tangan bisa diunggah di bawah.</p>
       </div>
     )}
-    <SummaryStats id={id} total={stat.total} pending={stat.pending} approved={stat.approved} quota={stat.quota} isPro={isPro} auto={program.approval_mode === "auto"} />
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <ProgramForm action={updateProgram.bind(null, id)} program={program} sigUrls={[sigUrls[0], sigUrls[1]]} logoUrl={logoUrl} submitLabel="Simpan perubahan" />

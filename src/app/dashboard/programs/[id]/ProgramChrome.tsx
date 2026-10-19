@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowLeft, CalendarDays, Eye, MapPin } from "lucide-react";
 import ProgramTabs from "./ProgramTabs";
+import { FREE_PARTICIPANT_LIMIT } from "@/lib/db";
 
 type Props = {
   id: string;
@@ -16,6 +17,8 @@ type Props = {
   viewOnly: boolean;
   /** tanggal Pro berakhir (teks) bila program memakai fitur Pro tetapi Pro pemilik sudah habis */
   proEnded?: string | null;
+  /** angka ringkasan peserta; quota null untuk Pro */
+  stats: { total: number; approved: number; pending: number; quota: number | null };
 };
 
 /**
@@ -24,6 +27,7 @@ type Props = {
  */
 export default function ProgramChrome(p: Props) {
   const setup = useSearchParams().get("setup") === "1";
+  const overview = usePathname().endsWith(`/dashboard/programs/${p.id}`);
 
   if (setup) {
     return (
@@ -55,6 +59,7 @@ export default function ProgramChrome(p: Props) {
             <span className="rounded-full bg-white/15 px-3 py-1">{p.auto ? "Otomatis" : "Perlu approval"}</span>
           </div>
         </div>
+        {overview && <BannerStats id={p.id} {...p.stats} />}
       </div>
       {p.proEnded != null && (
         <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900 sm:flex sm:items-start sm:gap-3 sm:px-4">
@@ -80,5 +85,38 @@ export default function ProgramChrome(p: Props) {
       <ProgramTabs id={p.id} />
       <div className="mt-6" />
     </>
+  );
+}
+
+/** Angka ringkas di dalam banner: sertifikat terbit, pendaftar, menunggu, dan kuota Free. */
+function BannerStats({ id, total, approved, pending, quota }: Props["stats"] & { id: string }) {
+  const warn = quota != null && quota >= Math.floor(FREE_PARTICIPANT_LIMIT * 0.8);
+  const item = "min-w-0 sm:border-l sm:border-white/10 sm:px-6 sm:first:border-0 sm:first:pl-0";
+  const label = "mt-1 text-xs text-brand-200";
+  return (
+    <dl className={`relative mt-5 grid ${quota == null ? "grid-cols-3" : "grid-cols-2"} gap-x-4 gap-y-4 border-t border-white/10 pt-4 sm:flex`}>
+      <div className={item}>
+        <dd className="text-2xl font-bold leading-none text-amber-400">{approved}</dd>
+        <dt className={label}>Sertifikat terbit</dt>
+      </div>
+      <div className={item}>
+        <dd className="text-2xl font-bold leading-none">{total}</dd>
+        <dt className={label}>Total pendaftar</dt>
+      </div>
+      <div className={item}>
+        <dd className="text-2xl font-bold leading-none">{pending}</dd>
+        <dt className={label}>
+          {pending > 0 ? <Link href={`/dashboard/programs/${id}/participants`} className="font-medium text-amber-300 hover:underline">Menunggu · tinjau →</Link> : "Menunggu persetujuan"}
+        </dt>
+      </div>
+      {quota != null && (
+        <div className={item}>
+          <dd className={`text-2xl font-bold leading-none ${warn ? "text-amber-300" : ""}`}>{quota}<span className="text-sm font-semibold text-brand-200"> / {FREE_PARTICIPANT_LIMIT}</span></dd>
+          <dt className={label}>
+            {warn ? <Link href="/dashboard/upgrade" className="font-medium text-amber-300 hover:underline">Kuota Free hampir penuh · upgrade</Link> : "Kuota paket Free"}
+          </dt>
+        </div>
+      )}
+    </dl>
   );
 }

@@ -9,7 +9,7 @@ import { usesProFeature } from "@/lib/pro-gate";
 
 export default async function ProgramLayout({ children, params }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { program, profile, isPro } = await getOwnedProgram(id);
+  const { program, profile, isPro, supabase } = await getOwnedProgram(id);
 
   // Pro berakhir & jumlah program melebihi batas Free: program yang dibuat paling akhir dikunci.
   if (program.owner_id === profile.id && !isPro && (await isProgramLocked(createAdminClient(), program))) {
@@ -19,6 +19,14 @@ export default async function ProgramLayout({ children, params }: { children: Re
   const proEnded = program.owner_id === profile.id && !isPro && program.is_open && usesProFeature(program)
     ? (profile.plan_expires_at ? new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" }) : "")
     : null;
+  // Angka ringkasan untuk banner (tampil di tab Ringkasan). Kuota Free hanya menghitung peran Peserta.
+  const { data: rows } = await supabase.from("participants").select("status, role").eq("program_id", id);
+  const stats = {
+    total: rows?.length ?? 0,
+    approved: rows?.filter((r) => r.status === "approved").length ?? 0,
+    pending: rows?.filter((r) => r.status === "pending").length ?? 0,
+    quota: isPro ? null : rows?.filter((r) => (r.role ?? "Peserta") === "Peserta").length ?? 0,
+  };
   const chrome = (
     <ProgramChrome
       id={id}
@@ -30,6 +38,7 @@ export default async function ProgramLayout({ children, params }: { children: Re
       auto={program.approval_mode === "auto"}
       viewOnly={program.owner_id !== profile.id}
       proEnded={proEnded}
+      stats={stats}
     />
   );
   return (
