@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, Clock, Crown, FolderOpen, LayoutTemplate, Lock, Plus, SearchX, Users } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, ClipboardList, Crown, LayoutTemplate, Lock, Plus, SearchX, Users } from "lucide-react";
+import DashboardHero from "./DashboardHero";
 import ProgramToolbar from "./ProgramToolbar";
 import TemplateThumb from "./TemplateThumb";
 import { requireUser } from "@/lib/auth";
@@ -95,26 +96,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const previewOf = new Map((previewUrls.data ?? []).map((x) => [x.path, x.signedUrl]));
   const designOf = new Map((designRows ?? []).map((d) => [d.id as string, d]));
 
-  const stats = [
-    { label: "Program", value: programs.length, sub: !isPro ? `dari ${FREE_PROGRAM_LIMIT} (paket Free)` : `${activeCount} dibuka`, icon: FolderOpen, tone: "bg-brand-50 text-brand-700" },
-    { label: "Peserta terdaftar", value: totalParticipants, icon: Users, tone: "bg-brand-50 text-brand-700" },
-    { label: "Sertifikat terbit", value: approved.count ?? 0, icon: BadgeCheck, tone: "bg-emerald-50 text-emerald-700" },
-    { label: "Menunggu persetujuan", value: pendingTotal, icon: Clock, tone: "bg-amber-50 text-amber-700" },
-  ];
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-sm text-slate-500">{greeting()}{first ? `, ${first}` : ""}</p>
-          <h1 className="text-2xl font-bold tracking-tight">Program</h1>
-        </div>
-        {atLimit ? (
-          <span className="btn cursor-not-allowed opacity-70">Batas program Free tercapai</span>
-        ) : (
-          <Link href="/dashboard/programs/new" className="btn btn-primary"><Plus className="h-4 w-4" /> Program baru</Link>
-        )}
-      </div>
+      <DashboardHero greeting={`${greeting()}${first ? `, ${first}` : ""}`} programs={programs.length} programLimit={isPro ? null : FREE_PROGRAM_LIMIT} active={activeCount} participants={totalParticipants} approved={approved.count ?? 0} pending={pendingTotal} atLimit={atLimit} />
 
       {locked.size > 0 && (
         <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:px-4">
@@ -123,19 +107,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm shrink-0 justify-center"><Crown className="h-4 w-4" /> Perpanjang Pro</Link>
         </div>
       )}
-
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {stats.map(({ label, value, sub, icon: Icon, tone }) => (
-          <div key={label} className="card flex items-center gap-3 !p-3.5">
-            <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${tone}`}><Icon className="h-[18px] w-[18px]" /></span>
-            <div className="min-w-0">
-              <p className="text-xl font-bold leading-none">{value}</p>
-              <p className="mt-1 text-xs leading-tight text-slate-500">{label}</p>
-              {sub && <p className="truncate text-[11px] text-slate-400">{sub}</p>}
-            </div>
-          </div>
-        ))}
-      </section>
 
       {programs.length === 0 ? (
         <div className="card flex flex-col items-center py-14 text-center">
