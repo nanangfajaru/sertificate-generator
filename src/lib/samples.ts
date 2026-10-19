@@ -17,7 +17,7 @@ export const SAMPLE_PROGRAM = {
 
 export type SampleEvent = { name: string; certType: string };
 
-/** `logo`: contoh memakai logo lembaga fiktif (scripts/assets/sample-logo.png). */
+/** `logo`: contoh menampilkan penanda "LOGO" di slot logo template. */
 export function sampleKey(templateId: string, name: string, event?: SampleEvent, logo = false) {
   const s = `${templateId}|${name}|${event?.name ?? ""}|${event?.certType ?? ""}${logo ? "|logo" : ""}`;
   let h = 5381;
