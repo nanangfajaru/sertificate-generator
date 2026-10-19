@@ -48,23 +48,22 @@ const showcaseTemplates = ["classic-navy", "flora-rose", "sport-futsal", "frame-
 export default function Landing() {
   return (
     <div className="text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-        <div className="h-[3px] bg-gradient-to-r from-brand-900 via-amber-400 to-brand-900" />
+      <header className="sticky top-0 z-30 bg-navy shadow-[0_1px_0_0_rgba(251,191,36,.45)]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
-          <Logo size={34} />
-          <nav className="hidden items-center gap-7 whitespace-nowrap text-sm text-slate-600 lg:flex">
-            <a href="#fitur" className="hover:text-brand-900">Fitur</a>
-            <a href="#template" className="hover:text-brand-900">Template</a>
-            <a href="#kegunaan" className="hover:text-brand-900">Kegunaan</a>
-            <a href="#contoh" className="hover:text-brand-900">Contoh Program</a>
-            <span className="h-4 w-px bg-slate-200" aria-hidden />
-            <Link href="/tentang" className="inline-flex items-center gap-1.5 font-semibold text-brand-900 hover:text-brand-700">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Solusi dari kami
+          <Logo size={34} light />
+          <nav className="hidden items-center gap-7 whitespace-nowrap text-sm text-slate-300 lg:flex">
+            <a href="#fitur" className="hover:text-white">Fitur</a>
+            <a href="#template" className="hover:text-white">Template</a>
+            <a href="#kegunaan" className="hover:text-white">Kegunaan</a>
+            <a href="#contoh" className="hover:text-white">Contoh Program</a>
+            <span className="h-4 w-px bg-white/15" aria-hidden />
+            <Link href="/tentang" className="inline-flex items-center gap-1.5 font-semibold text-amber-300 hover:text-amber-200">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Solusi dari kami
             </Link>
           </nav>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand-900 sm:block">Masuk</Link>
-            <Link href="/login" className="btn !px-3 border-brand-900 bg-brand-900 font-semibold text-white hover:bg-brand-800 sm:!px-4">Mulai Sekarang</Link>
+            <Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-200 hover:text-white sm:block">Masuk</Link>
+            <Link href="/login" className="btn !px-3 border-amber-400 bg-amber-400 font-semibold text-navy hover:bg-amber-300 sm:!px-4">Mulai Sekarang</Link>
             <MobileNav />
           </div>
         </div>
