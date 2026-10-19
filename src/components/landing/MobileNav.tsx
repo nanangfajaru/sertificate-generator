@@ -24,13 +24,13 @@ export default function MobileNav() {
 
   return (
     <div className="lg:hidden">
-      <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-white hover:bg-white/10" onClick={() => setOpen((o) => !o)} aria-label={open ? "Tutup menu" : "Buka menu"} aria-expanded={open}>
+      <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-brand-900 hover:bg-slate-100" onClick={() => setOpen((o) => !o)} aria-label={open ? "Tutup menu" : "Buka menu"} aria-expanded={open}>
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
       {open && (
         <>
-          <div className="fixed inset-x-0 bottom-0 top-16 z-20 bg-slate-900/30" onClick={() => setOpen(false)} aria-hidden />
-          <nav className="absolute inset-x-0 top-16 z-30 border-b border-slate-200 bg-white px-5 pb-5 pt-2 shadow-lg">
+          <div className="fixed inset-x-0 bottom-0 top-[67px] z-20 bg-slate-900/30" onClick={() => setOpen(false)} aria-hidden />
+          <nav className="absolute inset-x-0 top-full z-30 border-b border-slate-200 bg-white px-5 pb-5 pt-2 shadow-lg">
             <Link href="/tentang" onClick={() => setOpen(false)} className="mb-2 flex items-center gap-3 rounded-xl border border-brand-100 bg-gradient-to-r from-brand-50 to-amber-50 p-3">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white shadow-sm"><Sparkles className="h-4 w-4 text-amber-500" /></span>
               <span className="min-w-0 flex-1">

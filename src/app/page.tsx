@@ -48,45 +48,46 @@ const showcaseTemplates = ["classic-navy", "flora-rose", "sport-futsal", "frame-
 export default function Landing() {
   return (
     <div className="text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-navy">
+      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <div className="h-[3px] bg-gradient-to-r from-brand-900 via-amber-400 to-brand-900" />
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
-          <Logo size={34} light />
-          <nav className="hidden items-center gap-7 whitespace-nowrap text-sm text-slate-300 lg:flex">
-            <a href="#fitur" className="hover:text-white">Fitur</a>
-            <a href="#template" className="hover:text-white">Template</a>
-            <a href="#kegunaan" className="hover:text-white">Kegunaan</a>
-            <a href="#contoh" className="hover:text-white">Contoh Program</a>
-            <span className="h-4 w-px bg-white/15" aria-hidden />
-            <Link href="/tentang" className="inline-flex items-center gap-1.5 font-medium text-amber-300 hover:text-amber-200">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Solusi dari kami
+          <Logo size={34} />
+          <nav className="hidden items-center gap-7 whitespace-nowrap text-sm text-slate-600 lg:flex">
+            <a href="#fitur" className="hover:text-brand-900">Fitur</a>
+            <a href="#template" className="hover:text-brand-900">Template</a>
+            <a href="#kegunaan" className="hover:text-brand-900">Kegunaan</a>
+            <a href="#contoh" className="hover:text-brand-900">Contoh Program</a>
+            <span className="h-4 w-px bg-slate-200" aria-hidden />
+            <Link href="/tentang" className="inline-flex items-center gap-1.5 font-semibold text-brand-900 hover:text-brand-700">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Solusi dari kami
             </Link>
           </nav>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-200 hover:text-white sm:block">Masuk</Link>
-            <Link href="/login" className="btn !px-3 border-amber-400 bg-amber-400 font-semibold text-navy hover:bg-amber-300 sm:!px-4">Mulai Sekarang</Link>
+            <Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand-900 sm:block">Masuk</Link>
+            <Link href="/login" className="btn !px-3 border-brand-900 bg-brand-900 font-semibold text-white hover:bg-brand-800 sm:!px-4">Mulai Sekarang</Link>
             <MobileNav />
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-slate-100 bg-[linear-gradient(180deg,#0b1437_0%,#0f1d4a_38%,#3a5196_55%,#dfe6f7_72%,#f8fafc_100%)] md:bg-[linear-gradient(100deg,#0b1437_0%,#0f1d4a_26%,#1d3277_40%,#8a9fd4_51%,#e7ecf8_60%,#f8fafc_100%)]">
-        {/* gradasi navy → terang; pola titik halus */}
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(180deg,black,transparent_60%)] md:[mask-image:linear-gradient(90deg,black_20%,transparent_45%)]" />
-        <div className="absolute left-[-10%] top-[-20%] h-[520px] w-[520px] rounded-full bg-brand-700/30 blur-3xl" />
-        <div className="absolute bottom-0 right-[8%] h-64 w-64 rounded-full bg-amber-100/50 blur-3xl" />
+      <section className="relative overflow-hidden border-b border-slate-100 bg-gradient-to-b from-white via-white to-brand-50/60">
+        <div className="bg-grid absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
+        <div className="absolute -right-24 -top-24 h-[460px] w-[460px] rounded-full bg-brand-100/70 blur-3xl" />
+        <div className="absolute bottom-[-6rem] right-[30%] h-72 w-72 rounded-full bg-amber-100/70 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-[1.05fr_1fr] md:py-20 lg:gap-14 lg:py-28">
-          <div className="text-white md:pr-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">Platform sertifikat digital</p>
-            <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-[2.6rem] lg:text-[3.4rem]">
-              Terbitkan sertifikat peserta dalam hitungan detik.
+          <div className="md:pr-6">
+            <p className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.25em] text-amber-600"><span className="h-px w-8 bg-amber-500" />Platform sertifikat digital</p>
+            <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-brand-900 sm:text-5xl md:text-[2.6rem] lg:text-[3.4rem]">
+              Terbitkan sertifikat peserta dalam{" "}
+              <span className="relative isolate whitespace-nowrap">hitungan detik.<span className="absolute inset-x-0 bottom-1 -z-10 h-3 rounded-full bg-amber-300/70" /></span>
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
               Kumpulkan data peserta melalui satu tautan, setujui, lalu terbitkan sertifikat PDF lengkap dengan QR verifikasi.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/login" className="btn border-amber-400 bg-amber-400 px-6 py-3 text-base font-semibold text-navy hover:bg-amber-300">Mulai Sekarang</Link>
-              <a href="#template" className="btn border-white/25 bg-white/5 px-6 py-3 text-base text-white hover:bg-white/10">Lihat Template</a>
+              <Link href="/login" className="btn border-brand-900 bg-brand-900 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-900/20 hover:bg-brand-800">Mulai Sekarang</Link>
+              <a href="#template" className="btn border-amber-400 px-6 py-3 text-base font-medium text-brand-900 hover:bg-amber-50">Lihat Template</a>
             </div>
           </div>
 
@@ -97,7 +98,7 @@ export default function Landing() {
             <div className="absolute right-0 top-0 w-[62%] rotate-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
               <SampleCert priority templateId="frame-crimson" name="Citra Lestari" />
             </div>
-            <div className="relative ml-[12%] mt-24 w-[76%] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl ring-1 ring-slate-900/5">
+            <div className="relative ml-[12%] mt-24 w-[76%] overflow-hidden rounded-lg border border-amber-200 bg-white shadow-2xl shadow-brand-900/15 ring-1 ring-amber-300/40">
               <SampleCert priority templateId="classic-navy" name="Aisyah Putri Rahma" />
             </div>
             <div className="absolute -bottom-4 left-0 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-lg">
