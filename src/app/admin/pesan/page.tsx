@@ -5,6 +5,7 @@ import Pager, { likeTerm, pageOf } from "@/components/admin/Pager";
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import StatusSelect from "./StatusSelect";
+import DeleteMessage from "./DeleteMessage";
 
 export const metadata = { title: "Pesan masuk · Admin" };
 
@@ -30,7 +31,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
   return (
     <div>
       <h1 className="text-2xl font-bold tracking-tight">Pesan masuk</h1>
-      <p className="mb-4 text-sm text-slate-500">Isian form Hubungi kami. Balas lewat email pengirim, lalu tandai statusnya.</p>
+      <p className="mb-4 text-sm text-slate-500">Isian form Hubungi kami. Balas lewat email pengirim, lalu tandai statusnya. Pesan spam bisa dihapus.</p>
       <div className="mb-4">
         <ListToolbar placeholder="Cari nama, email, instansi, atau isi pesan…" filters={[{ param: "status", label: "Status", options: [["baru", "Baru"], ["dibalas", "Sudah dibalas"], ["selesai", "Selesai"]] }]} />
       </div>
@@ -56,6 +57,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
               <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">{m.message}</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <CopyButton text={m.email} label="Salin email" />
+                <DeleteMessage id={m.id} name={m.name} />
                 {!m.emailed && <span className="text-xs text-amber-700">Notifikasi email gagal terkirim, pesan hanya tersimpan di sini.</span>}
               </div>
             </li>
