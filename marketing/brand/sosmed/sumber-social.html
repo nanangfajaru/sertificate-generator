@@ -1,0 +1,93 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Inter;font-weight:400;src:url(inter-latin-400-normal.woff2)}
+@font-face{font-family:Inter;font-weight:700;src:url(inter-latin-700-normal.woff2)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ddd;font-family:Inter,sans-serif;padding:20px;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.ab{position:relative;overflow:hidden;flex:none}
+.navy{background:linear-gradient(135deg,#1e3a7a 0%,#0f1d4a 48%,#0b1437 100%);color:#fff}
+.ring{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.09)}
+.gring{position:absolute;border-radius:50%;border:2px solid rgba(251,191,36,.28)}
+.blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.04)}
+.hair{position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,transparent,rgba(251,191,36,.85),transparent)}
+.word{font-weight:700;letter-spacing:-.02em;line-height:1}
+.word b{color:#fbbf24;font-weight:700}
+.row{display:flex;align-items:center}
+.hl{font-weight:700;letter-spacing:-.025em;line-height:1.05}
+.hl em{font-style:normal;color:#fbbf24}
+.sub{color:#c6d2ea;line-height:1.35}
+.pill{display:inline-flex;align-items:center;border-radius:999px;background:#fbbf24;color:#0b1437;font-weight:700}
+.cert{position:absolute;border-radius:10px;background:#fff;box-shadow:0 30px 60px rgba(0,0,0,.45);overflow:hidden}
+.cert img{display:block;width:100%}
+.chip{display:inline-flex;align-items:center;gap:.4em;border-radius:999px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e3e9f5;font-weight:400}
+.chip i{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#fbbf24}
+</style></head><body>
+<template id="markDark"><svg viewBox="4 13 56 38" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="15" width="44" height="34" rx="4.5" fill="#fff"/><rect x="10" y="22" width="14" height="3" rx="1.5" fill="#0f1d4a"/><rect x="10" y="28.5" width="10" height="2.4" rx="1.2" fill="#0f1d4a" opacity=".45"/><rect x="10" y="34" width="12" height="2.4" rx="1.2" fill="#0f1d4a" opacity=".45"/><rect x="30" y="18" width="29" height="29" rx="6" fill="#0f1d4a"/><path d="M33 26.98V23a2 2 0 0 1 2-2H38.98 M50.02 21H54a2 2 0 0 1 2 2V26.98 M56 38.02V42a2 2 0 0 1-2 2H50.02 M38.98 44H35a2 2 0 0 1-2-2V38.02" fill="none" stroke="#f5b301" stroke-width="2.4" stroke-linecap="round"/><g transform="translate(44.5 32.5) scale(0.33) translate(-32 -32)"><rect x="14.5" y="14.5" width="11" height="11" rx="3" fill="none" stroke="#fff" stroke-width="5"/><rect x="38.5" y="14.5" width="11" height="11" rx="3" fill="none" stroke="#fff" stroke-width="5"/><rect x="14.5" y="38.5" width="11" height="11" rx="3" fill="none" stroke="#fff" stroke-width="5"/><circle cx="44" cy="44" r="10" fill="#f5b301"/><path d="m39 44.3 3.6 3.6 6.6-7.2" fill="none" stroke="#0f1d4a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg></template>
+<template id="markLight"><svg viewBox="4 13 56 38" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="15" width="44" height="34" rx="4.5" fill="#0f1d4a"/><rect x="10" y="22" width="14" height="3" rx="1.5" fill="#fff"/><rect x="10" y="28.5" width="10" height="2.4" rx="1.2" fill="#fff" opacity=".45"/><rect x="10" y="34" width="12" height="2.4" rx="1.2" fill="#fff" opacity=".45"/><rect x="30" y="18" width="29" height="29" rx="6" fill="#fff"/><path d="M33 26.98V23a2 2 0 0 1 2-2H38.98 M50.02 21H54a2 2 0 0 1 2 2V26.98 M56 38.02V42a2 2 0 0 1-2 2H50.02 M38.98 44H35a2 2 0 0 1-2-2V38.02" fill="none" stroke="#f5b301" stroke-width="2.4" stroke-linecap="round"/><g transform="translate(44.5 32.5) scale(0.33) translate(-32 -32)"><rect x="14.5" y="14.5" width="11" height="11" rx="3" fill="none" stroke="#0f1d4a" stroke-width="5"/><rect x="38.5" y="14.5" width="11" height="11" rx="3" fill="none" stroke="#0f1d4a" stroke-width="5"/><rect x="14.5" y="38.5" width="11" height="11" rx="3" fill="none" stroke="#0f1d4a" stroke-width="5"/><circle cx="44" cy="44" r="10" fill="#f5b301"/><path d="m39 44.3 3.6 3.6 6.6-7.2" fill="none" stroke="#0f1d4a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg></template>
+
+<!-- Foto profil A: navy -->
+<div id="avatar-navy" class="ab navy" style="width:1080px;height:1080px">
+  <div class="ring" style="width:1300px;height:1300px;left:-110px;top:-110px"></div>
+  <div class="gring" style="width:980px;height:980px;left:50px;top:50px;border-width:3px"></div>
+  <div class="blob" style="width:600px;height:600px;right:-200px;bottom:-240px"></div>
+  <div data-mark="dark" data-outline style="position:absolute;width:660px;left:210px;top:315px"></div>
+</div>
+
+<!-- Foto profil B: putih -->
+<div id="avatar-white" class="ab" style="width:1080px;height:1080px;background:#fff">
+  <div style="position:absolute;width:980px;height:980px;left:50px;top:50px;border-radius:50%;border:3px solid rgba(245,179,1,.45)"></div>
+  <div data-mark="light" style="position:absolute;width:660px;left:210px;top:315px"></div>
+</div>
+
+<!-- YouTube 2560x1440, area aman tengah 1546x423 -->
+<div id="youtube" class="ab navy" style="width:2560px;height:1440px">
+  <div class="hair"></div>
+  <div class="ring" style="width:1500px;height:1500px;right:-420px;top:-620px"></div>
+  <div class="gring" style="width:900px;height:900px;right:-120px;top:-300px"></div>
+  <div class="ring" style="width:1100px;height:1100px;left:-500px;bottom:-650px"></div>
+  <div class="blob" style="width:800px;height:800px;left:900px;bottom:-560px"></div>
+  <div style="position:absolute;left:507px;top:508px;width:1546px;height:423px">
+    <div style="position:absolute;left:0;top:28px;width:940px">
+      <div class="row" style="gap:22px"><div data-mark="dark" style="width:112px"></div><div class="word" style="font-size:56px">Sertifikat<b>Ku</b></div></div>
+      <div class="hl" style="font-size:78px;margin-top:34px">Sertifikat online <em>otomatis</em></div>
+      <div class="sub" style="font-size:34px;margin-top:20px">Peserta isi form, sertifikat langsung terbit.<br>Resmi &amp; bisa diverifikasi lewat QR.</div>
+      <div class="pill" style="font-size:30px;padding:14px 30px;margin-top:30px">sertifikatku.com</div>
+    </div>
+    <div class="cert" style="width:440px;left:1040px;top:20px;transform:rotate(7deg)"><img src="frame-crimson-eolj9p.webp"></div>
+    <div class="cert" style="width:460px;left:960px;top:120px;transform:rotate(-5deg)"><img src="classic-navy-179z90c.webp"></div>
+  </div>
+</div>
+
+<!-- Facebook 1640x624 (820x312 @2x); HP memotong sisi kiri-kanan -->
+<div id="facebook" class="ab navy" style="width:1640px;height:624px">
+  <div class="hair"></div>
+  <div class="ring" style="width:900px;height:900px;right:-260px;top:-420px"></div>
+  <div class="gring" style="width:520px;height:520px;right:-60px;top:-200px"></div>
+  <div class="ring" style="width:700px;height:700px;left:-300px;bottom:-460px"></div>
+  <div class="cert" style="width:330px;left:-40px;top:110px;transform:rotate(-8deg);opacity:.95"><img src="modern-teal-181e8uu.webp"></div>
+  <div class="cert" style="width:330px;right:-30px;top:200px;transform:rotate(8deg);opacity:.95"><img src="classic-navy-179z90c.webp"></div>
+  <div style="position:absolute;left:0;right:0;top:150px;text-align:center">
+    <div class="row" style="gap:16px;justify-content:center"><div data-mark="dark" style="width:80px"></div><div class="word" style="font-size:40px">Sertifikat<b>Ku</b></div></div>
+    <div class="hl" style="font-size:66px;margin-top:26px">Sertifikat online <em>otomatis</em></div>
+    <div class="sub" style="font-size:28px;margin-top:16px">Peserta isi form, sertifikat langsung terbit · resmi &amp; bisa diverifikasi</div>
+    <div class="pill" style="font-size:24px;padding:10px 24px;margin-top:24px">sertifikatku.com</div>
+  </div>
+</div>
+
+<!-- LinkedIn halaman perusahaan 1128x191 @2x -->
+<div id="linkedin" class="ab navy" style="width:2256px;height:382px">
+  <div class="hair"></div>
+  <div class="ring" style="width:900px;height:900px;right:-200px;top:-480px"></div>
+  <div class="gring" style="width:520px;height:520px;right:40px;top:-260px"></div>
+  <div style="position:absolute;left:560px;top:96px">
+    <div class="hl" style="font-size:64px">Sertifikat online <em>otomatis</em></div>
+    <div class="sub" style="font-size:30px;margin-top:16px">Peserta isi form, sertifikat langsung terbit · <b style="color:#fbbf24">sertifikatku.com</b></div>
+  </div>
+  <div class="cert" style="width:300px;right:150px;top:70px;transform:rotate(6deg)"><img src="frame-crimson-eolj9p.webp"></div>
+  <div class="cert" style="width:310px;right:300px;top:110px;transform:rotate(-5deg)"><img src="classic-navy-179z90c.webp"></div>
+</div>
+<script>
+const t={dark:document.getElementById('markDark').innerHTML,light:document.getElementById('markLight').innerHTML};
+document.querySelectorAll('[data-mark]').forEach(el=>{el.innerHTML=t[el.dataset.mark];el.firstElementChild.style.cssText='display:block;width:100%;height:auto';
+  if(el.hasAttribute('data-outline')){const r=el.querySelector('rect[x="30"]');r.setAttribute('stroke','rgba(255,255,255,.16)');r.setAttribute('stroke-width','.8');}});
+</script>
+</body></html>
