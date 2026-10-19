@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, X } from "lucide-react";
+import { Award, Eye, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import CertificateSvg from "@/components/CertificateSvg";
@@ -22,9 +22,12 @@ export default function CertPreviewCard({ programId, templateName, layout, bgUrl
   return (
     <div className="card !p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-xs text-slate-500">Sertifikat yang dipilih</p>
-          <p className="truncate text-sm font-semibold">{templateName}</p>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700"><Award className="h-4 w-4" /></span>
+          <div className="min-w-0">
+            <p className="text-xs text-slate-500">Sertifikat yang dipilih</p>
+            <p className="truncate text-sm font-semibold text-navy">{templateName}</p>
+          </div>
         </div>
         <Link href={`/dashboard/programs/${programId}/form?pick=1`} className="btn btn-sm shrink-0">Ganti</Link>
       </div>
