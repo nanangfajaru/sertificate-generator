@@ -20,18 +20,36 @@ type OrderRow = {
   created_at: string;
   period_start: string | null;
   period_end: string | null;
+  payment_method: string | null;
 };
 
-const ORDER_COLS = "order_id, user_id, plan, base_amount, discount_amount, amount, voucher_code, status, paid_at, created_at, period_start, period_end";
+const ORDER_COLS = "order_id, user_id, plan, base_amount, discount_amount, amount, voucher_code, status, paid_at, created_at, period_start, period_end, payment_method";
 
 export async function loadOrder(admin: SupabaseClient, orderId: string) {
   const { data } = await admin.from("orders").select(ORDER_COLS).eq("order_id", orderId).maybeSingle();
   return data as OrderRow | null;
 }
 
+/** Metode bayar tercatat; pesanan lama yang belum tercatat diambil sekali dari Midtrans lalu disimpan. */
+async function resolvePaymentMethod(admin: SupabaseClient, o: OrderRow): Promise<string> {
+  if (o.payment_method) return o.payment_method;
+  if (Number(o.amount) <= 0) return "Voucher (gratis)";
+  // Impor dinamis: billing juga mengimpor modul ini (kirim invoice).
+  const { fetchTransactionStatus, midtransConfigured, paymentMethodLabel } = await import("./billing");
+  if (!midtransConfigured()) return "Online";
+  const st = await fetchTransactionStatus(o.order_id).catch(() => null);
+  const label = st ? paymentMethodLabel(st) : null;
+  if (!label) return "Online";
+  await admin.from("orders").update({ payment_method: label }).eq("order_id", o.order_id);
+  return label;
+}
+
 /** Data invoice dari pesanan lunas. Pesanan lama tanpa periode tercatat: tanggal bayar + durasi paket. */
 export async function invoiceData(admin: SupabaseClient, o: OrderRow): Promise<InvoiceData> {
-  const { data: buyer } = await admin.from("profiles").select("full_name, email, organization").eq("id", o.user_id).maybeSingle();
+  const [{ data: buyer }, paymentMethod] = await Promise.all([
+    admin.from("profiles").select("full_name, email, organization").eq("id", o.user_id).maybeSingle(),
+    resolvePaymentMethod(admin, o),
+  ]);
   const paidAt = o.paid_at ?? o.created_at;
   const discount = Number(o.discount_amount ?? 0);
   let period: InvoiceData["period"] = null;
@@ -51,6 +69,7 @@ export async function invoiceData(admin: SupabaseClient, o: OrderRow): Promise<I
     amount: Number(o.amount),
     voucherCode: o.voucher_code,
     period,
+    paymentMethod,
     buyer: { name: buyer?.full_name ?? null, email: buyer?.email ?? null, organization: buyer?.organization ?? null },
   };
 }

@@ -1,11 +1,10 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { ArrowLeft, Check, Crown, Minus } from "lucide-react";
+import { Check, Clock, Crown, Minus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { applyMidtransStatus, getPricing, fetchTransactionStatus, midtransConfigured } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Checkout from "./Checkout";
-import OrderHistory, { type HistoryRow } from "./OrderHistory";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Berlangganan" };
@@ -52,33 +51,38 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
       if (orderStatus === "paid") proNow = true;
     }
   }
-  const [pricing, { data: ordersData }] = await Promise.all([
+  const [pricing, { count: pendingCount }] = await Promise.all([
     getPricing(admin),
-    // Riwayat pembelian milik pengguna ini saja.
-    admin.from("orders").select("order_id, plan, base_amount, discount_amount, amount, voucher_code, status, payment_url, paid_at, created_at").eq("user_id", profile.id).order("created_at", { ascending: false }).limit(50),
+    admin.from("orders").select("id", { count: "exact", head: true }).eq("user_id", profile.id).eq("status", "pending"),
   ]);
-  const history = (ordersData ?? []) as HistoryRow[];
 
   return (
     <div>
-      <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Kembali</Link>
-      <div className="mt-3 text-center">
+      <div className="mt-6 text-center">
         <h1 className="text-3xl font-bold">Pilih paket yang sesuai</h1>
         <p className="mt-2 text-slate-600">Buka seluruh template bertema, desain sendiri, program tanpa batas, dan sertifikat tanpa watermark.</p>
       </div>
 
       {orderStatus === "paid" && <p className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><b>Pembayaran berhasil.</b> Paket Pro Anda sudah aktif. Terima kasih!</p>}
-      {orderStatus === "pending" && <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Pembayaran Anda sedang menunggu konfirmasi. Muat ulang halaman ini setelah beberapa saat.</p>}
+      {orderStatus === "pending" && <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Pembayaran Anda sedang menunggu konfirmasi. Muat ulang halaman ini setelah beberapa saat, atau buka <Link href="/dashboard/upgrade/riwayat" className="font-semibold underline">Riwayat transaksi</Link> untuk melanjutkan, mengganti metode, atau membatalkan.</p>}
+      {orderStatus !== "pending" && (pendingCount ?? 0) > 0 && (
+        <Link href="/dashboard/upgrade/riwayat" className="mt-6 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 hover:bg-amber-100/60">
+          <Clock className="h-4 w-4 shrink-0 text-amber-600" /> <span>Anda punya <b>{pendingCount} pembayaran tertunda</b>. Lanjutkan, ganti metode bayar, atau batalkan di Riwayat transaksi →</span>
+        </Link>
+      )}
       {(orderStatus === "failed" || orderStatus === "expired") && <p className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">Pembayaran tidak berhasil atau sudah kedaluwarsa. Silakan coba lagi.</p>}
 
       {proNow ? (
-        <div className="mt-8 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <Crown className="h-5 w-5 text-amber-600" /> Paket Pro Anda sedang aktif{profile.plan_expires_at ? ` hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long" })}` : ""}. Anda bisa memperpanjang kapan saja.
+        <div className="relative mt-8 flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 via-brand-900 to-navy p-5 text-white shadow-md ring-1 ring-amber-400/25">
+          <div className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full border border-white/10" />
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-400 text-navy"><Crown className="h-5 w-5" /></span>
+          <div className="relative min-w-0 flex-1">
+            <p className="font-semibold">Paket Pro aktif</p>
+            <p className="mt-0.5 text-sm text-brand-100">{profile.plan_expires_at ? `Berlaku hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" })}. Perpanjang kapan saja, masa aktif ditambahkan dari tanggal berakhir.` : "Tanpa batas waktu."}</p>
+          </div>
         </div>
       ) : null}
       <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} pricing={pricing} configured={midtransConfigured()} />
-
-      <OrderHistory rows={history} />
 
       <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full table-fixed text-xs sm:text-sm">

@@ -1,7 +1,8 @@
 "use server";
 
 import { requireUser } from "@/lib/auth";
-import { PLANS, createSnapTransaction, findVoucher, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
+import { revalidatePath } from "next/cache";
+import { PLANS, createSnapTransaction, expireTransaction, findVoucher, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
 import { randomCode } from "@/lib/util";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -68,4 +69,39 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
     console.error("midtrans error", e);
     return { error: "Gagal membuka pembayaran. Coba lagi beberapa saat." };
   }
+}
+
+/** Pesanan "menunggu bayar" milik pengguna yang sedang login. */
+async function ownPending(orderId: string) {
+  const { profile } = await requireUser();
+  const admin = createAdminClient();
+  const { data: o } = await admin.from("orders").select("order_id, user_id, plan, voucher_code, status").eq("order_id", orderId).maybeSingle();
+  if (!o || o.user_id !== profile.id) return { error: "Pesanan tidak ditemukan" as const };
+  if (o.status !== "pending") return { error: "Pesanan ini sudah tidak menunggu pembayaran" as const };
+  return { admin, o };
+}
+
+async function cancelPending(admin: ReturnType<typeof createAdminClient>, orderId: string) {
+  // Batalkan juga di Midtrans agar nomor VA / kode bayar lama tidak bisa dipakai lagi.
+  if (midtransConfigured()) await expireTransaction(orderId);
+  await admin.from("orders").update({ status: "cancelled" }).eq("order_id", orderId).eq("status", "pending");
+}
+
+/** Batalkan pesanan yang belum dibayar. */
+export async function cancelOrder(orderId: string): Promise<{ error?: string }> {
+  const r = await ownPending(orderId);
+  if ("error" in r) return { error: r.error };
+  await cancelPending(r.admin, orderId);
+  revalidatePath("/dashboard/upgrade", "layout");
+  return {};
+}
+
+/** Ganti metode bayar: buat pesanan baru (paket & voucher sama), lalu batalkan pesanan lama. */
+export async function changePaymentMethod(orderId: string): Promise<{ url?: string; error?: string }> {
+  const r = await ownPending(orderId);
+  if ("error" in r) return { error: r.error };
+  const next = await startCheckout(r.o.plan, r.o.voucher_code ?? "");
+  if (!next.url) return next;
+  await cancelPending(r.admin, orderId);
+  return next;
 }

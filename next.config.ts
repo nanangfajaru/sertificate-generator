@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/**": ["./src/fonts/**"],
     "/c/**": ["./src/fonts/**"],
+    // Invoice PDF juga bisa dibuat dari halaman Berlangganan (sinkron status setelah kembali dari Midtrans).
+    "/dashboard/**": ["./src/fonts/**"],
   },
   serverExternalPackages: ["pdf-lib", "@pdf-lib/fontkit"],
   async headers() {

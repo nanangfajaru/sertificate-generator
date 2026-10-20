@@ -119,7 +119,40 @@ export type MidtransStatus = {
   signature_key?: string;
   transaction_status?: string;
   fraud_status?: string;
+  payment_type?: string;
+  va_numbers?: { bank?: string; va_number?: string }[];
+  permata_va_number?: string;
+  store?: string;
+  issuer?: string;
+  bank?: string;
 };
+
+const NAMES: Record<string, string> = {
+  qris: "QRIS", gopay: "GoPay", shopeepay: "ShopeePay", dana: "DANA", ovo: "OVO", linkaja: "LinkAja",
+  akulaku: "Akulaku", kredivo: "Kredivo", indomaret: "Indomaret", alfamart: "Alfamart",
+  bca: "BCA", bni: "BNI", bri: "BRI", mandiri: "Mandiri", permata: "Permata", cimb: "CIMB Niaga", bsi: "BSI",
+};
+const nice = (s: string) => NAMES[s.toLowerCase()] ?? s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+/** Nama metode bayar yang mudah dibaca dari notifikasi/status Midtrans, mis. "Virtual Account BCA". */
+export function paymentMethodLabel(p: MidtransStatus): string | null {
+  const t = p.payment_type;
+  if (!t) return null;
+  if (t === "bank_transfer") {
+    const bank = p.va_numbers?.[0]?.bank ?? (p.permata_va_number ? "permata" : null);
+    return bank ? `Virtual Account ${nice(bank)}` : "Transfer bank (Virtual Account)";
+  }
+  if (t === "echannel") return "Mandiri Bill Payment";
+  if (t === "credit_card") return p.bank ? `Kartu kredit/debit (${nice(p.bank)})` : "Kartu kredit/debit";
+  if (t === "cstore") return p.store ? nice(p.store) : "Gerai retail";
+  return nice(t);
+}
+
+/** Batalkan transaksi yang masih menunggu bayar di Midtrans. Diabaikan bila belum ada transaksi (pembeli belum memilih metode). */
+export async function expireTransaction(orderId: string) {
+  const base = isProd() ? "https://api.midtrans.com" : "https://api.sandbox.midtrans.com";
+  await fetch(`${base}/v2/${encodeURIComponent(orderId)}/expire`, { method: "POST", headers: { Accept: "application/json", Authorization: auth() }, cache: "no-store" }).catch(() => null);
+}
 
 export async function fetchTransactionStatus(orderId: string): Promise<MidtransStatus | null> {
   const base = isProd() ? "https://api.midtrans.com" : "https://api.sandbox.midtrans.com";
@@ -173,6 +206,8 @@ export async function activatePaidOrder(admin: SupabaseClient, orderId: string, 
 export async function applyMidtransStatus(admin: SupabaseClient, p: MidtransStatus): Promise<string | null> {
   const { data: o } = await admin.from("orders").select("*").eq("order_id", p.order_id).maybeSingle();
   if (!o) return null;
+  const method = paymentMethodLabel(p);
+  if (method && method !== o.payment_method) await admin.from("orders").update({ payment_method: method }).eq("id", o.id);
   if (o.status === "paid") return "paid";
   const ts = p.transaction_status;
   const paid = ts === "settlement" || (ts === "capture" && (p.fraud_status ?? "accept") === "accept");
