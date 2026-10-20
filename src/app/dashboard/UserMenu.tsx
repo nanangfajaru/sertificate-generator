@@ -47,18 +47,17 @@ export default function UserMenu({ name, email, avatarUrl, isPro, planUntil }: P
 
       {open && (
         <div role="menu" className="absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-brand-900/10">
-          <div className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-900 to-navy p-4 text-white">
-            <span className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full border border-white/10" />
-            <div className="relative flex items-center gap-3">
-              <span className="rounded-full ring-2 ring-white/30"><Avatar name={name} url={avatarUrl} size="h-11 w-11" /></span>
+          <div className="border-b border-slate-100 p-4">
+            <div className="flex items-center gap-3">
+              <span className="rounded-full ring-2 ring-brand-100"><Avatar name={name} url={avatarUrl} size="h-11 w-11" /></span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{name}</p>
-                <p className="truncate text-xs text-brand-100">{email}</p>
+                <p className="truncate text-sm font-semibold text-navy">{name}</p>
+                <p className="truncate text-xs text-slate-500">{email}</p>
               </div>
             </div>
-            <div className="relative mt-3 flex items-center justify-between gap-2 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs">
-              <span className="flex items-center gap-1.5 font-semibold">{isPro ? <Crown className="h-3.5 w-3.5 text-amber-400" /> : <Sparkles className="h-3.5 w-3.5 text-amber-400" />} Paket {isPro ? "Pro" : "Free"}</span>
-              <span className="text-brand-100">{isPro ? (planUntil ? `s.d. ${planUntil}` : "Tanpa batas") : <Link href="/dashboard/upgrade/paket" onClick={() => setOpen(false)} className="font-semibold text-amber-300 hover:underline">Upgrade →</Link>}</span>
+            <div className={`mt-3 flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs ${isPro ? "bg-amber-50 text-amber-900" : "bg-slate-50 text-slate-700"}`}>
+              <span className="flex items-center gap-1.5 font-semibold">{isPro ? <Crown className="h-3.5 w-3.5 text-amber-500" /> : <Sparkles className="h-3.5 w-3.5 text-brand-600" />} Paket {isPro ? "Pro" : "Free"}</span>
+              <span className={isPro ? "text-amber-800/80" : ""}>{isPro ? (planUntil ? `s.d. ${planUntil}` : "Tanpa batas") : <Link href="/dashboard/upgrade/paket" onClick={() => setOpen(false)} className="font-semibold text-brand-700 hover:underline">Upgrade →</Link>}</span>
             </div>
           </div>
           <div className="space-y-0.5 p-1.5">
