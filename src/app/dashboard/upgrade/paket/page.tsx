@@ -1,10 +1,9 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { ArrowLeft, Check, Crown, Minus } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, Crown, Minus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getPricing, midtransConfigured } from "@/lib/billing";
+import { getPricing } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
-import Checkout from "../Checkout";
+import PlanCards from "../PlanCards";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Paket Pro" };
@@ -40,16 +39,20 @@ export default async function PricingPage() {
       <Link href="/dashboard/upgrade" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Berlangganan</Link>
       <div className="mt-3 text-center">
         <h1 className="text-3xl font-bold tracking-tight text-navy">{isPro ? "Perpanjang paket Pro" : "Pilih paket yang sesuai"}</h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mx-auto mt-2 max-w-2xl text-slate-600">
           {isPro && profile.plan_expires_at
             ? `Pro Anda berlaku hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" })}. Masa aktif baru ditambahkan dari tanggal tersebut.`
             : "Buka seluruh template bertema, desain sendiri, program tanpa batas, dan sertifikat tanpa watermark."}
         </p>
       </div>
-      <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} pricing={pricing} configured={midtransConfigured()} />
+      <PlanCards pricing={pricing} />
 
-      <h2 className="mt-12 text-center text-lg font-semibold text-navy">Bandingkan Free dan Pro</h2>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <details className="group mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-navy">
+          Bandingkan Free dan Pro
+          <ChevronDown className="h-5 w-5 text-slate-400 transition group-open:rotate-180" />
+        </summary>
+      <div className="overflow-x-auto border-t border-slate-200">
         <table className="w-full table-fixed text-xs sm:text-sm">
           <thead>
             <tr className="text-left">
@@ -69,6 +72,7 @@ export default async function PricingPage() {
           </tbody>
         </table>
       </div>
+      </details>
     </div>
   );
 }
