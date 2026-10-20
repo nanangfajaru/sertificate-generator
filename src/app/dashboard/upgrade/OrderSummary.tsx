@@ -3,6 +3,7 @@
 import { ArrowRight, BadgePercent, Check, Crown, Loader2, Lock, ShieldCheck, X } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { checkVoucher, startCheckout, type VoucherCheck } from "./actions";
+import { openPayment, preloadSnap } from "@/lib/snap-client";
 
 type PlanKey = "monthly" | "yearly";
 type Pricing = Record<PlanKey, { list: number; price: number }>;
@@ -17,6 +18,7 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
   const [err, setErr] = useState<string | null>(null);
   const [vErr, setVErr] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [closedNote, setClosedNote] = useState(false);
   const [checking, startCheck] = useTransition();
 
   const applied = v?.code && !v.error ? v : null;
@@ -35,21 +37,26 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
       } else setV(r);
     });
   }
-  // Kode dari link referral langsung dicoba.
+  // Kode dari link referral langsung dicoba; skrip popup Midtrans disiapkan di latar.
   useEffect(() => {
+    preloadSnap();
     if (initialCode) apply(initialCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function pay() {
     setErr(null);
+    setClosedNote(false);
     setPaying(true);
     const r = await startCheckout(plan, applied?.code ?? "");
     if (r.error || !r.url) {
       setPaying(false);
       return setErr(r.error ?? "Gagal memulai pembayaran");
     }
-    window.location.href = r.url;
+    await openPayment(r.url, r.orderId, () => {
+      setPaying(false);
+      setClosedNote(true);
+    });
   }
 
   return (
@@ -105,8 +112,9 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
             <span className="text-3xl font-bold tracking-tight text-amber-400">{rp(total)}</span>
           </div>
           {err && <p className="relative mt-3 rounded-lg bg-red-500/15 p-2.5 text-sm text-red-100">{err}</p>}
+          {closedNote && <p className="relative mt-3 rounded-lg bg-white/10 p-2.5 text-xs text-brand-100">Pembayaran belum diselesaikan. Pesanan tersimpan di <a href="/dashboard/upgrade" className="font-semibold text-amber-300 underline">Berlangganan</a> dan bisa dilanjutkan kapan saja.</p>}
           <button onClick={pay} disabled={!configured || paying || !!closedMessage} className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-navy shadow-lg shadow-black/20 transition hover:bg-amber-300 disabled:opacity-60">
-            {paying ? <><Loader2 className="h-4 w-4 animate-spin" /> Mengalihkan ke pembayaran…</> : total <= 0 ? <>Aktifkan Pro <ArrowRight className="h-4 w-4" /></> : <><Lock className="h-4 w-4" /> Bayar sekarang</>}
+            {paying ? <><Loader2 className="h-4 w-4 animate-spin" /> Membuka pembayaran…</> : total <= 0 ? <>Aktifkan Pro <ArrowRight className="h-4 w-4" /></> : <><Lock className="h-4 w-4" /> Bayar sekarang</>}
           </button>
           {closedMessage && <p className="relative mt-2 text-center text-xs text-amber-200">{closedMessage}</p>}
           {!configured && <p className="relative mt-2 text-center text-xs text-brand-200">Pembayaran online belum aktif. Hubungi admin.</p>}

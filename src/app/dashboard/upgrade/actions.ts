@@ -24,7 +24,7 @@ export async function checkVoucher(rawCode: string): Promise<VoucherCheck> {
   };
 }
 
-export async function startCheckout(plan: string, rawCode: string): Promise<{ url?: string; error?: string }> {
+export async function startCheckout(plan: string, rawCode: string): Promise<{ url?: string; orderId?: string; error?: string }> {
   const { profile } = await requireUser();
   if (!isPlan(plan)) return { error: "Paket tidak valid" };
   if (!midtransConfigured()) return { error: "Pembayaran belum dikonfigurasi. Hubungi admin." };
@@ -57,7 +57,7 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
     const { error } = await admin.from("orders").insert({ ...row, status: "paid", paid_at: new Date().toISOString() });
     if (error) return { error: "Gagal membuat pesanan" };
     await activatePaidOrder(admin, orderId, profile.id, PLANS[plan].months);
-    return { url: `/dashboard/upgrade?order=${orderId}` };
+    return { url: `/dashboard/upgrade?order=${orderId}`, orderId };
   }
 
   const { error } = await admin.from("orders").insert(row);
@@ -65,7 +65,7 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
   try {
     const url = await createSnapTransaction({ orderId, amount: price.amount, plan, email: profile.email, name: profile.full_name });
     await admin.from("orders").update({ payment_url: url }).eq("order_id", orderId);
-    return { url };
+    return { url, orderId };
   } catch (e) {
     await admin.from("orders").update({ status: "failed" }).eq("order_id", orderId);
     console.error("midtrans error", e);
@@ -99,7 +99,7 @@ export async function cancelOrder(orderId: string): Promise<{ error?: string }> 
 }
 
 /** Ganti metode bayar: buat pesanan baru (paket & voucher sama), lalu batalkan pesanan lama. */
-export async function changePaymentMethod(orderId: string): Promise<{ url?: string; error?: string }> {
+export async function changePaymentMethod(orderId: string): Promise<{ url?: string; orderId?: string; error?: string }> {
   const r = await ownPending(orderId);
   if ("error" in r) return { error: r.error };
   const next = await startCheckout(r.o.plan, r.o.voucher_code ?? "");
