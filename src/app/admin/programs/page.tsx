@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateRange } from "@/lib/certificate/sources";
 import ListToolbar from "@/components/admin/ListToolbar";
 import Pager, { likeTerm, pageOf } from "@/components/admin/Pager";
@@ -12,7 +13,9 @@ type SP = { q?: string; status?: string; page?: string };
 
 export default async function AllPrograms({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
-  const { supabase } = await requireAdmin();
+  await requireAdmin();
+  // Service role setelah lolos cek admin: tidak menjalankan kebijakan RLS per baris (lebih cepat untuk data semua pengguna).
+  const supabase = createAdminClient();
   const page = pageOf(sp.page);
   const term = likeTerm(sp.q);
   let query = supabase

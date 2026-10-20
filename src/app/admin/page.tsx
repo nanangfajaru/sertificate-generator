@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateRange } from "@/lib/certificate/sources";
 
 export default async function AdminHome() {
-  const { supabase } = await requireAdmin();
+  await requireAdmin();
+  // Service role setelah lolos cek admin: tidak menjalankan kebijakan RLS per baris (lebih cepat untuk data semua pengguna).
+  const supabase = createAdminClient();
   const count = async (table: string, filter?: (q: any) => any) => {
     let q = supabase.from(table).select("id", { count: "exact", head: true });
     if (filter) q = filter(q);

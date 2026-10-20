@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Download } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateRange } from "@/lib/certificate/sources";
 import type { Participant, Program, ProgramField } from "@/lib/db";
 import { publicLink, siteUrl } from "@/lib/util";
@@ -16,13 +17,17 @@ export default async function AdminProgram({ params, searchParams }: { params: P
   const { id } = await params;
   const page = pageOf((await searchParams).page);
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  const { supabase } = await requireAdmin();
-  const { data } = await supabase.from("programs").select("*, owner:profiles(email, full_name)").eq("id", id).maybeSingle();
+  await requireAdmin();
+  // Service role setelah lolos cek admin: tidak menjalankan kebijakan RLS per baris (lebih cepat untuk data semua pengguna).
+  const supabase = createAdminClient();
+  const [{ data }, { data: f }, { data: p, count }] = await Promise.all([
+    supabase.from("programs").select("*, owner:profiles(email, full_name)").eq("id", id).maybeSingle(),
+    supabase.from("program_fields").select("*").eq("program_id", id).order("sort"),
+    supabase.from("participants").select("*", { count: "exact" }).eq("program_id", id).order("created_at", { ascending: false }).range((page - 1) * SIZE, page * SIZE - 1),
+  ]);
   if (!data) notFound();
   const program = data as Program & { owner: { email: string; full_name: string | null } | null };
-  const { data: f } = await supabase.from("program_fields").select("*").eq("program_id", id).order("sort");
   const fields = (f ?? []) as ProgramField[];
-  const { data: p, count } = await supabase.from("participants").select("*", { count: "exact" }).eq("program_id", id).order("created_at", { ascending: false }).range((page - 1) * SIZE, page * SIZE - 1);
   const rows = (p ?? []) as Participant[];
 
   return (
