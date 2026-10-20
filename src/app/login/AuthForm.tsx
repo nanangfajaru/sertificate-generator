@@ -39,9 +39,9 @@ export default function AuthForm({ next }: { next?: string }) {
     const email = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
     const name = String(fd.get("name") ?? "").trim();
-    const supabase = await supabaseClient();
-        setBusy(true);
+    setBusy(true); // langsung beri tanda proses, sebelum klien Supabase selesai dimuat
     try {
+      const supabase = await supabaseClient();
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
@@ -49,7 +49,6 @@ export default function AuthForm({ next }: { next?: string }) {
           return setError(translate(error.message));
         }
         router.replace(safeNext(next));
-        router.refresh();
       } else if (mode === "register") {
         if (password.length < 8) return setError("Password minimal 8 karakter.");
         if (password !== String(fd.get("confirm") ?? "")) return setError("Konfirmasi password tidak sama.");

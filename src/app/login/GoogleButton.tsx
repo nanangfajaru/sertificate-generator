@@ -3,8 +3,20 @@
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
-// Klien Supabase (±80 KB) baru dimuat saat tombol dipakai, bukan saat halaman dibuka.
+// Klien Supabase (±80 KB) tidak ikut dimuat saat halaman dibuka; diunduh di latar setelah tombol siap
+// (lihat useWarmup) sehingga saat akun Google dipilih tidak perlu menunggu unduhan lagi.
 const supabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
+
+/** Unduh klien Supabase saat browser senggang, agar proses masuk tidak menunggu unduhan. */
+function useWarmup() {
+  useEffect(() => {
+    // (Halaman dashboard sengaja tidak di-prefetch: sebelum login responsnya berupa redirect ke /login.)
+    const warm = () => void import("@/lib/supabase/client");
+    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
+    if (w.requestIdleCallback) w.requestIdleCallback(warm);
+    else setTimeout(warm, 1200);
+  }, []);
+}
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -35,8 +47,10 @@ export default function GoogleButton({ next }: { next?: string }) {
 }
 
 function GisButton({ next, clientId }: { next?: string; clientId: string }) {
+  useWarmup();
   const box = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
   const [failed, setFailed] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -50,9 +64,13 @@ function GisButton({ next, clientId }: { next?: string; clientId: string }) {
         client_id: clientId,
         nonce: await sha256Hex(nonce),
         callback: async ({ credential }) => {
+          setErr(null);
+          setSigningIn(true);
           const { error } = await (await supabaseClient()).auth.signInWithIdToken({ provider: "google", token: credential, nonce });
-          if (error) setErr("Login gagal. Silakan coba lagi.");
-          else window.location.assign(safe(next));
+          if (error) {
+            setSigningIn(false);
+            setErr("Login gagal. Silakan coba lagi.");
+          } else window.location.assign(safe(next));
         },
       });
       if (!cancelled && box.current) {
@@ -66,13 +84,21 @@ function GisButton({ next, clientId }: { next?: string; clientId: string }) {
   return (
     <div>
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => setReady(true)} onError={() => setFailed(true)} />
-      <div ref={box} className="flex min-h-[44px] w-full justify-center" />
+      <div className="relative">
+        <div ref={box} className={`flex min-h-[44px] w-full justify-center ${signingIn ? "invisible" : ""}`} />
+        {signingIn && (
+          <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-md border border-slate-200 bg-white text-sm font-medium text-slate-700" role="status">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" /> Sedang masuk…
+          </div>
+        )}
+      </div>
       {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
     </div>
   );
 }
 
 function OAuthButton({ next }: { next?: string }) {
+  useWarmup();
   const [busy, setBusy] = useState(false);
 
   async function login() {
