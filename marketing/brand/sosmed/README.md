@@ -11,3 +11,6 @@
 Instagram, TikTok, dan Threads tidak memakai banner, hanya foto profil.
 
 Sumber: `sumber-social.html` (buka di browser; render ulang dengan Playwright, screenshot tiap elemen `#avatar-navy`, `#avatar-white`, `#youtube`, `#facebook`, `#linkedin`).
+
+## Sampul highlight Instagram (`highlight/`)
+1080×1080, ikon emas di lingkaran navy: Cara Pakai, Template, Testimoni, Paket Pro, FAQ, Cek Keaslian. Nama highlight diketik di Instagram (tidak ada teks di gambar).
