@@ -35,7 +35,7 @@ export default function PendingActions({ orderId, paymentUrl }: { orderId: strin
 
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <div className="flex flex-wrap justify-end gap-1.5 md:flex-nowrap">
+      <div className="flex flex-wrap justify-end gap-1.5 whitespace-nowrap md:flex-nowrap">
         {paymentUrl && (
           <a href={paymentUrl} className="btn btn-primary btn-sm" onClick={(e) => { e.preventDefault(); void openPayment(paymentUrl, orderId); }}>Lanjutkan bayar</a>
         )}

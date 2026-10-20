@@ -1,7 +1,7 @@
 import { Download } from "lucide-react";
 import PendingActions from "./PendingActions";
 
-export type HistoryRow = { order_id: string; plan: string; base_amount: number | null; discount_amount: number | null; amount: number; voucher_code: string | null; status: string; payment_url: string | null; payment_method: string | null; paid_at: string | null; created_at: string };
+export type HistoryRow = { order_id: string; plan: string; base_amount: number | null; discount_amount: number | null; amount: number; voucher_code: string | null; status: string; payment_url: string | null; payment_method: string | null; paid_at: string | null; created_at: string; period_start?: string | null; period_end?: string | null };
 
 const STATUS_LABEL: Record<string, [string, string]> = {
   paid: ["Lunas", "badge-ok"],
@@ -12,6 +12,20 @@ const STATUS_LABEL: Record<string, [string, string]> = {
 };
 const idr = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 const tgl = (s: string) => new Date(s).toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
+const MONTHS: Record<string, number> = { monthly: 1, yearly: 12 };
+/** Masa berlaku Pro dari pesanan lunas (pesanan lama tanpa periode tercatat: tanggal bayar + durasi paket). */
+function period(r: HistoryRow): string | null {
+  if (r.status !== "paid") return null;
+  const start = r.period_start ?? r.paid_at;
+  if (!start) return null;
+  let end = r.period_end ?? null;
+  if (!r.period_start && MONTHS[r.plan]) {
+    const d = new Date(start);
+    d.setMonth(d.getMonth() + MONTHS[r.plan]);
+    end = d.toISOString();
+  }
+  return `${tgl(start)} – ${end ? tgl(end) : "tanpa batas"}`;
+}
 const planLabel = (p: string) => (p === "yearly" ? "Pro Tahunan" : p === "monthly" ? "Pro Bulanan" : p);
 
 /** Riwayat pembelian paket Pro milik pengguna (kartu di HP/tablet, tabel di layar lebar). */
@@ -42,6 +56,7 @@ export default function OrderHistory({ rows }: { rows: HistoryRow[] }) {
                   <div className="min-w-0">
                     <p className="font-semibold">{planLabel(r.plan)}</p>
                     <p className="text-xs text-slate-500">{tgl(r.paid_at ?? r.created_at)}</p>
+                    {period(r) && <p className="mt-1 text-[11px] font-medium text-brand-700">Berlaku {period(r)}</p>}
                   </div>
                   <div className="shrink-0 text-right"><span className={`badge ${status(r.status)[1]}`}>{status(r.status)[0]}</span>{method(r)}</div>
                 </div>
@@ -60,16 +75,15 @@ export default function OrderHistory({ rows }: { rows: HistoryRow[] }) {
           <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                <tr><th className="px-4 py-2.5">Tanggal</th><th className="px-4 py-2.5">Paket</th><th className="px-4 py-2.5">Dibayar</th><th className="px-4 py-2.5">Status</th><th className="px-4 py-2.5">No. pesanan</th><th className="px-4 py-2.5" /></tr>
+                <tr><th className="px-4 py-2.5">Tanggal</th><th className="px-4 py-2.5">Paket & masa berlaku</th><th className="px-4 py-2.5">Dibayar</th><th className="px-4 py-2.5">Status</th><th className="px-4 py-2.5" /></tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {rows.map((r) => (
                   <tr key={r.order_id}>
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">{tgl(r.paid_at ?? r.created_at)}</td>
-                    <td className="whitespace-nowrap px-4 py-3 font-medium">{planLabel(r.plan)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">{tgl(r.paid_at ?? r.created_at)}<span className="block font-mono text-[10px] text-slate-400">{r.order_id}</span></td>
+                    <td className="px-4 py-3"><p className="whitespace-nowrap font-medium">{planLabel(r.plan)}</p>{period(r) && <p className="whitespace-nowrap text-[11px] text-brand-700">{period(r)}</p>}</td>
                     <td className="px-4 py-3">{paidAmount(r)}</td>
                     <td className="px-4 py-3"><span className={`badge whitespace-nowrap ${status(r.status)[1]}`}>{status(r.status)[0]}</span>{method(r)}</td>
-                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{r.order_id}</td>
                     <td className="px-4 py-3 text-right">{action(r)}</td>
                   </tr>
                 ))}
