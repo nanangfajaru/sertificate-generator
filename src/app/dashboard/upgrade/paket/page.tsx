@@ -39,7 +39,7 @@ export default async function PricingPage() {
     <div>
       <Link href="/dashboard/upgrade" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Berlangganan</Link>
       <div className="mt-3 text-center">
-        <h1 className="text-3xl font-bold">{isPro ? "Perpanjang paket Pro" : "Pilih paket yang sesuai"}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-navy">{isPro ? "Perpanjang paket Pro" : "Pilih paket yang sesuai"}</h1>
         <p className="mt-2 text-slate-600">
           {isPro && profile.plan_expires_at
             ? `Pro Anda berlaku hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" })}. Masa aktif baru ditambahkan dari tanggal tersebut.`
@@ -48,21 +48,22 @@ export default async function PricingPage() {
       </div>
       <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} pricing={pricing} configured={midtransConfigured()} />
 
-      <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <h2 className="mt-12 text-center text-lg font-semibold text-navy">Bandingkan Free dan Pro</h2>
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full table-fixed text-xs sm:text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-left">
-              <th className="w-[38%] px-3 py-3 font-semibold sm:w-auto sm:px-4">Fitur</th>
-              <th className="w-[27%] px-2 py-3 text-center font-semibold sm:w-1/4 sm:px-4">Free</th>
-              <th className="w-[35%] bg-brand-50 px-2 py-3 text-center font-semibold text-brand-700 sm:w-1/3 sm:px-4"><Crown className="mr-1 inline h-4 w-4" />Pro</th>
+            <tr className="text-left">
+              <th className="w-[38%] bg-slate-50 px-3 py-3.5 font-semibold text-slate-600 sm:w-auto sm:px-5">Fitur</th>
+              <th className="w-[27%] bg-slate-50 px-2 py-3.5 text-center font-semibold text-slate-600 sm:w-1/4 sm:px-4">Free</th>
+              <th className="w-[35%] bg-gradient-to-b from-brand-700 to-brand-900 px-2 py-3.5 text-center font-semibold text-white sm:w-1/3 sm:px-4"><Crown className="mr-1 inline h-4 w-4 text-amber-400" />Pro</th>
             </tr>
           </thead>
           <tbody>
             {ROWS.map(([f, free, pro]) => (
-              <tr key={f} className="border-b border-slate-100 last:border-0">
-                <td className="break-words px-3 py-3 font-medium text-slate-800 sm:px-4">{f}</td>
+              <tr key={f} className="border-t border-slate-100">
+                <td className="break-words px-3 py-3 font-medium text-slate-800 sm:px-5">{f}</td>
                 <td className="break-words px-2 py-3 text-center text-slate-600 sm:px-4"><Cell v={free} /></td>
-                <td className="break-words bg-brand-50/40 px-2 py-3 text-center text-slate-800 sm:px-4"><Cell v={pro} /></td>
+                <td className="break-words bg-brand-50/50 px-2 py-3 text-center font-medium text-navy sm:px-4"><Cell v={pro} /></td>
               </tr>
             ))}
           </tbody>
