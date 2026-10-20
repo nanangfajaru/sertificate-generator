@@ -42,7 +42,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
       <p className="mt-1 text-sm text-slate-500">Status paket Anda dan riwayat pembelian.</p>
 
       {orderStatus === "paid" && <p className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><b>Pembayaran berhasil.</b> Paket Pro Anda sudah aktif. Terima kasih! Invoice juga dikirim ke email Anda.</p>}
-      {orderStatus === "pending" && <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Pembayaran Anda sedang menunggu konfirmasi. Muat ulang halaman ini setelah beberapa saat. Anda juga bisa melanjutkan, mengganti metode bayar, atau membatalkan di riwayat di bawah.</p>}
+      {orderStatus === "pending" && <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><b>Pesanan tersimpan dan menunggu pembayaran.</b> Selesaikan lewat tombol <b>Lanjutkan bayar</b> di riwayat di bawah (atau Ganti metode / Batalkan). Jika sudah membayar, status diperbarui otomatis dalam beberapa saat.</p>}
       {(orderStatus === "failed" || orderStatus === "expired") && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">Pembayaran tidak berhasil atau sudah kedaluwarsa. Silakan coba lagi.</p>}
 
       {proNow ? (

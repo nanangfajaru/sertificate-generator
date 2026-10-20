@@ -11,14 +11,13 @@ const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 const LABEL: Record<PlanKey, [string, string]> = { monthly: ["Pro Bulanan", "1 bulan"], yearly: ["Pro Tahunan", "12 bulan"] };
 
 /** Ringkasan pesanan: ganti paket, pakai voucher, lihat total, lalu bayar lewat Midtrans. */
-export default function OrderSummary({ pricing, configured, initialPlan, initialCode = "", proUntil, closedMessage = null }: { pricing: Pricing; configured: boolean; initialPlan: PlanKey; initialCode?: string; proUntil: string | null; closedMessage?: string | null }) {
+export default function OrderSummary({ pricing, configured, initialPlan, initialCode = "", proUntil, closedMessage = null, pendingOrders = 0 }: { pricing: Pricing; configured: boolean; initialPlan: PlanKey; initialCode?: string; proUntil: string | null; closedMessage?: string | null; pendingOrders?: number }) {
   const [plan, setPlan] = useState<PlanKey>(initialPlan);
   const [code, setCode] = useState(initialCode);
   const [v, setV] = useState<VoucherCheck | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [vErr, setVErr] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
-  const [closedNote, setClosedNote] = useState(false);
   const [checking, startCheck] = useTransition();
 
   const applied = v?.code && !v.error ? v : null;
@@ -46,22 +45,25 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
 
   async function pay() {
     setErr(null);
-    setClosedNote(false);
     setPaying(true);
     const r = await startCheckout(plan, applied?.code ?? "");
     if (r.error || !r.url) {
       setPaying(false);
       return setErr(r.error ?? "Gagal memulai pembayaran");
     }
-    await openPayment(r.url, r.orderId, () => {
-      setPaying(false);
-      setClosedNote(true);
-    });
+    // Tombol tetap "memproses" sampai pembeli dibawa ke halaman Berlangganan (mencegah pesanan ganda).
+    await openPayment(r.url, r.orderId);
   }
 
   return (
     <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_380px]">
       <div className="space-y-5">
+        {pendingOrders > 0 && (
+          <a href="/dashboard/upgrade" className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 hover:bg-amber-100/60">
+            <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+            <span>Anda masih punya <b>{pendingOrders} pesanan menunggu pembayaran</b>. Agar tidak dobel, lanjutkan atau batalkan dulu di halaman <b className="underline">Berlangganan</b>.</span>
+          </a>
+        )}
         <section className="card">
           <h2 className="font-semibold text-navy">1. Paket</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -112,7 +114,6 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
             <span className="text-3xl font-bold tracking-tight text-amber-400">{rp(total)}</span>
           </div>
           {err && <p className="relative mt-3 rounded-lg bg-red-500/15 p-2.5 text-sm text-red-100">{err}</p>}
-          {closedNote && <p className="relative mt-3 rounded-lg bg-white/10 p-2.5 text-xs text-brand-100">Pembayaran belum diselesaikan. Pesanan tersimpan di <a href="/dashboard/upgrade" className="font-semibold text-amber-300 underline">Berlangganan</a> dan bisa dilanjutkan kapan saja.</p>}
           <button onClick={pay} disabled={!configured || paying || !!closedMessage} className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-navy shadow-lg shadow-black/20 transition hover:bg-amber-300 disabled:opacity-60">
             {paying ? <><Loader2 className="h-4 w-4 animate-spin" /> Membuka pembayaran…</> : total <= 0 ? <>Aktifkan Pro <ArrowRight className="h-4 w-4" /></> : <><Lock className="h-4 w-4" /> Bayar sekarang</>}
           </button>

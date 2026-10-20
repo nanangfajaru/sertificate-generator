@@ -31,13 +31,14 @@ export function preloadSnap() {
 
 /**
  * Buka pembayaran. `url` = redirect_url Snap (token di bagian akhir) atau alamat internal (pesanan gratis).
- * Selesai/menunggu → ke halaman Berlangganan; ditutup → onClose (pembeli tetap di halaman).
+ * Setelah popup terbuka pesanan sudah tercatat, jadi apa pun hasilnya (selesai, menunggu, gagal, atau ditutup)
+ * pembeli dibawa ke halaman Berlangganan yang menampilkan pesanan tersebut — agar tidak membuat pesanan ganda.
  */
-export async function openPayment(url: string, orderId: string | undefined, onClose: () => void) {
+export async function openPayment(url: string, orderId: string | undefined) {
   if (url.startsWith("/") || !orderId) return window.location.assign(url);
   const snap = await loadSnap();
   const token = url.split("/").pop();
   if (!snap || !token) return window.location.assign(url);
-  const done = () => window.location.assign(`/dashboard/upgrade?order=${encodeURIComponent(orderId)}`);
-  snap.pay(token, { onSuccess: done, onPending: done, onError: () => window.location.assign(url), onClose });
+  const toList = () => window.location.assign(`/dashboard/upgrade?order=${encodeURIComponent(orderId)}`);
+  snap.pay(token, { onSuccess: toList, onPending: toList, onError: toList, onClose: toList });
 }

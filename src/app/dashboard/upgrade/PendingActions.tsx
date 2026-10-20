@@ -17,8 +17,7 @@ export default function PendingActions({ orderId, paymentUrl }: { orderId: strin
     setBusy("change");
     start(async () => {
       const r = await changePaymentMethod(orderId);
-      // Pesanan lama sudah dibatalkan; tutup popup → muat ulang agar riwayat menampilkan pesanan baru.
-      if (r.url) return openPayment(r.url, r.orderId, () => window.location.reload());
+      if (r.url) return openPayment(r.url, r.orderId);
       setBusy(null);
       setErr(r.error ?? "Gagal mengganti metode");
     });
@@ -38,7 +37,7 @@ export default function PendingActions({ orderId, paymentUrl }: { orderId: strin
     <div className="flex flex-col items-end gap-1.5">
       <div className="flex flex-wrap justify-end gap-1.5 md:flex-nowrap">
         {paymentUrl && (
-          <a href={paymentUrl} className="btn btn-primary btn-sm" onClick={(e) => { e.preventDefault(); void openPayment(paymentUrl, orderId, () => {}); }}>Lanjutkan bayar</a>
+          <a href={paymentUrl} className="btn btn-primary btn-sm" onClick={(e) => { e.preventDefault(); void openPayment(paymentUrl, orderId); }}>Lanjutkan bayar</a>
         )}
         <button type="button" className="btn btn-sm bg-white" disabled={!!busy} onClick={change}>{busy === "change" && <Loader2 className="h-4 w-4 animate-spin" />} Ganti metode</button>
         <button type="button" className="btn btn-sm bg-white text-red-600 hover:bg-red-50" disabled={!!busy} onClick={cancel}>{busy === "cancel" && <Loader2 className="h-4 w-4 animate-spin" />} Batalkan</button>
