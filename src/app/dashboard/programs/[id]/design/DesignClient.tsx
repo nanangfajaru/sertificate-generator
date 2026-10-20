@@ -15,7 +15,9 @@ import { TEMPLATE_GROUPS, templateGroup, type TemplateGroupKey } from "@/lib/cer
 import type { Layout } from "@/lib/certificate/types";
 import { chooseTemplate, switchToTemplate } from "../../../actions";
 import type { DesignDTO } from "@/lib/designs";
-import DesignsPanel from "./DesignsPanel";
+import dynamic from "next/dynamic";
+// Panel desain sendiri (editor, unggah PDF) baru dimuat saat tab "Desain sendiri" dibuka.
+const DesignsPanel = dynamic(() => import("./DesignsPanel"), { loading: () => <div className="h-64 animate-pulse rounded-xl bg-slate-100" /> });
 
 type Tpl = { id: string; name: string; tier: "free" | "pro"; layout: Layout };
 type TplMeta = Omit<Tpl, "layout">;

@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+// Klien Supabase (±60 KB) baru dimuat saat menyimpan password, bukan saat halaman dibuka.
+const supabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 import { updateProfile, type ProfileState } from "./actions";
 
 type P = { full_name: string; phone: string; organization: string; job_title: string };
@@ -50,7 +51,7 @@ export function PasswordForm() {
     if (password.length < 8) return setMsg({ ok: false, text: "Password minimal 8 karakter." });
     if (password !== String(fd.get("confirm") ?? "")) return setMsg({ ok: false, text: "Konfirmasi password tidak sama." });
     setBusy(true);
-    const { error } = await createClient().auth.updateUser({ password });
+    const { error } = await (await supabaseClient()).auth.updateUser({ password });
     setBusy(false);
     if (error) return setMsg({ ok: false, text: "Gagal mengubah password. Coba keluar lalu masuk kembali." });
     form.reset();

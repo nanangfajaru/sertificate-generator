@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+// Klien Supabase baru dimuat saat menyimpan password baru (halaman tetap ringan).
+const supabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
 export default function ResetForm() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function ResetForm() {
     if (password !== String(fd.get("confirm") ?? "")) return setError("Konfirmasi password tidak sama.");
     setBusy(true);
     setError(null);
-    const { error } = await createClient().auth.updateUser({ password });
+    const { error } = await (await supabaseClient()).auth.updateUser({ password });
     setBusy(false);
     if (error) return setError("Gagal mengubah password. Minta tautan reset baru.");
     router.replace("/dashboard");
