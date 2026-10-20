@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { getPricing } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PlanCards from "../PlanCards";
+import CompareLink from "../CompareLink";
 import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
 
 export const metadata = { title: "Paket Pro" };
@@ -44,10 +45,11 @@ export default async function PricingPage() {
             ? `Pro Anda berlaku hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" })}. Masa aktif baru ditambahkan dari tanggal tersebut.`
             : "Buka seluruh template bertema, desain sendiri, program tanpa batas, dan sertifikat tanpa watermark."}
         </p>
+        <CompareLink />
       </div>
       <PlanCards pricing={pricing} />
 
-      <details className="group mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
+      <details id="banding" className="group mt-8 scroll-mt-20 rounded-2xl border border-slate-200 bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-navy">
           Bandingkan Free dan Pro
           <ChevronDown className="h-5 w-5 text-slate-400 transition group-open:rotate-180" />
