@@ -84,7 +84,7 @@ export default async function ReferralPage() {
                     <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-amber-100 text-amber-700"><Lock className="h-5 w-5" /></span>
                     <p className="mt-2 font-semibold text-slate-900">Khusus pengguna Pro</p>
                     <p className="mx-auto mt-1 max-w-sm text-sm text-slate-600">Upgrade ke Pro untuk membuka kode dan link referral Anda. Kode berhenti berlaku bila paket Pro berakhir.</p>
-                    <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm mt-3"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
+                    <Link href="/dashboard/upgrade/paket" className="btn btn-primary btn-sm mt-3"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
                   </div>
                 </div>
               )}

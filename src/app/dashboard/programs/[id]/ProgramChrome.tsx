@@ -71,7 +71,7 @@ export default function ProgramChrome(p: Props) {
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-0 sm:flex sm:shrink-0">
             <Link href={`/dashboard/programs/${p.id}/form?pick=1`} className="btn btn-sm justify-center bg-white">Ganti template</Link>
-            <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm justify-center">Perpanjang Pro</Link>
+            <Link href="/dashboard/upgrade/paket" className="btn btn-primary btn-sm justify-center">Perpanjang Pro</Link>
           </div>
         </div>
       )}
@@ -116,7 +116,7 @@ function BannerStats({ id, total, approved, pending, rejected, quota }: Props["s
         <div className={item}>
           <dd className={`text-2xl font-bold leading-none ${warn ? "text-amber-300" : ""}`}>{quota}<span className="text-sm font-semibold text-brand-200"> / {FREE_PARTICIPANT_LIMIT}</span></dd>
           <dt className={label}>
-            {warn ? <Link href="/dashboard/upgrade" className="font-medium text-amber-300 hover:underline">Kuota Free hampir penuh · upgrade</Link> : "Kuota paket Free"}
+            {warn ? <Link href="/dashboard/upgrade/paket" className="font-medium text-amber-300 hover:underline">Kuota Free hampir penuh · upgrade</Link> : "Kuota paket Free"}
           </dt>
         </div>
       )}

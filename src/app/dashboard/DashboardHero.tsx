@@ -34,7 +34,7 @@ export default function DashboardHero({ greeting, programs, programLimit, active
         </div>
         {/* Kuota program Free penuh: tombol tetap tampil, bergembok, mengarah ke halaman upgrade. */}
         <Link
-          href={atLimit ? "/dashboard/upgrade" : "/dashboard/programs/new"}
+          href={atLimit ? "/dashboard/upgrade/paket" : "/dashboard/programs/new"}
           title={atLimit ? "Batas program paket Free tercapai — upgrade ke Pro untuk menambah program" : undefined}
           className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-navy shadow-md shadow-black/20 transition hover:bg-amber-300"
         >

@@ -20,7 +20,7 @@ export default function ProgramLocked({ name }: { name: string }) {
         </ul>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
           <Link href="/dashboard" className="btn justify-center">Kembali ke daftar program</Link>
-          <Link href="/dashboard/upgrade" className="btn btn-primary justify-center"><Crown className="h-4 w-4" /> Perpanjang Pro</Link>
+          <Link href="/dashboard/upgrade/paket" className="btn btn-primary justify-center"><Crown className="h-4 w-4" /> Perpanjang Pro</Link>
         </div>
       </div>
     </div>

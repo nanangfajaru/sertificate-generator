@@ -60,7 +60,7 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
           <div className="rounded-xl bg-gradient-to-br from-brand-800 to-navy p-3.5 text-xs text-white ring-1 ring-amber-400/20">
             <p className="font-semibold">Buka semua fitur</p>
             <p className="mt-0.5 text-brand-100">Program tanpa batas, template bertema, desain sendiri, tanpa watermark.</p>
-            <Link href="/dashboard/upgrade" className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-400 py-1.5 font-semibold text-navy hover:bg-amber-300"><Sparkles className="h-3.5 w-3.5" /> Upgrade ke Pro</Link>
+            <Link href="/dashboard/upgrade/paket" className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-400 py-1.5 font-semibold text-navy hover:bg-amber-300"><Sparkles className="h-3.5 w-3.5" /> Upgrade ke Pro</Link>
           </div>
         )}
       </div>
@@ -94,7 +94,7 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
               {isPro ? (
                 <Link href="/dashboard/upgrade" className="badge badge-pro gap-1"><Crown className="h-3 w-3" /> Pro{until ? <span className="hidden sm:inline"> · s.d. {until}</span> : null}</Link>
               ) : (
-                <Link href="/dashboard/upgrade" className="badge hover:bg-slate-200">Free</Link>
+                <Link href="/dashboard/upgrade/paket" className="badge hover:bg-slate-200">Free</Link>
               )}
               <UserMenu name={name} email={email} avatarUrl={avatarUrl} isPro={isPro} />
             </div>

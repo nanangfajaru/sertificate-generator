@@ -1,0 +1,73 @@
+import { cookies } from "next/headers";
+import Link from "next/link";
+import { ArrowLeft, Check, Crown, Minus } from "lucide-react";
+import { requireUser } from "@/lib/auth";
+import { getPricing, midtransConfigured } from "@/lib/billing";
+import { createAdminClient } from "@/lib/supabase/admin";
+import Checkout from "../Checkout";
+import { FREE_PARTICIPANT_LIMIT, FREE_PROGRAM_LIMIT } from "@/lib/db";
+
+export const metadata = { title: "Paket Pro" };
+
+
+type Row = [feature: string, free: string | boolean, pro: string | boolean];
+const ROWS: Row[] = [
+  ["Jumlah program / kegiatan", `${FREE_PROGRAM_LIMIT} program`, "Tanpa batas"],
+  ["Peserta per program", `${FREE_PARTICIPANT_LIMIT} peserta`, "Tanpa batas"],
+  ["Template sertifikat", "20 template dasar", "20 dasar + 22 bertema (bunga, rumah sakit, olahraga, perusahaan, dll)"],
+  ["Desain sendiri (unggah PDF/PNG/JPG)", "Boleh membuat & mengedit hingga 5, tidak bisa dipakai", "Hingga 50 desain, dipakai di semua program"],
+  ["Program referral (kode & link pribadi, dapat komisi)", false, true],
+  ["Hapus program", false, true],
+  ["Formulir pendaftaran & pemetaan kolom", true, true],
+  ["Persetujuan otomatis / manual", true, true],
+  ["QR verifikasi & unduh PDF", true, true],
+  ["Email otomatis ke peserta", true, true],
+  ["Upload peserta massal (CSV / tempel spreadsheet)", true, true],
+  ["Unduh data kehadiran (CSV)", true, true],
+];
+
+function Cell({ v }: { v: string | boolean }) {
+  if (v === true) return <Check className="mx-auto h-5 w-5 text-emerald-600" aria-label="Ya" />;
+  if (v === false) return <Minus className="mx-auto h-5 w-5 text-slate-300" aria-label="Tidak" />;
+  return <span>{v}</span>;
+}
+
+export default async function PricingPage() {
+  const { isPro, profile } = await requireUser();
+  const pricing = await getPricing(createAdminClient());
+  return (
+    <div>
+      <Link href="/dashboard/upgrade" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Berlangganan</Link>
+      <div className="mt-3 text-center">
+        <h1 className="text-3xl font-bold">{isPro ? "Perpanjang paket Pro" : "Pilih paket yang sesuai"}</h1>
+        <p className="mt-2 text-slate-600">
+          {isPro && profile.plan_expires_at
+            ? `Pro Anda berlaku hingga ${new Date(profile.plan_expires_at).toLocaleDateString("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" })}. Masa aktif baru ditambahkan dari tanggal tersebut.`
+            : "Buka seluruh template bertema, desain sendiri, program tanpa batas, dan sertifikat tanpa watermark."}
+        </p>
+      </div>
+      <Checkout initialCode={(await cookies()).get("sk_ref")?.value ?? ""} pricing={pricing} configured={midtransConfigured()} />
+
+      <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full table-fixed text-xs sm:text-sm">
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50 text-left">
+              <th className="w-[38%] px-3 py-3 font-semibold sm:w-auto sm:px-4">Fitur</th>
+              <th className="w-[27%] px-2 py-3 text-center font-semibold sm:w-1/4 sm:px-4">Free</th>
+              <th className="w-[35%] bg-brand-50 px-2 py-3 text-center font-semibold text-brand-700 sm:w-1/3 sm:px-4"><Crown className="mr-1 inline h-4 w-4" />Pro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ROWS.map(([f, free, pro]) => (
+              <tr key={f} className="border-b border-slate-100 last:border-0">
+                <td className="break-words px-3 py-3 font-medium text-slate-800 sm:px-4">{f}</td>
+                <td className="break-words px-2 py-3 text-center text-slate-600 sm:px-4"><Cell v={free} /></td>
+                <td className="break-words bg-brand-50/40 px-2 py-3 text-center text-slate-800 sm:px-4"><Cell v={pro} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

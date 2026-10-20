@@ -96,7 +96,7 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
         onBack={() => setEditingId(null)}
         onSaved={(d) => onDesignsChange(designs.map((x) => (x.id === d.id ? { ...x, name: d.name, layout: d.layout, updatedAt: d.updatedAt } : x)))}
         onUse={programId ? () => use(editing) : undefined}
-        createHref={programId ? undefined : isPro ? `/dashboard/programs/new?design=${editing.id}` : "/dashboard/upgrade"}
+        createHref={programId ? undefined : isPro ? `/dashboard/programs/new?design=${editing.id}` : "/dashboard/upgrade/paket"}
       />
     );
   }
@@ -149,13 +149,13 @@ export default function DesignsPanel({ programId, userId, isPro, readOnly, desig
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm flex-1" onClick={() => setEditingId(d.id)}><Pencil className="h-3.5 w-3.5" /> Edit</button>
                     {!programId ? (
-                      <ConfirmLink skip={!isPro} href={isPro ? `/dashboard/programs/new?design=${d.id}` : "/dashboard/upgrade"} title="Buat program dengan desain ini?" message={<>Anda akan membuat program baru dengan desain <b>{d.name}</b>. Desain ini bisa diganti lagi nanti.</>} confirmLabel="Ya, buat program" className={`btn btn-sm flex-1 ${isPro ? "btn-primary" : ""}`}>{isPro ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} Buat program</ConfirmLink>
+                      <ConfirmLink skip={!isPro} href={isPro ? `/dashboard/programs/new?design=${d.id}` : "/dashboard/upgrade/paket"} title="Buat program dengan desain ini?" message={<>Anda akan membuat program baru dengan desain <b>{d.name}</b>. Desain ini bisa diganti lagi nanti.</>} confirmLabel="Ya, buat program" className={`btn btn-sm flex-1 ${isPro ? "btn-primary" : ""}`}>{isPro ? <Plus className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} Buat program</ConfirmLink>
                     ) : active ? (
                       <span className="btn btn-sm flex-1 cursor-default border-emerald-200 bg-emerald-50 text-emerald-700"><Check className="h-3.5 w-3.5" /> Dipakai</span>
                     ) : isPro ? (
                       <button className="btn btn-primary btn-sm flex-1" onClick={() => start(async () => { const e = await use(d); setMsg(e ? { ok: false, text: e } : { ok: true, text: `"${d.name}" dipakai untuk sertifikat.` }); })}>Gunakan</button>
                     ) : (
-                      <Link href="/dashboard/upgrade" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
+                      <Link href="/dashboard/upgrade/paket" className="btn btn-sm flex-1" title="Menggunakan desain sendiri khusus paket Pro"><Lock className="h-3.5 w-3.5" /> Gunakan</Link>
                     )}
                     <button className="btn btn-danger btn-sm !px-2" onClick={() => remove(d)} aria-label={`Hapus ${d.name}`}><Trash2 className="h-4 w-4" /></button>
                   </div>

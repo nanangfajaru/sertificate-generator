@@ -24,7 +24,7 @@ export default async function ProfilePage() {
           <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
             <span className={`badge gap-1 ${isPro ? "badge-pro" : ""}`}>{isPro && <Crown className="h-3 w-3" />}{isPro ? "Pro" : "Free"}</span>
             {isPro && profile.plan_expires_at && <span>aktif hingga {date(profile.plan_expires_at)}</span>}
-            {!isPro && <Link href="/dashboard/upgrade" className="font-medium text-brand-700 hover:underline">Lihat paket Pro</Link>}
+            {!isPro && <Link href="/dashboard/upgrade/paket" className="font-medium text-brand-700 hover:underline">Lihat paket Pro</Link>}
           </p>
         </div>
       </div>

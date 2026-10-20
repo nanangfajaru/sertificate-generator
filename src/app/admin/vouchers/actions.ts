@@ -77,7 +77,7 @@ export async function savePricing(_: unknown, fd: FormData): Promise<{ error?: s
   });
   if (error) return { error: "Gagal menyimpan harga" };
   revalidatePath("/admin/vouchers");
-  revalidatePath("/dashboard/upgrade");
+  revalidatePath("/dashboard/upgrade", "layout");
   revalidatePath("/syarat");
   return { ok: true };
 }

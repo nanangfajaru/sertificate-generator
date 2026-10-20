@@ -102,7 +102,7 @@ export default function TemplatePicker({ isPro, sample, images, current, designs
                 const locked = t.tier === "pro" && !isPro;
                 const active = current.mode === "template" && current.templateId === t.id;
                 const choose = () => {
-                  if (locked) return router.push("/dashboard/upgrade");
+                  if (locked) return router.push("/dashboard/upgrade/paket");
                   if (!active && busy === null) pick({ kind: "template", id: t.id, name: t.name, layout: t.layout, bg: null });
                 };
                 return (
@@ -119,7 +119,7 @@ export default function TemplatePicker({ isPro, sample, images, current, designs
               <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-amber-100 text-amber-700"><Crown className="h-6 w-6" /></span>
               <p className="mt-3 font-semibold">Desain sendiri khusus paket Pro</p>
               <p className="mt-1 text-sm text-slate-600">Unggah desain dari Canva atau Photoshop dan pakai untuk sertifikat program.</p>
-              <Link href="/dashboard/upgrade" className="btn btn-primary mt-4"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
+              <Link href="/dashboard/upgrade/paket" className="btn btn-primary mt-4"><Crown className="h-4 w-4" /> Upgrade ke Pro</Link>
             </div>
           ) : designs.length === 0 ? (
             <div className="mx-auto max-w-md py-10 text-center">

@@ -104,7 +104,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:px-4">
           <Lock className="hidden h-4 w-4 shrink-0 text-amber-600 sm:block" />
           <p className="min-w-0 flex-1"><b>{locked.size} program terkunci.</b> Paket Pro berakhir dan jumlah program melebihi batas Free ({FREE_PROGRAM_LIMIT}). Program yang dibuat paling akhir dikunci dan pendaftarannya ditutup.</p>
-          <Link href="/dashboard/upgrade" className="btn btn-primary btn-sm shrink-0 justify-center"><Crown className="h-4 w-4" /> Perpanjang Pro</Link>
+          <Link href="/dashboard/upgrade/paket" className="btn btn-primary btn-sm shrink-0 justify-center"><Crown className="h-4 w-4" /> Perpanjang Pro</Link>
         </div>
       )}
 
