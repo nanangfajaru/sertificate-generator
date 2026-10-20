@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getPricing, midtransConfigured } from "@/lib/billing";
+import { getCheckoutSetting, getPricing, midtransConfigured } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import OrderSummary from "../OrderSummary";
 
@@ -11,7 +11,8 @@ export const metadata = { title: "Ringkasan pesanan" };
 export default async function PayPage({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
   const plan = (await searchParams).plan === "monthly" ? "monthly" : "yearly";
   const { isPro, profile } = await requireUser();
-  const pricing = await getPricing(createAdminClient());
+  const admin = createAdminClient();
+  const [pricing, checkout] = await Promise.all([getPricing(admin), getCheckoutSetting(admin)]);
   return (
     <div className="mx-auto max-w-5xl">
       <Link href="/dashboard/upgrade/paket" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Pilihan paket</Link>
@@ -23,6 +24,7 @@ export default async function PayPage({ searchParams }: { searchParams: Promise<
         initialPlan={plan}
         initialCode={(await cookies()).get("sk_ref")?.value ?? ""}
         proUntil={isPro ? profile.plan_expires_at : null}
+        closedMessage={checkout.enabled ? null : checkout.message}
       />
     </div>
   );

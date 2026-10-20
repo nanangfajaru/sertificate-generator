@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronDown, Crown, Minus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getPricing } from "@/lib/billing";
+import { getCheckoutSetting, getPricing } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PlanCards from "../PlanCards";
 import CompareLink from "../CompareLink";
@@ -34,7 +34,8 @@ function Cell({ v }: { v: string | boolean }) {
 
 export default async function PricingPage() {
   const { isPro, profile } = await requireUser();
-  const pricing = await getPricing(createAdminClient());
+  const admin = createAdminClient();
+  const [pricing, checkout] = await Promise.all([getPricing(admin), getCheckoutSetting(admin)]);
   return (
     <div>
       <Link href="/dashboard/upgrade" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><ArrowLeft className="h-4 w-4" /> Berlangganan</Link>
@@ -47,9 +48,10 @@ export default async function PricingPage() {
         </p>
         <CompareLink />
       </div>
-      <PlanCards pricing={pricing} />
+      {!checkout.enabled && <p className="mx-auto mt-6 max-w-3xl rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-900">{checkout.message}</p>}
+      <PlanCards pricing={pricing} closed={!checkout.enabled} />
 
-      <details id="banding" className="group mt-8 scroll-mt-20 rounded-2xl border border-slate-200 bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
+      <details id="banding" open className="group mt-8 scroll-mt-20 rounded-2xl border border-slate-200 bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-navy">
           Bandingkan Free dan Pro
           <ChevronDown className="h-5 w-5 text-slate-400 transition group-open:rotate-180" />

@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Crown } from "lucide-react";
+import { ArrowRight, Check, Crown, Lock } from "lucide-react";
 import Link from "next/link";
 
 type Pricing = Record<"monthly" | "yearly", { list: number; price: number }>;
@@ -6,7 +6,7 @@ const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 const PERKS = ["Program & peserta tanpa batas", "42 template (termasuk 22 bertema)", "Desain sendiri hingga 50 desain", "Program referral dengan komisi"];
 
 /** Dua kartu paket; tombol menuju ringkasan pesanan (voucher & pembayaran di langkah berikutnya). */
-export default function PlanCards({ pricing }: { pricing: Pricing }) {
+export default function PlanCards({ pricing, closed = false }: { pricing: Pricing; closed?: boolean }) {
   const saving = Math.max(0, pricing.monthly.price * 12 - pricing.yearly.price);
   const Card = ({ k, title, unit, note, featured, badge }: { k: "monthly" | "yearly"; title: string; unit: string; note: string; featured?: boolean; badge?: string }) => {
     const { price, list } = pricing[k];
@@ -39,12 +39,18 @@ export default function PlanCards({ pricing }: { pricing: Pricing }) {
             </li>
           ))}
         </ul>
-        <Link
-          href={`/dashboard/upgrade/bayar?plan=${k}`}
-          className={`relative mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${featured ? "bg-amber-400 text-navy shadow-lg shadow-black/20 hover:bg-amber-300" : "bg-gradient-to-b from-brand-600 to-brand-900 text-white shadow-md shadow-brand-900/20 hover:from-brand-500 hover:to-brand-800"}`}
-        >
-          Pilih {unit === "bulan" ? "Bulanan" : "Tahunan"} <ArrowRight className="h-4 w-4" />
-        </Link>
+        {closed ? (
+          <span className={`relative mt-6 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${featured ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-400"}`}>
+            <Lock className="h-4 w-4" /> Pembelian ditutup sementara
+          </span>
+        ) : (
+          <Link
+            href={`/dashboard/upgrade/bayar?plan=${k}`}
+            className={`relative mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${featured ? "bg-amber-400 text-navy shadow-lg shadow-black/20 hover:bg-amber-300" : "bg-gradient-to-b from-brand-600 to-brand-900 text-white shadow-md shadow-brand-900/20 hover:from-brand-500 hover:to-brand-800"}`}
+          >
+            Pilih {unit === "bulan" ? "Bulanan" : "Tahunan"} <ArrowRight className="h-4 w-4" />
+          </Link>
+        )}
       </div>
     );
   };

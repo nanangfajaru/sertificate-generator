@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BadgePercent, FolderOpen, Inbox, LayoutDashboard, Mail, Menu, Users, X } from "lucide-react";
+import { ArrowLeft, BadgePercent, FolderOpen, Inbox, LayoutDashboard, Mail, Menu, Receipt, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,6 +11,7 @@ const ITEMS = [
   { href: "/admin", label: "Ringkasan", icon: LayoutDashboard },
   { href: "/admin/users", label: "Pengguna", icon: Users },
   { href: "/admin/programs", label: "Program", icon: FolderOpen },
+  { href: "/admin/transaksi", label: "Transaksi", icon: Receipt },
   { href: "/admin/vouchers", label: "Voucher & referral", icon: BadgePercent },
   { href: "/admin/pesan", label: "Pesan masuk", icon: Inbox },
   { href: "/admin/email", label: "Email", icon: Mail },

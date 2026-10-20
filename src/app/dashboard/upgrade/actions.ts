@@ -2,7 +2,7 @@
 
 import { requireUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { PLANS, createSnapTransaction, expireTransaction, findVoucher, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
+import { PLANS, createSnapTransaction, expireTransaction, findVoucher, getCheckoutSetting, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
 import { randomCode } from "@/lib/util";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -29,6 +29,8 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
   if (!isPlan(plan)) return { error: "Paket tidak valid" };
   if (!midtransConfigured()) return { error: "Pembayaran belum dikonfigurasi. Hubungi admin." };
   const admin = createAdminClient();
+  const checkout = await getCheckoutSetting(admin);
+  if (!checkout.enabled) return { error: checkout.message };
 
   let voucher = null;
   if (rawCode.trim()) {

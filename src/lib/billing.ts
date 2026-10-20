@@ -29,6 +29,16 @@ export async function getPricing(admin: SupabaseClient): Promise<Pricing> {
   return { monthly: one("monthly"), yearly: one("yearly") };
 }
 
+export type CheckoutSetting = { enabled: boolean; message: string };
+export const CHECKOUT_CLOSED_DEFAULT = "Pembelian paket Pro sedang ditutup sementara. Silakan coba lagi nanti.";
+
+/** Saklar admin untuk membuka/menutup pembelian Pro (app_settings.checkout). Bawaan: dibuka. */
+export async function getCheckoutSetting(admin: SupabaseClient): Promise<CheckoutSetting> {
+  const { data } = await admin.from("app_settings").select("value").eq("key", "checkout").maybeSingle();
+  const v = (data?.value ?? {}) as Partial<CheckoutSetting>;
+  return { enabled: v.enabled !== false, message: (typeof v.message === "string" && v.message.trim()) || CHECKOUT_CLOSED_DEFAULT };
+}
+
 export type Voucher = {
   id: string;
   code: string;

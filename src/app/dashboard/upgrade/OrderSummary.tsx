@@ -10,7 +10,7 @@ const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 const LABEL: Record<PlanKey, [string, string]> = { monthly: ["Pro Bulanan", "1 bulan"], yearly: ["Pro Tahunan", "12 bulan"] };
 
 /** Ringkasan pesanan: ganti paket, pakai voucher, lihat total, lalu bayar lewat Midtrans. */
-export default function OrderSummary({ pricing, configured, initialPlan, initialCode = "", proUntil }: { pricing: Pricing; configured: boolean; initialPlan: PlanKey; initialCode?: string; proUntil: string | null }) {
+export default function OrderSummary({ pricing, configured, initialPlan, initialCode = "", proUntil, closedMessage = null }: { pricing: Pricing; configured: boolean; initialPlan: PlanKey; initialCode?: string; proUntil: string | null; closedMessage?: string | null }) {
   const [plan, setPlan] = useState<PlanKey>(initialPlan);
   const [code, setCode] = useState(initialCode);
   const [v, setV] = useState<VoucherCheck | null>(null);
@@ -105,9 +105,10 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
             <span className="text-3xl font-bold tracking-tight text-amber-400">{rp(total)}</span>
           </div>
           {err && <p className="relative mt-3 rounded-lg bg-red-500/15 p-2.5 text-sm text-red-100">{err}</p>}
-          <button onClick={pay} disabled={!configured || paying} className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-navy shadow-lg shadow-black/20 transition hover:bg-amber-300 disabled:opacity-60">
+          <button onClick={pay} disabled={!configured || paying || !!closedMessage} className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-navy shadow-lg shadow-black/20 transition hover:bg-amber-300 disabled:opacity-60">
             {paying ? <><Loader2 className="h-4 w-4 animate-spin" /> Mengalihkan ke pembayaran…</> : total <= 0 ? <>Aktifkan Pro <ArrowRight className="h-4 w-4" /></> : <><Lock className="h-4 w-4" /> Bayar sekarang</>}
           </button>
+          {closedMessage && <p className="relative mt-2 text-center text-xs text-amber-200">{closedMessage}</p>}
           {!configured && <p className="relative mt-2 text-center text-xs text-brand-200">Pembayaran online belum aktif. Hubungi admin.</p>}
           <div className="relative mt-4 flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-brand-100">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Aman via Midtrans ·
