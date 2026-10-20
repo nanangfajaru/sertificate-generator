@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { applyMidtransStatus, fetchTransactionStatus, midtransConfigured } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import OrderHistory, { type HistoryRow } from "./OrderHistory";
+import PendingWatcher from "./PendingWatcher";
 
 export const metadata = { title: "Berlangganan" };
 
@@ -68,6 +69,9 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
 
       <h2 className="mb-3 mt-8 flex items-center gap-2 text-lg font-semibold"><Receipt className="h-5 w-5 text-brand-600" /> Riwayat pembelian</h2>
       <OrderHistory rows={history} />
+      {history.some((r) => r.status === "pending") && (
+        <PendingWatcher initialKey={history.slice(0, 20).map((r) => `${r.order_id}:${r.status}:${r.payment_method ?? ""}`).join("|")} />
+      )}
     </div>
   );
 }

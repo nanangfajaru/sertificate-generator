@@ -2,7 +2,7 @@
 
 import { requireUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { PLANS, createSnapTransaction, expireTransaction, findVoucher, getCheckoutSetting, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
+import { PLANS, applyMidtransStatus, createSnapTransaction, expireTransaction, fetchTransactionStatus, findVoucher, getCheckoutSetting, getPricing, activatePaidOrder, midtransConfigured, priceWith, type PlanKey } from "@/lib/billing";
 import { randomCode } from "@/lib/util";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -106,4 +106,23 @@ export async function changePaymentMethod(orderId: string): Promise<{ url?: stri
   if (!next.url) return next;
   await cancelPending(r.admin, orderId);
   return next;
+}
+
+/**
+ * Status ringkas pesanan menunggu bayar milik pengguna (untuk pembaruan otomatis halaman Berlangganan).
+ * `sync`: tanyakan juga ke Midtrans (cadangan bila notifikasi webhook terlambat).
+ */
+export async function pendingSnapshot(sync = false): Promise<{ pending: number; key: string }> {
+  const { profile } = await requireUser();
+  const admin = createAdminClient();
+  if (sync && midtransConfigured()) {
+    const { data: open } = await admin.from("orders").select("order_id").eq("user_id", profile.id).eq("status", "pending").order("created_at", { ascending: false }).limit(3);
+    for (const o of open ?? []) {
+      const st = await fetchTransactionStatus(o.order_id);
+      if (st) await applyMidtransStatus(admin, st);
+    }
+  }
+  const { data } = await admin.from("orders").select("order_id, status, payment_method").eq("user_id", profile.id).order("created_at", { ascending: false }).limit(20);
+  const rows = data ?? [];
+  return { pending: rows.filter((r) => r.status === "pending").length, key: rows.map((r) => `${r.order_id}:${r.status}:${r.payment_method ?? ""}`).join("|") };
 }
