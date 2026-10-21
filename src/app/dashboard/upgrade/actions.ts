@@ -25,6 +25,11 @@ export async function checkVoucher(rawCode: string): Promise<VoucherCheck> {
 }
 
 export async function startCheckout(plan: string, rawCode: string): Promise<{ url?: string; orderId?: string; error?: string }> {
+  return createCheckout(plan, rawCode);
+}
+
+/** `replacing`: pesanan menunggu bayar milik pengguna yang akan diganti (sudah dicek pemiliknya). */
+async function createCheckout(plan: string, rawCode: string, replacing?: string): Promise<{ url?: string; orderId?: string; error?: string }> {
   const { profile } = await requireUser();
   if (!isPlan(plan)) return { error: "Paket tidak valid" };
   if (!midtransConfigured()) return { error: "Pembayaran belum dikonfigurasi. Hubungi admin." };
@@ -34,7 +39,7 @@ export async function startCheckout(plan: string, rawCode: string): Promise<{ ur
 
   let voucher = null;
   if (rawCode.trim()) {
-    const r = await findVoucher(admin, rawCode, profile.id);
+    const r = await findVoucher(admin, rawCode, profile.id, replacing);
     if (!r.voucher) return { error: r.error };
     voucher = r.voucher;
   }
@@ -102,7 +107,7 @@ export async function cancelOrder(orderId: string): Promise<{ error?: string }> 
 export async function changePaymentMethod(orderId: string): Promise<{ url?: string; orderId?: string; error?: string }> {
   const r = await ownPending(orderId);
   if ("error" in r) return { error: r.error };
-  const next = await startCheckout(r.o.plan, r.o.voucher_code ?? "");
+  const next = await createCheckout(r.o.plan, r.o.voucher_code ?? "", orderId);
   if (!next.url) return next;
   await cancelPending(r.admin, orderId);
   return next;

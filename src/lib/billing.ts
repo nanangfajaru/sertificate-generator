@@ -65,7 +65,8 @@ export async function getReferralDefaults(admin: SupabaseClient): Promise<Referr
 export const normalizeCode = (c: string) => c.trim().toUpperCase().replace(/\s+/g, "");
 
 /** Mengecek voucher untuk pengguna tertentu. Mengembalikan voucher atau pesan error. */
-export async function findVoucher(admin: SupabaseClient, rawCode: string, userId: string): Promise<{ voucher?: Voucher; error?: string }> {
+/** `ignoreOrderId`: pesanan menunggu bayar yang sedang diganti (Ganti metode), tidak dihitung sebagai pemakaian. */
+export async function findVoucher(admin: SupabaseClient, rawCode: string, userId: string, ignoreOrderId?: string): Promise<{ voucher?: Voucher; error?: string }> {
   const code = normalizeCode(rawCode);
   if (!code) return { error: "Masukkan kode voucher" };
   const { data } = await admin.from("vouchers").select("*").eq("code", code).maybeSingle();
@@ -84,8 +85,12 @@ export async function findVoucher(admin: SupabaseClient, rawCode: string, userId
     const { count } = await admin.from("orders").select("id", { count: "exact", head: true }).eq("voucher_id", v.id).eq("status", "paid");
     if ((count ?? 0) >= v.max_uses) return { error: "Kuota voucher sudah habis" };
   }
-  const { count: mine } = await admin.from("orders").select("id", { count: "exact", head: true }).eq("voucher_id", v.id).eq("user_id", userId).eq("status", "paid");
-  if (mine) return { error: "Voucher ini sudah pernah Anda gunakan" };
+  // Satu voucher sekali per pengguna, termasuk yang masih di pesanan menunggu bayar (dibatalkan/kedaluwarsa = bisa dipakai lagi).
+  let mineQ = admin.from("orders").select("status").eq("voucher_id", v.id).eq("user_id", userId).in("status", ["paid", "pending"]);
+  if (ignoreOrderId) mineQ = mineQ.neq("order_id", ignoreOrderId);
+  const { data: mine } = await mineQ.limit(5);
+  if (mine?.some((o) => o.status === "paid")) return { error: "Voucher ini sudah pernah Anda gunakan" };
+  if (mine?.length) return { error: "Voucher ini sedang dipakai di pesanan Anda yang menunggu pembayaran. Lanjutkan atau batalkan pesanan itu dulu." };
   return { voucher: v };
 }
 
