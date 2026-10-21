@@ -35,10 +35,12 @@ export default async function ContactPage() {
               </a>
             )}
             <dl className="mt-8 space-y-5 text-sm">
-              <div className="flex gap-3">
-                <Mail className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
-                <div><dt className="font-semibold text-slate-900">Email</dt><dd className="mt-0.5 select-all text-slate-600">nanangfajaru@gmail.com</dd></div>
-              </div>
+              {social.email && (
+                <div className="flex gap-3">
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
+                  <div><dt className="font-semibold text-slate-900">Email</dt><dd className="mt-0.5"><a href={`mailto:${social.email}`} className="select-all text-slate-600 hover:text-brand-700">{social.email}</a></dd></div>
+                </div>
+              )}
               <div className="flex gap-3">
                 <Clock className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
                 <div><dt className="font-semibold text-slate-900">Waktu balas</dt><dd className="mt-0.5 text-slate-600">Biasanya dalam 1 hari kerja (Senin–Jumat, WIB).</dd></div>

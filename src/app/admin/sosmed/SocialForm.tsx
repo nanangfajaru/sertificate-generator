@@ -1,12 +1,12 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Mail } from "lucide-react";
 import { useActionState } from "react";
 import SocialIcon from "@/components/SocialIcon";
 import { saveSocial, type SocialState } from "./actions";
 
-type Social = Record<"whatsapp" | "instagram" | "threads" | "tiktok" | "youtube" | "facebook" | "wa_message", string>;
-type Field = { key: Exclude<keyof Social, "wa_message">; label: string; placeholder: string; hint: string; color: string };
+type Social = Record<"whatsapp" | "instagram" | "threads" | "tiktok" | "youtube" | "facebook" | "wa_message" | "email", string>;
+type Field = { key: Exclude<keyof Social, "wa_message" | "email">; label: string; placeholder: string; hint: string; color: string };
 
 const FIELDS: Field[] = [
   { key: "whatsapp", label: "WhatsApp Business", placeholder: "0812 3456 7890", hint: "Nomor ini tampil publik lewat tautan wa.me.", color: "bg-emerald-50 text-emerald-600" },
@@ -28,6 +28,16 @@ export default function SocialForm({ initial, waDefault }: { initial: Social; wa
   return (
     <form key={formKey} action={action} className="card space-y-1 !p-0">
       <ul className="divide-y divide-slate-100">
+        <li className="flex gap-3 p-4 sm:items-center">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"><Mail className="h-5 w-5" /></span>
+          <div className="min-w-0 flex-1 sm:grid sm:grid-cols-[11rem_1fr] sm:items-center sm:gap-4">
+            <label htmlFor="s-email" className="block text-sm font-semibold text-slate-900">Email kontak</label>
+            <div className="mt-1.5 sm:mt-0">
+              <input id="s-email" name="email" type="email" defaultValue={v.email} placeholder="halo@sertifikatku.com" className="input text-sm" autoComplete="off" />
+              <p className="mt-1 text-xs text-slate-500">Tampil di halaman Kontak.</p>
+            </div>
+          </div>
+        </li>
         {FIELDS.map((f) => (
           <li key={f.key} className="flex gap-3 p-4 sm:items-center">
             <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${f.color}`}><SocialIcon name={f.key} /></span>

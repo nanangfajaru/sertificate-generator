@@ -15,7 +15,7 @@ const ITEMS = [
   { href: "/admin/vouchers", label: "Voucher & referral", icon: BadgePercent },
   { href: "/admin/pesan", label: "Pesan masuk", icon: Inbox },
   { href: "/admin/email", label: "Email", icon: Mail },
-  { href: "/admin/sosmed", label: "Sosial media", icon: AtSign },
+  { href: "/admin/sosmed", label: "Kontak & sosmed", icon: AtSign },
 ];
 
 type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; newMessages?: number; children: React.ReactNode };

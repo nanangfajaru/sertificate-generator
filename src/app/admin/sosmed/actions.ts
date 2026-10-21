@@ -11,8 +11,10 @@ export type SocialState = { error?: string; ok?: boolean; values?: Social };
 export async function saveSocial(_: SocialState, fd: FormData): Promise<SocialState> {
   const s = await getSessionProfile();
   if (!s?.profile.is_admin) return { error: "Tidak diizinkan" };
-  const values = { wa_message: String(fd.get("wa_message") ?? "").trim().slice(0, 200) } as Social;
+  const email = String(fd.get("email") ?? "").trim().toLowerCase().slice(0, 120);
+  const values = { wa_message: String(fd.get("wa_message") ?? "").trim().slice(0, 200), email } as Social;
   const bad: string[] = [];
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) bad.push("Email");
   for (const k of SOCIAL_KEYS) {
     const v = normalizeSocial(k, String(fd.get(k) ?? "").slice(0, 200));
     if (v === null) bad.push(SOCIAL_LABEL[k]);

@@ -5,11 +5,13 @@ import { createAdminClient } from "./supabase/admin";
 export const SOCIAL_KEYS = ["whatsapp", "instagram", "threads", "tiktok", "youtube", "facebook"] as const;
 export type SocialKey = (typeof SOCIAL_KEYS)[number];
 /** Akun resmi SertifikatKu (app_settings.social). Nilai berupa URL lengkap, kecuali `whatsapp` = nomor 62xxx. */
-export type Social = Record<SocialKey, string> & { wa_message: string };
+export type Social = Record<SocialKey, string> & { wa_message: string; email: string };
 
+/** Email kontak publik sebelum admin pernah menyimpan pengaturan ini. */
+export const CONTACT_EMAIL_DEFAULT = "nanangfajaru@gmail.com";
 export const WA_MESSAGE_DEFAULT = "Halo SertifikatKu, saya mau tanya…";
 export const SOCIAL_LABEL: Record<SocialKey, string> = { whatsapp: "WhatsApp", instagram: "Instagram", threads: "Threads", tiktok: "TikTok", youtube: "YouTube", facebook: "Facebook" };
-const EMPTY: Social = { whatsapp: "", instagram: "", threads: "", tiktok: "", youtube: "", facebook: "", wa_message: "" };
+const EMPTY: Social = { whatsapp: "", instagram: "", threads: "", tiktok: "", youtube: "", facebook: "", wa_message: "", email: CONTACT_EMAIL_DEFAULT };
 
 /** Dibaca di halaman publik & dashboard, jadi di-cache; disegarkan saat admin menyimpan (tag "social"). */
 export const getSocial = unstable_cache(
@@ -17,7 +19,7 @@ export const getSocial = unstable_cache(
     const { data } = await createAdminClient().from("app_settings").select("value").eq("key", "social").maybeSingle();
     const v = (data?.value ?? {}) as Partial<Social>;
     const out = { ...EMPTY };
-    for (const k of [...SOCIAL_KEYS, "wa_message"] as const) if (typeof v[k] === "string") out[k] = v[k];
+    for (const k of [...SOCIAL_KEYS, "wa_message", "email"] as const) if (typeof v[k] === "string") out[k] = v[k];
     return out;
   },
   ["social"],
