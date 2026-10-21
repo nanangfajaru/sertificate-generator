@@ -1,8 +1,10 @@
 import LegalPage from "@/components/LegalPage";
+import { legalEmail } from "@/lib/social";
 
 export const metadata = { title: "Kebijakan Privasi" };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const email = await legalEmail();
   return (
     <LegalPage title="Kebijakan Privasi" updated="14 Oktober 2026">
       <p>SertifikatKu (sertifikatku.com) membantu penyelenggara kegiatan menerbitkan sertifikat digital. Halaman ini menjelaskan data apa yang kami kumpulkan dan bagaimana kami menggunakannya.</p>
@@ -38,7 +40,7 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>Kontak</h2>
-        <p>Pertanyaan tentang privasi dapat dikirim ke <a className="text-brand-700 underline" href="mailto:nanangfajaru@gmail.com">nanangfajaru@gmail.com</a>.</p>
+        <p>Pertanyaan tentang privasi dapat dikirim ke <a className="text-brand-700 underline" href={`mailto:${email}`}>{email}</a>.</p>
       </section>
     </LegalPage>
   );

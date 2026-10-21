@@ -1,4 +1,5 @@
 import LegalPage from "@/components/LegalPage";
+import { legalEmail } from "@/lib/social";
 import { getPricing } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -9,6 +10,7 @@ const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 export const metadata = { title: "Syarat & Ketentuan" };
 
 export default async function TermsPage() {
+  const email = await legalEmail();
   const pricing = await getPricing(createAdminClient());
   return (
     <LegalPage title="Syarat & Ketentuan" updated="14 Oktober 2026">
@@ -49,7 +51,7 @@ export default async function TermsPage() {
       </section>
       <section>
         <h2>Kontak</h2>
-        <p>Pertanyaan dapat dikirim ke <a className="text-brand-700 underline" href="mailto:nanangfajaru@gmail.com">nanangfajaru@gmail.com</a>.</p>
+        <p>Pertanyaan dapat dikirim ke <a className="text-brand-700 underline" href={`mailto:${email}`}>{email}</a>.</p>
       </section>
     </LegalPage>
   );

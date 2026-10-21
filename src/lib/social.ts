@@ -7,11 +7,12 @@ export type SocialKey = (typeof SOCIAL_KEYS)[number];
 /** Akun resmi SertifikatKu (app_settings.social). Nilai berupa URL lengkap, kecuali `whatsapp` = nomor 62xxx. */
 export type Social = Record<SocialKey, string> & { wa_message: string; email: string };
 
-/** Email kontak publik sebelum admin pernah menyimpan pengaturan ini. */
+/** Nilai bawaan sebelum admin pernah menyimpan pengaturan ini. */
 export const CONTACT_EMAIL_DEFAULT = "nanangfajaru@gmail.com";
+const WHATSAPP_DEFAULT = "6287794788008";
 export const WA_MESSAGE_DEFAULT = "Halo SertifikatKu, saya mau tanya…";
 export const SOCIAL_LABEL: Record<SocialKey, string> = { whatsapp: "WhatsApp", instagram: "Instagram", threads: "Threads", tiktok: "TikTok", youtube: "YouTube", facebook: "Facebook" };
-const EMPTY: Social = { whatsapp: "", instagram: "", threads: "", tiktok: "", youtube: "", facebook: "", wa_message: "", email: CONTACT_EMAIL_DEFAULT };
+const EMPTY: Social = { whatsapp: WHATSAPP_DEFAULT, instagram: "", threads: "", tiktok: "", youtube: "", facebook: "", wa_message: "", email: CONTACT_EMAIL_DEFAULT };
 
 /** Dibaca di halaman publik & dashboard, jadi di-cache; disegarkan saat admin menyimpan (tag "social"). */
 export const getSocial = unstable_cache(
@@ -25,6 +26,9 @@ export const getSocial = unstable_cache(
   ["social"],
   { tags: ["social"], revalidate: 86400 },
 );
+
+/** Email untuk halaman legal (Privasi, Syarat): selalu ada, memakai bawaan bila dikosongkan admin. */
+export const legalEmail = async () => (await getSocial()).email || CONTACT_EMAIL_DEFAULT;
 
 export const waLink = (number: string, message?: string) => `https://wa.me/${number}?text=${encodeURIComponent(message || WA_MESSAGE_DEFAULT)}`;
 
