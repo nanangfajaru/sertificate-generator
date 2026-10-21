@@ -23,6 +23,8 @@ Yang kita jual: *waktu panitia yang hemat* + *sertifikat yang terlihat resmi*. B
 
 Jangan pernah mengklaim: jumlah pengguna, testimoni, logo klien, sertifikasi resmi pemerintah, "nomor 1", atau fitur yang belum ada. Bila ragu, tanyakan atau periksa kode di repo.
 
+Klaim hukum yang dilarang (lihat `docs/kepatuhan.md`): "tanda tangan elektronik resmi/tersertifikasi", "sah secara hukum"/"diakui instansi"/"bernilai SKP", "anti-palsu"/"tidak bisa dipalsukan", dan "data disimpan di Indonesia". Yang boleh: "nomor unik dan QR untuk memeriksa keasliannya", "dokumen elektronik (PDF)".
+
 ## Target audiens (urut prioritas)
 1. **Panitia kampus**: BEM, HIMA, UKM, panitia seminar/webinar/lomba mahasiswa. Usia 18–24, aktif di IG & TikTok, sering kepepet waktu, butuh hasil rapi untuk laporan kegiatan & LPJ.
 2. **Penyelenggara rutin**: lembaga pelatihan/kursus (LKP), komunitas, EO kecil, penyelenggara webinar profesional.
