@@ -14,6 +14,7 @@ export default async function PrivacyPage() {
           <li><b>Akun penyelenggara:</b> nama, alamat email, dan foto profil (jika masuk dengan Google), serta kata sandi terenkripsi bila mendaftar dengan email.</li>
           <li><b>Data kegiatan:</b> informasi program, formulir pendaftaran, desain sertifikat, dan gambar tanda tangan yang Anda unggah.</li>
           <li><b>Data peserta:</b> isian formulir pendaftaran yang diatur penyelenggara (misalnya nama dan email), yang digunakan untuk menerbitkan sertifikat.</li>
+          <li><b>Statistik kunjungan:</b> jumlah kunjungan, halaman yang dibuka, asal pengunjung, negara, dan jenis perangkat melalui Vercel Web Analytics. Data ini anonim, tanpa cookie, dan tidak dipakai untuk mengenali Anda secara pribadi.</li>
           <li><b>Data pembayaran:</b> pembayaran diproses oleh Midtrans. Kami hanya menyimpan nomor pesanan, paket, nominal, dan statusnya; kami tidak menyimpan nomor kartu atau kredensial pembayaran.</li>
         </ul>
       </section>

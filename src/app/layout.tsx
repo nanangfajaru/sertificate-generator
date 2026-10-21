@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import RefCapture from "@/components/RefCapture";
+import SiteAnalytics from "@/components/SiteAnalytics";
 
 export const metadata: Metadata = {
   title: { default: "SertifikatKu – penerbitan sertifikat digital untuk setiap kegiatan", template: "%s · SertifikatKu" },
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans">
         <RefCapture />
         {children}
+        <SiteAnalytics />
       </body>
     </html>
   );
