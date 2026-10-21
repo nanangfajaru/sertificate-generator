@@ -140,7 +140,22 @@ export type MidtransStatus = {
   store?: string;
   issuer?: string;
   bank?: string;
+  bill_key?: string;
+  biller_code?: string;
+  payment_code?: string;
+  expiry_time?: string;
 };
+
+/** Kode bayar untuk pesanan menunggu bayar. `biller` hanya untuk Mandiri Bill (kode perusahaan + kode bayar). */
+export type PaymentInfo = { code: string; biller?: string; expires_at?: string };
+
+export function paymentInfoOf(p: MidtransStatus): PaymentInfo | null {
+  const code = p.va_numbers?.[0]?.va_number ?? p.permata_va_number ?? p.bill_key ?? p.payment_code;
+  if (!code) return null;
+  // expiry_time Midtrans dalam WIB tanpa zona waktu, mis. "2026-10-22 08:40:26".
+  const exp = p.expiry_time && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(p.expiry_time) ? new Date(`${p.expiry_time.replace(" ", "T")}+07:00`).toISOString() : undefined;
+  return { code, ...(p.bill_key && p.biller_code ? { biller: p.biller_code } : {}), ...(exp ? { expires_at: exp } : {}) };
+}
 
 const NAMES: Record<string, string> = {
   qris: "QRIS", gopay: "GoPay", shopeepay: "ShopeePay", dana: "DANA", ovo: "OVO", linkaja: "LinkAja",
@@ -157,7 +172,7 @@ export function paymentMethodLabel(p: MidtransStatus): string | null {
     const bank = p.va_numbers?.[0]?.bank ?? (p.permata_va_number ? "permata" : null);
     return bank ? `Virtual Account ${nice(bank)}` : "Transfer bank (Virtual Account)";
   }
-  if (t === "echannel") return "Mandiri Bill Payment";
+  if (t === "echannel") return "Mandiri (Bill Payment)";
   if (t === "credit_card") return p.bank ? `Kartu kredit/debit (${nice(p.bank)})` : "Kartu kredit/debit";
   if (t === "cstore") return p.store ? nice(p.store) : "Gerai retail";
   return nice(t);
@@ -222,7 +237,12 @@ export async function applyMidtransStatus(admin: SupabaseClient, p: MidtransStat
   const { data: o } = await admin.from("orders").select("*").eq("order_id", p.order_id).maybeSingle();
   if (!o) return null;
   const method = paymentMethodLabel(p);
-  if (method && method !== o.payment_method) await admin.from("orders").update({ payment_method: method }).eq("id", o.id);
+  const info = paymentInfoOf(p);
+  const patch = {
+    ...(method && method !== o.payment_method ? { payment_method: method } : {}),
+    ...(info && JSON.stringify(info) !== JSON.stringify(o.payment_info) ? { payment_info: info } : {}),
+  };
+  if (Object.keys(patch).length) await admin.from("orders").update(patch).eq("id", o.id);
   if (o.status === "paid") return "paid";
   const ts = p.transaction_status;
   const paid = ts === "settlement" || (ts === "capture" && (p.fraud_status ?? "accept") === "accept");

@@ -31,7 +31,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
   // Dibaca setelah sinkronisasi agar status & masa aktif Pro sudah terbaru.
   const [{ data: p }, { data: rows }] = await Promise.all([
     admin.from("profiles").select("plan, plan_expires_at").eq("id", profile.id).maybeSingle(),
-    admin.from("orders").select("order_id, plan, base_amount, discount_amount, amount, voucher_code, status, payment_url, payment_method, paid_at, created_at, period_start, period_end").eq("user_id", profile.id).order("created_at", { ascending: false }).limit(50),
+    admin.from("orders").select("order_id, plan, base_amount, discount_amount, amount, voucher_code, status, payment_url, payment_method, payment_info, paid_at, created_at, period_start, period_end").eq("user_id", profile.id).order("created_at", { ascending: false }).limit(50),
   ]);
   const until = p?.plan_expires_at ?? null;
   const proNow = orderStatus === "paid" || (p?.plan === "pro" && (!until || new Date(until) > new Date())) || isPro;

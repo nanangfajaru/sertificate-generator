@@ -1,7 +1,9 @@
 import { Download } from "lucide-react";
+import { Fragment } from "react";
+import PaymentCode, { type PaymentInfo } from "./PaymentCode";
 import PendingActions from "./PendingActions";
 
-export type HistoryRow = { order_id: string; plan: string; base_amount: number | null; discount_amount: number | null; amount: number; voucher_code: string | null; status: string; payment_url: string | null; payment_method: string | null; paid_at: string | null; created_at: string; period_start?: string | null; period_end?: string | null };
+export type HistoryRow = { order_id: string; plan: string; base_amount: number | null; discount_amount: number | null; amount: number; voucher_code: string | null; status: string; payment_url: string | null; payment_method: string | null; payment_info?: PaymentInfo | null; paid_at: string | null; created_at: string; period_start?: string | null; period_end?: string | null };
 
 const STATUS_LABEL: Record<string, [string, string]> = {
   paid: ["Lunas", "badge-ok"],
@@ -38,6 +40,7 @@ export default function OrderHistory({ rows }: { rows: HistoryRow[] }) {
       {r.voucher_code && <span className="mt-0.5 block text-[11px] text-slate-500">Voucher {r.voucher_code}</span>}
     </>
   );
+  const payCode = (r: HistoryRow) => (r.status === "pending" && r.payment_info?.code ? <PaymentCode method={r.payment_method} info={r.payment_info} /> : null);
   const method = (r: HistoryRow) => (r.payment_method ? <span className="block text-[11px] text-slate-500">{r.payment_method}</span> : null);
   const action = (r: HistoryRow) =>
     r.status === "pending" ? <PendingActions orderId={r.order_id} paymentUrl={r.payment_url} />
@@ -63,6 +66,7 @@ export default function OrderHistory({ rows }: { rows: HistoryRow[] }) {
                 {r.status === "pending" ? (
                   <>
                     <div className="mt-2">{paidAmount(r)}</div>
+                    {payCode(r) && <div className="mt-3">{payCode(r)}</div>}
                     <div className="mt-3 flex justify-end">{action(r)}</div>
                   </>
                 ) : (
@@ -79,13 +83,20 @@ export default function OrderHistory({ rows }: { rows: HistoryRow[] }) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {rows.map((r) => (
-                  <tr key={r.order_id}>
+                  <Fragment key={r.order_id}>
+                  <tr className={payCode(r) ? "border-b-0 [&>td]:pb-2" : ""}>
                     <td className="whitespace-nowrap px-4 py-3 text-slate-600">{tgl(r.paid_at ?? r.created_at)}<span className="block font-mono text-[10px] text-slate-400">{r.order_id}</span></td>
                     <td className="px-4 py-3"><p className="whitespace-nowrap font-medium">{planLabel(r.plan)}</p>{period(r) && <p className="whitespace-nowrap text-[11px] text-brand-700">{period(r)}</p>}</td>
                     <td className="px-4 py-3">{paidAmount(r)}</td>
                     <td className="px-4 py-3"><span className={`badge whitespace-nowrap ${status(r.status)[1]}`}>{status(r.status)[0]}</span>{method(r)}</td>
                     <td className="px-4 py-3 text-right">{action(r)}</td>
                   </tr>
+                  {payCode(r) && (
+                    <tr><td />
+                      <td colSpan={4} className="px-4 pb-4">{payCode(r)}</td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
