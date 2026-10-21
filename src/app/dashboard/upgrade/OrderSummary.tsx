@@ -121,7 +121,7 @@ export default function OrderSummary({ pricing, configured, initialPlan, initial
           {!configured && <p className="relative mt-2 text-center text-xs text-brand-200">Pembayaran online belum aktif. Hubungi admin.</p>}
           <div className="relative mt-4 flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-brand-100">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Aman via Midtrans ·
-            {["QRIS", "VA", "E-wallet", "Kartu"].map((m) => <span key={m} className="rounded bg-white/10 px-1.5 py-0.5">{m}</span>)}
+            {["QRIS", "VA", "E-wallet"].map((m) => <span key={m} className="rounded bg-white/10 px-1.5 py-0.5">{m}</span>)}
           </div>
         </div>
         <p className="mt-3 text-center text-xs text-slate-500">Pro aktif otomatis setelah pembayaran berhasil dan invoice dikirim ke email Anda.</p>
