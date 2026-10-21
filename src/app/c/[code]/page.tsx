@@ -73,6 +73,9 @@ export default async function CertificatePage({ params }: { params: Promise<{ co
         ) : (
           <RejectedCard org={program.org_name} />
         )}
+        <p className="text-center text-xs text-slate-400">
+          Ada yang janggal dengan sertifikat ini? <a href={`/kontak?topik=laporan&kode=${encodeURIComponent(code)}`} className="underline hover:text-slate-600">Laporkan</a>
+        </p>
         {!isPro && (
           <p className="pt-2 text-center text-xs text-slate-500">
             Dibuat dengan <a href="/?utm_source=sertifikat" className="font-semibold text-brand-700 hover:underline">SertifikatKu</a> · <a href="/?utm_source=sertifikat" className="hover:underline">Buat sertifikat untuk kegiatan Anda</a>

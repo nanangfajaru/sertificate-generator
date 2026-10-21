@@ -13,7 +13,7 @@ const schema = z.object({
   name: z.string().trim().min(2, "Isi nama Anda").max(80),
   email: z.string().trim().email("Format email belum benar").max(120),
   org: z.string().trim().max(120),
-  topic: z.enum(["Pertanyaan umum", "Bantuan akun & teknis", "Paket Pro & pembayaran", "Kerja sama / mitra", "Lainnya"]),
+  topic: z.enum(["Pertanyaan umum", "Bantuan akun & teknis", "Paket Pro & pembayaran", "Kerja sama / mitra", "Laporan penyalahgunaan / sertifikat palsu", "Lainnya"]),
   message: z.string().trim().min(10, "Pesan terlalu singkat").max(3000),
 });
 
