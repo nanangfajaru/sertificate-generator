@@ -18,3 +18,15 @@ export async function saveCheckoutSetting(enabled: boolean, message: string): Pr
   revalidatePath("/dashboard/upgrade", "layout");
   return {};
 }
+
+/** Hapus transaksi (mis. data uji coba). Status Pro pengguna tidak diubah. */
+export async function deleteOrder(orderId: string): Promise<{ error?: string }> {
+  const s = await getSessionProfile();
+  if (!s?.profile.is_admin) return { error: "Tidak diizinkan" };
+  const { error } = await createAdminClient().from("orders").delete().eq("order_id", orderId);
+  if (error) return { error: "Gagal menghapus transaksi" };
+  revalidatePath("/admin", "layout");
+  revalidatePath("/dashboard/upgrade", "layout");
+  revalidatePath("/dashboard/referral");
+  return {};
+}

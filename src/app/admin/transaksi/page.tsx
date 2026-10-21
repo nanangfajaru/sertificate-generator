@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth";
 import { CHECKOUT_CLOSED_DEFAULT, getCheckoutSetting } from "@/lib/billing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import CheckoutSwitch from "./CheckoutSwitch";
+import DeleteOrder from "./DeleteOrder";
 
 export const metadata = { title: "Transaksi · Admin" };
 
@@ -63,7 +64,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Transaksi</h1>
-        <p className="text-sm text-slate-500">Semua pembelian paket Pro dari seluruh pengguna.</p>
+        <p className="text-sm text-slate-500">Semua pembelian paket Pro dari seluruh pengguna. Transaksi uji coba bisa dihapus agar pendapatan & komisi bersih.</p>
       </div>
 
       <CheckoutSwitch enabled={checkout.enabled} message={checkout.message} fallback={CHECKOUT_CLOSED_DEFAULT} />
@@ -108,7 +109,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                     <td className="px-4 py-3 text-slate-600">{o.payment_method ?? "—"}</td>
                     <td className="px-4 py-3"><span className={`badge whitespace-nowrap ${tone}`}>{label}</span></td>
                     <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{o.order_id}</td>
-                    <td className="px-4 py-3 text-right">{o.status === "paid" && <a href={`/api/orders/${encodeURIComponent(o.order_id)}/invoice`} className="btn btn-sm" title="Unduh invoice"><Download className="h-4 w-4" /> Invoice</a>}</td>
+                    <td className="px-4 py-3"><div className="flex justify-end gap-1.5">{o.status === "paid" && <a href={`/api/orders/${encodeURIComponent(o.order_id)}/invoice`} className="btn btn-sm" title="Unduh invoice"><Download className="h-4 w-4" /> Invoice</a>}<DeleteOrder orderId={o.order_id} paid={o.status === "paid"} /></div></td>
                   </tr>
                 );
               })}
