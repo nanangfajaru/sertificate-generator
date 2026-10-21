@@ -33,17 +33,17 @@ function Code({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** Nomor VA / kode bayar pesanan menunggu bayar. Mandiri Bill butuh dua kode, ditampilkan berdampingan dalam satu kotak. */
+/** Nomor VA / kode bayar pesanan menunggu bayar. Mandiri Bill: kode perusahaan + kode bayar digabung jadi satu nomor (bisa ditempel langsung di Livin'). */
 export default function PaymentCode({ method, info }: { method: string | null; info: PaymentInfo }) {
   const mandiri = !!info.biller;
+  const isVa = mandiri || /Virtual Account/i.test(method ?? "");
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 text-left">
       <p className="text-xs font-semibold text-slate-700">{method ? `Bayar via ${method}` : "Kode pembayaran"}</p>
-      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-        {mandiri && <Code label="Kode perusahaan" value={info.biller!} />}
-        <Code label={mandiri ? "Kode bayar" : /Virtual Account/i.test(method ?? "") ? "Nomor Virtual Account" : "Kode bayar"} value={info.code} />
+      <div className="mt-2">
+        <Code label={isVa ? "Nomor Virtual Account" : "Kode bayar"} value={mandiri ? `${info.biller}${info.code}` : info.code} />
       </div>
-      {mandiri && <p className="mt-2 text-[11px] leading-relaxed text-slate-600">Livin&apos; by Mandiri: <b>Bayar → E-Commerce → Midtrans</b> (kode {info.biller}), lalu masukkan kode bayar.</p>}
+      {mandiri && <p className="mt-2 text-[11px] leading-relaxed text-slate-600">Bila aplikasi meminta terpisah: kode perusahaan <b>{info.biller}</b> (Midtrans), kode bayar <b>{info.code}</b>.</p>}
       {info.expires_at && <p className="mt-1.5 text-[11px] text-amber-800">Bayar sebelum {until(info.expires_at)} WIB</p>}
     </div>
   );
