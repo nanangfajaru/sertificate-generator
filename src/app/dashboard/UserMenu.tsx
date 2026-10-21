@@ -3,8 +3,9 @@
 import { ChevronDown, Crown, Gift, KeyRound, LogOut, Sparkles, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import SocialIcon from "@/components/SocialIcon";
 
-type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; planUntil?: string | null };
+type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; planUntil?: string | null; helpUrl?: string | null };
 
 function Avatar({ name, url, size }: { name: string; url: string | null; size: string }) {
   // eslint-disable-next-line @next/next/no-img-element
@@ -12,7 +13,7 @@ function Avatar({ name, url, size }: { name: string; url: string | null; size: s
   return <span className={`${size} grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-semibold uppercase text-white`}>{name.trim().charAt(0)}</span>;
 }
 
-export default function UserMenu({ name, email, avatarUrl, isPro, planUntil }: Props) {
+export default function UserMenu({ name, email, avatarUrl, isPro, planUntil, helpUrl }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -66,6 +67,7 @@ export default function UserMenu({ name, email, avatarUrl, isPro, planUntil }: P
             <div className="my-1 border-t border-slate-100" />
             <Link href="/dashboard/profile" role="menuitem" className={item} onClick={() => setOpen(false)}><span className={ic}><UserRound className="h-4 w-4" /></span> Profil saya</Link>
             <Link href="/dashboard/password" role="menuitem" className={item} onClick={() => setOpen(false)}><span className={ic}><KeyRound className="h-4 w-4" /></span> Ganti password</Link>
+            {helpUrl && <a href={helpUrl} target="_blank" rel="noopener noreferrer" role="menuitem" className={item} onClick={() => setOpen(false)}><span className={ic}><SocialIcon name="whatsapp" className="h-4 w-4" /></span> Bantuan via WhatsApp</a>}
           </div>
           <form action="/auth/signout" method="post" className="border-t border-slate-100 p-1.5">
             <button role="menuitem" className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"><span className="grid h-7 w-7 place-items-center rounded-md bg-red-50"><LogOut className="h-4 w-4" /></span> Keluar</button>

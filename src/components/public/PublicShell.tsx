@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import HeaderMotif from "./HeaderMotif";
+import SocialLinks from "./SocialLinks";
 
 /** Kerangka halaman publik sederhana (Tentang, Kontak): header dengan tombol masuk dan footer ringkas. */
 export default function PublicShell({ children }: { children: React.ReactNode }) {
@@ -30,7 +31,10 @@ export default function PublicShell({ children }: { children: React.ReactNode })
             <Link href="/privasi" className="hover:text-slate-900">Privasi</Link>
             <Link href="/syarat" className="hover:text-slate-900">Syarat</Link>
           </nav>
-          <p>© {new Date().getFullYear()} SertifikatKu</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <SocialLinks />
+            <p>© {new Date().getFullYear()} SertifikatKu</p>
+          </div>
         </div>
       </footer>
     </div>

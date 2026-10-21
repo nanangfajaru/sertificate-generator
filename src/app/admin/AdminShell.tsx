@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BadgePercent, FolderOpen, Inbox, LayoutDashboard, Mail, Menu, Receipt, Users, X } from "lucide-react";
+import { ArrowLeft, AtSign, BadgePercent, FolderOpen, Inbox, LayoutDashboard, Mail, Menu, Receipt, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ const ITEMS = [
   { href: "/admin/vouchers", label: "Voucher & referral", icon: BadgePercent },
   { href: "/admin/pesan", label: "Pesan masuk", icon: Inbox },
   { href: "/admin/email", label: "Email", icon: Mail },
+  { href: "/admin/sosmed", label: "Sosial media", icon: AtSign },
 ];
 
 type Props = { name: string; email: string | null; avatarUrl: string | null; isPro: boolean; newMessages?: number; children: React.ReactNode };

@@ -14,10 +14,11 @@ type Props = {
   isPro: boolean;
   isAdmin: boolean;
   planUntil: string | null;
+  helpUrl?: string | null;
   children: React.ReactNode;
 };
 
-export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUntil, children }: Props) {
+export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUntil, helpUrl, children }: Props) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
@@ -101,7 +102,7 @@ export default function Shell({ name, email, avatarUrl, isPro, isAdmin, planUnti
               ) : (
                 <Link href="/dashboard/upgrade/paket" className="hidden items-center gap-1.5 rounded-full bg-navy px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-brand-800 sm:inline-flex"><Sparkles className="h-3.5 w-3.5 text-amber-400" /> Upgrade</Link>
               )}
-              <UserMenu name={name} email={email} avatarUrl={avatarUrl} isPro={isPro} planUntil={until} />
+              <UserMenu name={name} email={email} avatarUrl={avatarUrl} isPro={isPro} planUntil={until} helpUrl={helpUrl} />
             </div>
           </div>
         </header>

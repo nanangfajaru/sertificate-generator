@@ -5,11 +5,14 @@ import { ApprovalMockup, FormMockup, VerifyMockup } from "@/components/landing/M
 import LazyMount from "@/components/LazyMount";
 import MobileNav from "@/components/landing/MobileNav";
 import HeaderMotif from "@/components/public/HeaderMotif";
+import SocialLinks from "@/components/public/SocialLinks";
 import SampleCert from "@/components/SampleCert";
 import { TEMPLATES } from "@/lib/certificate/templates";
 import { formatDateRange } from "@/lib/certificate/sources";
 import { SEO_PAGES } from "@/lib/seo-pages";
 import { SHOWCASE } from "@/lib/showcase";
+import { SOCIAL_KEYS, getSocial } from "@/lib/social";
+import { siteUrl } from "@/lib/util";
 
 
 const steps = [
@@ -46,9 +49,20 @@ const faqs = [
 
 const showcaseTemplates = ["classic-navy", "flora-rose", "sport-futsal", "frame-crimson", "medic-cross", "company-skyline", "modern-teal", "batik-kawung"];
 
-export default function Landing() {
+export default async function Landing() {
+  const social = await getSocial();
+  // Data merek untuk Google: menautkan situs dengan akun resmi (sameAs).
+  const orgLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "SertifikatKu",
+    url: siteUrl(),
+    logo: `${siteUrl()}/apple-icon.png`,
+    sameAs: SOCIAL_KEYS.filter((k) => k !== "whatsapp" && social[k]).map((k) => social[k]),
+  };
   return (
     <div className="text-slate-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd).replace(/</g, "\\u003c") }} />
       <header className="sticky top-0 z-30 bg-navy shadow-[0_1px_0_0_rgba(251,191,36,.45)]">
         <HeaderMotif />
         <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-5">
@@ -319,7 +333,10 @@ export default function Landing() {
             <Link href="/privasi" className="hover:text-white">Privasi</Link>
             <Link href="/syarat" className="hover:text-white">Syarat</Link>
           </nav>
-          <p>© {new Date().getFullYear()} SertifikatKu</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <SocialLinks dark />
+            <p>© {new Date().getFullYear()} SertifikatKu</p>
+          </div>
         </div>
         <nav aria-label="Jenis sertifikat" className="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-2 border-t border-white/10 px-5 py-5 text-xs text-slate-400">
           {SEO_PAGES.map((p) => (<Link key={p.slug} href={`/sertifikat/${p.slug}`} className="hover:text-white">{p.title}</Link>))}

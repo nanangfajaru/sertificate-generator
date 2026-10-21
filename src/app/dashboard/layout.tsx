@@ -1,11 +1,12 @@
 import { cookies } from "next/headers";
 import { after } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { getSocial, waLink } from "@/lib/social";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Shell from "./Shell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { profile, isPro } = await requireUser();
+  const [{ profile, isPro }, social] = await Promise.all([requireUser(), getSocial()]);
   if (!profile.signup_source) {
     // Catat sumber pendaftar sekali (dari cookie ?ref / ?utm_source).
     // Dicatat setelah respons terkirim agar kunjungan pertama ke dashboard tidak menunggu.
@@ -16,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
   const name = profile.full_name ?? profile.email ?? "Pengguna";
   return (
-    <Shell name={name} email={profile.email} avatarUrl={profile.avatar_url} isPro={isPro} isAdmin={profile.is_admin} planUntil={isPro ? profile.plan_expires_at : null}>
+    <Shell name={name} email={profile.email} avatarUrl={profile.avatar_url} isPro={isPro} isAdmin={profile.is_admin} planUntil={isPro ? profile.plan_expires_at : null} helpUrl={social.whatsapp ? waLink(social.whatsapp, social.wa_message) : null}>
       {children}
     </Shell>
   );
