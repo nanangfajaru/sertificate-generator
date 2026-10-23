@@ -12,8 +12,10 @@
   3. Gmail "Send mail as" halo@ via smtp.resend.com:465, user `resend`, password API key Resend (Sending access)
   4. Tes kirim & terima
 - [ ] Google Search Console: verifikasi domain + kirim sitemap (https://sertifikatku.com/sitemap.xml)
-- [ ] Metricool + akun sosmed + konektor Metricool di claude.ai
+- [ ] Bing Webmaster Tools: impor dari Search Console (sekali klik setelah GSC beres)
+- [ ] Isi akun sosmed di Admin → Kontak & sosmed (IG/Threads/TikTok @sertifikatkucom, YouTube, Facebook)
+- [x] Metricool + akun sosmed + konektor Metricool di claude.ai (23 Okt 2026, brandId 7555172)
 - [ ] Izin jaringan environment ke jvfzbthfemhviogfwzeu.supabase.co + secret SUPABASE_SERVICE_ROLE_KEY (upload video)
 - [x] Buku panduan 4 agen AI (`.claude/skills/agen-*`)
-- [ ] Aktifkan tugas terjadwal 4 agen — SUDAH DIBUAT tapi DIJEDA atas permintaan pemilik; aktifkan setelah semua persiapan di atas selesai (termasuk akun sosmed)
+- [x] Aktifkan tugas terjadwal agen (23 Okt 2026: 7 agen aktif, 3 agen lama dihapus)
 - [x] Sesi "Markas Pemasaran" untuk persetujuan (bukan halaman web)
