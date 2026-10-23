@@ -18,7 +18,7 @@ Yang kita jual: *waktu panitia yang hemat* + *sertifikat yang terlihat resmi*. B
 - Peran selain peserta: pembicara, narasumber, moderator, panitia, juri, dll. (tidak dihitung kuota).
 - Tanda tangan bergambar, logo penyelenggara, link unduh via email peserta, unduh massal ZIP, rekap kehadiran CSV.
 - **Gratis**: 10 program, 100 peserta per program (yang dihitung hanya peran "Peserta"). **Pro**: Rp49.000/bulan atau Rp499.000/tahun (jangan diangkat di fase awareness kecuali ditanya).
-- Situs: **sertifikatku.com** · Blog: **sertifikatku.com/blog** · Halaman per kegiatan: `/sertifikat/seminar`, `/webinar`, `/workshop`, `/pelatihan`, `/lomba`, `/kepanitiaan`, `/magang`, `/relawan`.
+- Situs: **sertifikatku.com** · Blog: **sertifikatku.com/blog** · Halaman per kegiatan: `/sertifikat/seminar`, `/webinar`, `/workshop`, `/pelatihan`, `/lomba`, `/organisasi`, `/magang`, `/relawan`.
 - Email kontak (bisa dibalas): **halo@sertifikatku.com**. Email sistem: noreply@.
 
 Jangan pernah mengklaim: jumlah pengguna, testimoni, logo klien, sertifikasi resmi pemerintah, "nomor 1", atau fitur yang belum ada. Bila ragu, tanyakan atau periksa kode di repo.
@@ -36,7 +36,7 @@ Rasa sakit utama mereka: rekap nama manual, salah ketik nama, kirim satu per sat
 - **Bahasa Indonesia santai-profesional**: seperti kakak tingkat yang jago dan suka membantu. Pakai "kamu" untuk konten sosmed; "Anda" untuk email resmi & artikel.
 - Konkret, singkat, berempati pada capeknya panitia. Humor ringan boleh (relate kehidupan panitia), tidak merendahkan siapa pun.
 - Hindari: jargon teknis, klaim berlebihan, huruf kapital berlebihan, emoji berlebihan (maks. 2–3 per caption), kata "revolusioner", "terbaik", "nomor 1".
-- Brand: **SertifikatKu** (S dan K kapital, ditulis menyambung). Warna utama ungu indigo `#4f46e5`, aksen emas `#f59e0b`, font Inter.
+- Brand: **SertifikatKu** (S dan K kapital, ditulis menyambung). Warna utama navy `#0f1d4a`, aksen emas `#f5b301`, font Inter. Aset logo & banner: `marketing/brand/`.
 
 ## Kalender momen (Indonesia)
 | Waktu | Momen | Sudut konten |
