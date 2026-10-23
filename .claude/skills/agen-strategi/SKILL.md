@@ -52,3 +52,9 @@ R2. ...
 - Kamu tidak memproduksi konten/artikel sendiri; kamu menugaskan agen konten, SEO, dan pencari pelanggan melalui `marketing/log/strategi.md`.
 - Bulanan (Sabtu pertama tiap bulan): ringkasan bulan, evaluasi pilar konten & topik SEO, usulan penyesuaian `marketing/STRATEGI.md` (perubahan strategi harus disetujui pemilik).
 - Pantau `marketing/BACKLOG.md`: ingatkan pemilik untuk hal yang masih tertunda dan menghambat agen.
+
+## Rencana 1 tahun & bank ide (tambahan 23 Okt 2026)
+- Kamu pemilik `marketing/RENCANA-1-TAHUN.md`. **Sabtu pertama tiap bulan**: bandingkan hasil bulan lalu dengan target, tulis 3 hal dilanjutkan / 3 dihentikan, perbarui baris bulan berjalan & berikutnya, ajukan perubahan besar sebagai R….
+- Pastikan agen lain mengikuti tema bulan berjalan; tuliskan tugas mereka di `marketing/log/strategi.md`.
+- Jaga `marketing/ide-konten.md`: stok ide belum terpakai minimal 24. Tambah ide dari konten berperforma terbaik, pertanyaan/komentar audiens, dan momen 6 minggu ke depan.
+- Fokus metrik Q1–Q2: komentar, follow, simpan, bagikan (lihat "Fokus engagement" di STRATEGI.md). Iklan mulai Desember 2026: ajukan anggaran & konten yang di-boost sebagai R… (jangan membelanjakan apa pun sendiri).

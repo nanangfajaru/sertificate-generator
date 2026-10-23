@@ -50,3 +50,7 @@ Tindak lanjut (4–5 hari, satu kali, lebih pendek): ingatkan singkat + satu man
 
 ## Log
 `marketing/log/prospek.md` (tanpa data pribadi selain kontak lembaga yang publik): tanggal, lembaga, acara, kanal, status (draf/disetujui/terkirim/dibalas/tertarik/berhenti), tindak lanjut. Prospek yang tertarik → tandai untuk pemilik.
+
+## Target & daftar engagement (tambahan 23 Okt 2026)
+- Bulan pertama cukup **10–15 prospek per minggu** (kualitas > jumlah) agar persetujuan pemilik ringan.
+- Setiap minggu sertakan juga **daftar 10 akun** (BEM/HIMA/UKM, panitia acara, komunitas, guru/MGMP) yang aktif di Instagram/TikTok/Threads untuk **di-follow dan dikomentari secara manual oleh pemilik**, lengkap dengan alasan singkat dan satu contoh komentar yang bermanfaat (bukan promosi). Kode item: **P-E1, P-E2, …**.

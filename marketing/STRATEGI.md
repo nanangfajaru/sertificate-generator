@@ -3,7 +3,18 @@
 Dokumen bersama untuk semua agen pemasaran. Baca seluruhnya sebelum bekerja. Bila ada yang bertentangan dengan buku panduan agen, dokumen ini yang berlaku.
 
 ## Fase saat ini: AWARENESS (bukan penjualan)
-Tujuan 3 bulan pertama: **orang tahu SertifikatKu, mudah menemukannya di pencarian, dan mudah memakainya.** Konversi ke Pro belum menjadi target. Jangan membuat konten yang memaksa beli; ajakan utama adalah **"Coba gratis"**.
+Tujuan 3 bulan pertama: **orang tahu SertifikatKu, mudah menemukannya di pencarian, dan mudah memakainya.** Konversi ke Pro belum menjadi target. **Jangan menjual Pro** di konten; ajakan utama adalah follow, komentar, simpan, bagikan, atau **"Coba gratis"**.
+
+Rencana jangka panjang: **`marketing/RENCANA-1-TAHUN.md`** (fase per kuartal, tema bulanan, iklan). Bank ide konten: **`marketing/ide-konten.md`**.
+
+## Fokus engagement (Q1–Q2)
+- Prioritas metrik konten: **komentar, follow, simpan, bagikan** > tayangan > suka.
+- Setiap konten wajib punya **satu ajakan interaksi yang spesifik** (pertanyaan yang mudah dijawab, pilih nomor, tag teman, polling/kuis Story, "follow buat part 2"). Jangan ajakan generik "like & follow".
+- Buat **seri** (part 1/2/3, "Panitia Anti Lembur") agar orang follow untuk lanjutannya.
+- Minimal 1 konten per minggu yang memancing **cerita/opini** audiens (debat ringan, "ceritain momen chaos panitia").
+- Jawab pertanyaan dari komentar di konten berikutnya (sumber ide terbaik).
+- **Bagian pemilik (manual, ±15 menit/hari)**: balas semua komentar & DM dalam 24 jam; follow dan beri komentar bermanfaat di 5–10 akun BEM/HIMA/panitia/komunitas (daftar disiapkan Agen Pencari Pelanggan tiap minggu). Agen tidak membalas atau DM otomatis.
+- **Iklan mulai bulan ke-2 (Desember 2026)**: tes kecil boost konten organik terbaik; anggaran selalu diajukan dulu ke pemilik.
 
 ## Satu kalimat posisi
 > **Panitia cukup bagikan satu link, sertifikat peserta terbit sendiri dan bisa dicek keasliannya.**
@@ -57,6 +68,8 @@ Rasa sakit utama mereka: rekap nama manual, salah ketik nama, kirim satu per sat
 ## Ritme mingguan & aturan persetujuan (berlaku untuk semua agen)
 - **Sabtu pagi**: semua agen bekerja dan mengirim hasilnya ke sesi Claude "Markas Pemasaran" (urutan: Strategi → SEO → Pencari Pelanggan → Konten), ditutup satu **rangkuman persetujuan**.
 - **Sabtu–Minggu sore**: pemilik menyetujui. **Minggu malam**: finalisasi — semua yang disetujui dijadwalkan/dipublikasikan untuk **Senin–Minggu berikutnya**; yang belum dijawab **tidak dijalankan** (ditunda ke minggu depan).
+- **Jumlah per minggu (berlaku walau perintah terjadwal menyebut angka lain):** konten 4 utama + 1–2 carousel + 3 Story interaktif + 3–5 Threads; artikel SEO 2; prospek **10–15** + daftar 10 akun engagement. Agen Strategi juga melakukan review bulanan `RENCANA-1-TAHUN.md` pada Sabtu pertama tiap bulan.
+- **Persetujuan cukup sekali seminggu** untuk seluruh paket minggu depan (konten, artikel, prospek). Paket harus lengkap untuk 7 hari ke depan.
 - **Tidak ada yang tayang, terkirim, atau di-push ke produksi tanpa persetujuan pemilik.**
 - Penomoran item memakai awalan agar balasan tidak tertukar: **R** = rekomendasi Strategi, **S** = artikel SEO, **P** = prospek/email, **K** = konten.
   ```
