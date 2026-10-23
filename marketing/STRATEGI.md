@@ -13,7 +13,7 @@ Rencana jangka panjang: **`marketing/RENCANA-1-TAHUN.md`** (fase per kuartal, te
 - Buat **seri** (part 1/2/3, "Panitia Anti Lembur") agar orang follow untuk lanjutannya.
 - Minimal 1 konten per minggu yang memancing **cerita/opini** audiens (debat ringan, "ceritain momen chaos panitia").
 - Jawab pertanyaan dari komentar di konten berikutnya (sumber ide terbaik).
-- **Bagian pemilik (manual, ±15 menit/hari)**: balas semua komentar & DM dalam 24 jam; follow dan beri komentar bermanfaat di 5–10 akun BEM/HIMA/panitia/komunitas (daftar disiapkan Agen Pencari Pelanggan tiap minggu). Agen tidak membalas atau DM otomatis.
+- **Bagian pemilik (manual, ±15 menit/hari)**: balas semua komentar & DM dalam 24 jam; follow dan beri komentar bermanfaat di 5–10 akun BEM/HIMA/panitia/komunitas (daftar disiapkan Agen Pencari Pelanggan tiap minggu di halaman checklist **Sapa Akun**: https://claude.ai/artifact/6yS9Xrbg6PdvjxsbK2SqPg). Agen tidak membalas atau DM otomatis.
 - **Iklan mulai bulan ke-2 (Desember 2026)**: tes kecil boost konten organik terbaik; anggaran selalu diajukan dulu ke pemilik.
 
 ## Satu kalimat posisi

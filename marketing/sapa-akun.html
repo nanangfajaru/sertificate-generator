@@ -1,0 +1,220 @@
+<title>Sapa Akun SertifikatKu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: header navy berlogo + ringkasan progres, lalu daftar kartu akun satu kolom (lebar baca ±720px). */
+:root {
+  --bg: #f4f6fb; --surface: #ffffff; --ink: #0f1d4a; --muted: #5b6585; --line: #dfe4f0;
+  --brand: #233f80; --gold: #f5b301; --gold-ink: #6b4d00; --ok: #0f8a5f; --ok-bg: #e5f5ee; --skip: #8a91a8;
+  --head-bg: #0f1d4a; --head-ink: #ffffff; --chip: #eef1f8;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b1226; --surface: #121b36; --ink: #e8ecf8; --muted: #9aa4c4; --line: #26315a;
+  --brand: #8fa8e6; --gold: #f5b301; --gold-ink: #ffd76a; --ok: #4fd1a1; --ok-bg: #123a2e; --skip: #6f789a;
+  --head-bg: #070d1f; --head-ink: #ffffff; --chip: #1b2547; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b1226; --surface: #121b36; --ink: #e8ecf8; --muted: #9aa4c4; --line: #26315a;
+  --brand: #8fa8e6; --gold: #f5b301; --gold-ink: #ffd76a; --ok: #4fd1a1; --ok-bg: #123a2e; --skip: #6f789a;
+  --head-bg: #070d1f; --head-ink: #ffffff; --chip: #1b2547; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5 }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header { background: var(--head-bg); color: var(--head-ink) }
+header .wrap { padding-block: 22px 20px; display: grid; gap: 14px }
+.brandrow { display: flex; align-items: center; gap: 10px }
+.brandrow svg { width: 34px; height: 34px; flex: none }
+.brandrow b { font-size: 17px; letter-spacing: -.01em } .brandrow b span { color: var(--gold) }
+h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; text-wrap: balance }
+.sub { margin: 0; color: #c6d2ea; font-size: 14px; max-width: 60ch }
+.weeks { display: flex; gap: 8px; flex-wrap: wrap }
+.weeks button { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #fff; border-radius: 999px; padding: 5px 12px; cursor: pointer }
+.weeks button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #0f1d4a }
+.progress { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px }
+.meter { background: rgba(255,255,255,.07); border-radius: 12px; padding: 10px 12px }
+.meter .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #c6d2ea }
+.meter .num { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums }
+.bar { height: 6px; border-radius: 99px; background: rgba(255,255,255,.15); overflow: hidden; margin-top: 6px }
+.bar i { display: block; height: 100%; background: var(--gold); width: 0; transition: width .3s }
+
+main .wrap { padding-block: 18px 40px; display: grid; gap: 14px }
+.tip { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start }
+.tip strong { color: var(--ink) }
+.filters { display: flex; gap: 6px; flex-wrap: wrap }
+.filters button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 5px 11px; cursor: pointer }
+.filters button[aria-pressed="true"] { border-color: var(--brand); color: var(--brand); font-weight: 600 }
+.list { display: grid; gap: 10px }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px }
+.card.done { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)) }
+.card.skipped { opacity: .6 }
+.top { display: flex; align-items: flex-start; gap: 10px }
+.code { font-family: var(--f-mono); font-size: 12px; color: var(--muted); background: var(--chip); border-radius: 6px; padding: 2px 6px; flex: none }
+.who { min-width: 0; flex: 1 }
+.who .handle { font-weight: 700; word-break: break-word }
+.who .meta { font-size: 13px; color: var(--muted) }
+.plat { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 99px; background: var(--chip); color: var(--brand); flex: none }
+.why { margin: 0; font-size: 14px }
+.cmt { border-left: 3px solid var(--gold); background: var(--chip); border-radius: 0 10px 10px 0; padding: 8px 10px; font-size: 14px; display: grid; gap: 6px }
+.cmt .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
+.actions { display: flex; flex-wrap: wrap; gap: 8px }
+.btn { font: inherit; font-size: 13px; font-weight: 600; border-radius: 9px; padding: 7px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px }
+.btn.open { background: var(--ink); color: var(--surface); border-color: var(--ink) }
+.btn.on { background: var(--ok-bg); color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent) }
+.btn.small { font-size: 12px; padding: 4px 9px; justify-self: start }
+.btn:focus-visible, .weeks button:focus-visible, .filters button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px }
+.btn[disabled] { opacity: .5; cursor: default }
+.stamp { font-size: 12px; color: var(--muted) }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 8px }
+.empty h2 { margin: 0; font-size: 17px }
+.empty p { margin: 0; color: var(--muted); font-size: 14px; max-width: 60ch }
+.empty ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; display: grid; gap: 4px }
+.note { font-size: 13px; color: var(--muted) }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none } }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="brandrow">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0f1d4a" stroke="rgba(255,255,255,.2)"/><rect x="5" y="15" width="44" height="34" rx="4.5" fill="#fff"/><rect x="10" y="22" width="14" height="3" rx="1.5" fill="#0f1d4a"/><rect x="10" y="28.5" width="10" height="2.4" rx="1.2" fill="#0f1d4a" opacity=".45"/><rect x="10" y="34" width="12" height="2.4" rx="1.2" fill="#0f1d4a" opacity=".45"/><rect x="30" y="18" width="29" height="29" rx="6" fill="#0f1d4a"/><path d="M33 26.98V23a2 2 0 0 1 2-2H38.98 M50.02 21H54a2 2 0 0 1 2 2V26.98 M56 38.02V42a2 2 0 0 1-2 2H50.02 M38.98 44H35a2 2 0 0 1-2-2V38.02" fill="none" stroke="#f5b301" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <b>Sertifikat<span>Ku</span></b>
+    </div>
+    <h1>Sapa akun minggu ini</h1>
+    <p class="sub">Daftar akun BEM, HIMA, panitia, dan komunitas dari Agen Pencari Pelanggan. Buka profil, follow, tinggalkan komentar yang bermanfaat, lalu centang di sini.</p>
+    <div class="weeks" id="weeks" role="group" aria-label="Pilih minggu"></div>
+    <div class="progress">
+      <div class="meter"><div class="lbl">Sudah di-follow</div><div class="num" id="nFollow">0/0</div><div class="bar"><i id="bFollow"></i></div></div>
+      <div class="meter"><div class="lbl">Sudah dikomentari</div><div class="num" id="nCmt">0/0</div><div class="bar"><i id="bCmt"></i></div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="tip"><span aria-hidden="true">⏱</span><span><strong>Ritme aman: 2 akun per hari, Senin–Jumat.</strong> Akun baru yang follow terlalu banyak dalam waktu singkat bisa dibatasi Instagram atau TikTok.</span></p>
+    <div class="filters" id="filters" role="group" aria-label="Saring daftar">
+      <button type="button" data-f="belum" aria-pressed="true">Belum selesai</button>
+      <button type="button" data-f="semua" aria-pressed="false">Semua</button>
+      <button type="button" data-f="selesai" aria-pressed="false">Selesai</button>
+    </div>
+    <div class="list" id="list"></div>
+    <p class="note" id="status"></p>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { rows: [], week: null, filter: "belum", canWrite: true, db: null, busy: new Set() };
+const PLAT = { instagram: "Instagram", tiktok: "TikTok", threads: "Threads", facebook: "Facebook", youtube: "YouTube" };
+
+function emptyState(title, body) {
+  const box = document.createElement("div"); box.className = "empty";
+  const h = document.createElement("h2"); h.textContent = title; box.append(h);
+  const p = document.createElement("p"); p.textContent = body; box.append(p);
+  const ol = document.createElement("ol");
+  ["Sabtu pagi, Agen Pencari Pelanggan mengisi 10 akun untuk minggu depan.", "Tiap akun berisi link profil, alasan, dan contoh komentar.", "Anda follow & komentar dari HP, lalu centang di halaman ini. Agen membaca centang ini sebelum mengirim email."].forEach((t) => { const li = document.createElement("li"); li.textContent = t; ol.append(li); });
+  box.append(ol);
+  return box;
+}
+
+const isDone = (r) => r.followed && r.commented;
+function weeksOf(rows) { return [...new Set(rows.map((r) => r.minggu).filter(Boolean))].sort().reverse(); }
+
+function render() {
+  const weeks = weeksOf(state.rows);
+  if (!state.week || !weeks.includes(state.week)) state.week = weeks[0] || null;
+  const wEl = $("weeks"); wEl.replaceChildren();
+  weeks.forEach((w) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = w;
+    b.setAttribute("aria-pressed", String(w === state.week));
+    b.onclick = () => { state.week = w; render(); };
+    wEl.append(b);
+  });
+  const inWeek = state.rows.filter((r) => r.minggu === state.week && !r.dilewati);
+  const nf = inWeek.filter((r) => r.followed).length, nc = inWeek.filter((r) => r.commented).length, n = inWeek.length;
+  $("nFollow").textContent = `${nf}/${n}`; $("nCmt").textContent = `${nc}/${n}`;
+  $("bFollow").style.width = n ? `${(nf / n) * 100}%` : "0"; $("bCmt").style.width = n ? `${(nc / n) * 100}%` : "0";
+
+  const list = $("list"); list.replaceChildren();
+  if (!state.rows.length) { list.append(emptyState("Belum ada akun untuk disapa", "Daftar pertama muncul setelah Agen Pencari Pelanggan bekerja hari Sabtu.")); return; }
+  let rows = state.rows.filter((r) => r.minggu === state.week);
+  if (state.filter === "belum") rows = rows.filter((r) => !isDone(r) && !r.dilewati);
+  if (state.filter === "selesai") rows = rows.filter((r) => isDone(r) || r.dilewati);
+  rows.sort((a, b) => String(a.kode).localeCompare(String(b.kode), "id", { numeric: true }));
+  if (!rows.length) { const e = document.createElement("div"); e.className = "empty"; const h = document.createElement("h2"); h.textContent = state.filter === "belum" ? "Semua akun minggu ini sudah disapa 🎉" : "Belum ada yang selesai"; e.append(h); list.append(e); return; }
+  rows.forEach((r) => list.append(card(r)));
+}
+
+function card(r) {
+  const c = document.createElement("article"); c.className = "card" + (isDone(r) ? " done" : "") + (r.dilewati ? " skipped" : "");
+  const top = document.createElement("div"); top.className = "top";
+  const code = document.createElement("span"); code.className = "code"; code.textContent = r.kode || "—";
+  const who = document.createElement("div"); who.className = "who";
+  const h = document.createElement("div"); h.className = "handle"; h.textContent = r.handle || r.nama || "(tanpa nama)";
+  const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = [r.nama && r.handle ? r.nama : "", r.jenis, r.kota].filter(Boolean).join(" · ");
+  who.append(h, meta);
+  const plat = document.createElement("span"); plat.className = "plat"; plat.textContent = PLAT[r.platform] || r.platform || "";
+  top.append(code, who, plat); c.append(top);
+  if (r.alasan) { const p = document.createElement("p"); p.className = "why"; p.textContent = r.alasan; c.append(p); }
+  if (r.komentar) {
+    const box = document.createElement("div"); box.className = "cmt";
+    const k = document.createElement("span"); k.className = "k"; k.textContent = "Contoh komentar";
+    const t = document.createElement("span"); t.textContent = r.komentar;
+    const copy = document.createElement("button"); copy.type = "button"; copy.className = "btn small"; copy.textContent = "Salin komentar";
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(r.komentar); copy.textContent = "Tersalin ✓"; }
+      catch { const sel = getSelection(); const rg = document.createRange(); rg.selectNodeContents(t); sel.removeAllRanges(); sel.addRange(rg); copy.textContent = "Teks dipilih, salin manual"; }
+      setTimeout(() => (copy.textContent = "Salin komentar"), 1800);
+    };
+    box.append(k, t, copy); c.append(box);
+  }
+  const act = document.createElement("div"); act.className = "actions";
+  if (r.url) { const a = document.createElement("a"); a.className = "btn open"; a.href = r.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Buka profil ↗"; act.append(a); }
+  act.append(toggle(r, "followed", "Sudah follow"), toggle(r, "commented", "Sudah komentar"), toggle(r, "dilewati", "Lewati"));
+  c.append(act);
+  const when = [r.followed_at && `follow ${fmt(r.followed_at)}`, r.commented_at && `komentar ${fmt(r.commented_at)}`].filter(Boolean).join(" · ");
+  if (when) { const s = document.createElement("div"); s.className = "stamp"; s.textContent = when; c.append(s); }
+  return c;
+}
+const fmt = (s) => new Date(s).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+
+function toggle(r, field, label) {
+  const b = document.createElement("button"); b.type = "button";
+  b.className = "btn" + (r[field] ? " on" : ""); b.textContent = (r[field] ? "✓ " : "") + label;
+  b.setAttribute("aria-pressed", String(!!r[field]));
+  b.disabled = !state.canWrite || !state.db || state.busy.has(r._id);
+  b.onclick = async () => {
+    const val = !r[field]; const patch = { [field]: val };
+    if (field !== "dilewati") patch[field + "_at"] = val ? new Date().toISOString() : null;
+    state.busy.add(r._id); render();
+    try { await state.db.collection("akun").doc(r._id).update(patch); $("status").textContent = ""; }
+    catch (e) {
+      if (e && e.code === "invalid_argument") { state.canWrite = false; $("status").textContent = "Halaman ini hanya bisa dibaca dari akun Anda saat ini."; }
+      else $("status").textContent = "Gagal menyimpan. Coba lagi sebentar.";
+    } finally { state.busy.delete(r._id); render(); }
+  };
+  return b;
+}
+
+$("filters").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-f]"); if (!b) return;
+  state.filter = b.dataset.f;
+  document.querySelectorAll("#filters button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  render();
+});
+
+render();
+(async () => {
+  const db = await window.claude?.use?.("db");
+  if (!db) { $("status").textContent = "Daftar tersimpan hanya tampil saat halaman dibuka di claude.ai dalam keadaan masuk."; return; }
+  state.db = db;
+  const user = await window.claude.use("user");
+  if (user) { const can = await user.can("data.write"); if (can === false) state.canWrite = false; }
+  db.collection("akun").onSnapshot((snap) => {
+    state.rows = snap.docs.map((d) => ({ _id: d.id, ...d.data() }));
+    render();
+  }, () => { $("status").textContent = "Koneksi ke daftar terputus. Muat ulang halaman."; });
+})();
+</script>
