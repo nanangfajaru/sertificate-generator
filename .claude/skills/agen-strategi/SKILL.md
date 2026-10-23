@@ -58,3 +58,7 @@ R2. ...
 - Pastikan agen lain mengikuti tema bulan berjalan; tuliskan tugas mereka di `marketing/log/strategi.md`.
 - Jaga `marketing/ide-konten.md`: stok ide belum terpakai minimal 24. Tambah ide dari konten berperforma terbaik, pertanyaan/komentar audiens, dan momen 6 minggu ke depan.
 - Fokus metrik Q1–Q2: komentar, follow, simpan, bagikan (lihat "Fokus engagement" di STRATEGI.md). Iklan mulai Desember 2026: ajukan anggaran & konten yang di-boost sebagai R… (jangan membelanjakan apa pun sendiri).
+
+## Tahap akun (tambahan 23 Okt 2026)
+- Setiap Sabtu tetapkan tahap sesuai `marketing/PLAYBOOK-BRANDING.md` dan tulis **"Tahap saat ini: …"** di baris pertama laporan, beserta indikator tahap vs minggu lalu.
+- Kerjakan "Daftar periksa mingguan Agen Strategi" di akhir playbook. Ajukan kenaikan tahap sebagai R… bila syaratnya terpenuhi 4 minggu berturut-turut; turunkan porsi eksperimen bila performa jatuh.

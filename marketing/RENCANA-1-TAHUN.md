@@ -2,6 +2,8 @@
 
 Pemilik dokumen: **Agen Strategi**. Ditinjau tiap bulan (Sabtu pertama) dan tiap kuartal; perubahan besar diajukan ke pemilik sebagai rekomendasi R…. Semua angka target adalah **hipotesis awal** dan dikalibrasi ulang setelah data bulan pertama masuk.
 
+Taktik harian mengikuti **tahap akun** di `PLAYBOOK-BRANDING.md` (ditentukan data); tabel di bawah memberi tema & momen per bulan. Kuartal hanya perkiraan: bila akun belum naik tahap, taktik tahap sebelumnya tetap berlaku.
+
 ## Arah besar
 
 | Kuartal | Fase | Tujuan utama | Jualan Pro? | Iklan |

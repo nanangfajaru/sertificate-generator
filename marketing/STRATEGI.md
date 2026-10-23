@@ -5,6 +5,8 @@ Dokumen bersama untuk semua agen pemasaran. Baca seluruhnya sebelum bekerja. Bil
 ## Fase saat ini: AWARENESS (bukan penjualan)
 Tujuan 3 bulan pertama: **orang tahu SertifikatKu, mudah menemukannya di pencarian, dan mudah memakainya.** Konversi ke Pro belum menjadi target. **Jangan menjual Pro** di konten; ajakan utama adalah follow, komentar, simpan, bagikan, atau **"Coba gratis"**.
 
+**Cara bermain sesuai umur akun (wajib dibaca semua agen): `marketing/PLAYBOOK-BRANDING.md`** — Tahap 0 fondasi → Tahap 1 akun baru → Tahap 2 tumbuh → Tahap 3 mapan; tahap ditetapkan Agen Strategi tiap Sabtu dari data. Saat ini: **Tahap 0 → 1** (akun baru, 23 Okt 2026).
+
 Rencana jangka panjang: **`marketing/RENCANA-1-TAHUN.md`** (fase per kuartal, tema bulanan, iklan). Bank ide konten: **`marketing/ide-konten.md`**.
 
 ## Fokus engagement (Q1–Q2)

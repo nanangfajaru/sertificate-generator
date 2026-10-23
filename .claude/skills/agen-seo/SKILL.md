@@ -55,3 +55,6 @@ Slug = nama file, huruf kecil-strip, memuat kata kunci (mis. `format-nomor-serti
 
 ## Log
 `marketing/log/seo.md`: tanggal, slug, kata kunci target, status (disetujui/revisi/ditolak + catatan), dan nanti posisi/klik bila data Search Console tersedia.
+
+## Selaras dengan tahap akun (tambahan 23 Okt 2026)
+- Baca `marketing/PLAYBOOK-BRANDING.md`: pakai suara & istilah merek yang sama dengan sosmed, dan beri Agen Konten 2–3 kata kunci per minggu untuk dipakai di caption & teks layar (pencarian di TikTok/IG).
