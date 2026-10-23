@@ -69,6 +69,8 @@ Rasa sakit utama mereka: rekap nama manual, salah ketik nama, kirim satu per sat
 - Catat setiap keputusan di `marketing/log/` agar agen belajar (lihat buku panduan masing-masing).
 
 ## Platform aktif
+**Metricool** (terhubung 23 Okt 2026): brand **SertifikatKu**, `brandId` **7555172**, zona waktu Asia/Jakarta. Akun tersambung: Instagram & Threads `@sertifikatkucom`, TikTok `@sertifikatkucom`, YouTube (channel `UCyiyk7kDHaZra9OCvyCrcWA`), Facebook Page (ID 1410900332110263). Jadwalkan lewat `createScheduledPostForReview` / draf — jangan langsung publikasi tanpa persetujuan pemilik.
+
 - **Bulan 1**: TikTok, Instagram (Reels + carousel + Story), YouTube Shorts, Threads.
 - **Bulan 2**: + Facebook (Reels + grup guru), YouTube video tutorial panjang (2x/bulan).
 - **Bulan 3 (opsional)**: + LinkedIn (1x/minggu, untuk LKP/lembaga pelatihan).
