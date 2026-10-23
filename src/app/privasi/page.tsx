@@ -1,7 +1,7 @@
 import LegalPage from "@/components/LegalPage";
 import { legalEmail } from "@/lib/social";
 
-export const metadata = { title: "Kebijakan Privasi" };
+export const metadata = { title: "Kebijakan Privasi", alternates: { canonical: "/privasi" } };
 
 export default async function PrivacyPage() {
   const email = await legalEmail();

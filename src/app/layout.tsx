@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import RefCapture from "@/components/RefCapture";
+import { siteUrl } from "@/lib/util";
 import SiteAnalytics from "@/components/SiteAnalytics";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: { default: "SertifikatKu – penerbitan sertifikat digital untuk setiap kegiatan", template: "%s · SertifikatKu" },
   description: "Kumpulkan data peserta melalui satu tautan, setujui, lalu terbitkan sertifikat PDF lengkap dengan QR verifikasi.",
 };

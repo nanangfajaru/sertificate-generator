@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Logo from "@/components/Logo";
 import LoginBody from "./LoginBody";
 
-export const metadata = { title: "Masuk" };
+export const metadata = { title: "Masuk", alternates: { canonical: "/login" } };
 
 // Statis: tidak membaca searchParams di server, sehingga halaman langsung dari CDN dan bisa di-prefetch penuh dari landing.
 export default function LoginPage() {

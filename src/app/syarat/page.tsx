@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const revalidate = 3600;
 const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
-export const metadata = { title: "Syarat & Ketentuan" };
+export const metadata = { title: "Syarat & Ketentuan", alternates: { canonical: "/syarat" } };
 
 export default async function TermsPage() {
   const email = await legalEmail();

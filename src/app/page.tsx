@@ -15,6 +15,9 @@ import { SOCIAL_KEYS, getSocial } from "@/lib/social";
 import { siteUrl } from "@/lib/util";
 
 
+// Kanonik tanpa query: tautan ?ref= / ?utm_* tidak dianggap halaman terpisah oleh Google.
+export const metadata = { alternates: { canonical: "/" } };
+
 const steps = [
   { icon: ClipboardList, t: "Buat program", d: "Isi data kegiatan dan penandatangan, lalu pilih template." },
   { icon: Send, t: "Bagikan tautan", d: "Peserta mendaftar lewat link atau QR formulir yang Anda atur." },
