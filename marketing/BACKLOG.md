@@ -11,7 +11,7 @@
      SPF TXT `@` digabung: `include:spf.improvmx.com` (jangan ubah record send / resend._domainkey / _dmarc / Vercel)
   3. Gmail "Send mail as" halo@ via smtp.resend.com:465, user `resend`, password API key Resend (Sending access)
   4. Tes kirim & terima
-- [ ] Google Search Console: verifikasi domain + kirim sitemap (https://sertifikatku.com/sitemap.xml)
+- [x] Google Search Console: domain sertifikatku.com terverifikasi (23 Okt 2026) — pastikan sitemap.xml sudah dikirim
 - [ ] Bing Webmaster Tools: impor dari Search Console (sekali klik setelah GSC beres)
 - [ ] Isi akun sosmed di Admin → Kontak & sosmed (IG/Threads/TikTok @sertifikatkucom, YouTube, Facebook)
 - [x] Metricool + akun sosmed + konektor Metricool di claude.ai (23 Okt 2026, brandId 7555172)
