@@ -2,7 +2,7 @@
 
 _Diisi otomatis oleh agen. Terbaru di atas._
 
-## Pengajuan 24 Okt 2026 · paket 26 Okt–1 Nov (status: menunggu persetujuan)
+## Pengajuan 24 Okt 2026 · paket 26 Okt–1 Nov (status: DISETUJUI semua 24 Okt; K2 tetap memakai istilah "sie sekret" — pemilik: "gpp")
 | Kode | Tayang | Platform | Pilar | Format | Hook |
 |---|---|---|---|---|---|
 | K1 | Sen 26 Okt 19.00 | TikTok, IG Reels, Shorts | Demo | motion demo HP (demo-isi-form.html, 28 dtk) | "Masih bikin sertifikat peserta satu per satu?" |

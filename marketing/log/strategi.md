@@ -18,13 +18,13 @@ Tahap saat ini: **Tahap 0 → 1** (fondasi akun; Metricool & sosmed baru tersamb
 
 **Keterbatasan data**: volume masih sangat kecil (sebagian besar uji coba), jadi angka belum bisa dipakai untuk menilai tren.
 
-**Rekomendasi (menunggu persetujuan pemilik)**
+**Rekomendasi (DISETUJUI pemilik 24 Okt: R1–R4)**
 - R1. Selesaikan Tahap 0 minggu 26 Okt–1 Nov: 9 posting pertama IG sebagai satu grid (3 demo/perkenalan, 3 seri "Panitia Anti Lembur", 3 "POV Panitia"), 3–5 video TikTok/Shorts dalam minggu yang sama, + set Story highlight T1. Agen: Konten. Ukuran: ≥9 posting tayang & profil lengkap → naik ke Tahap 1.
 - R2. SEO menyasar momen Nov: 2 artikel, (a) sertifikat pelatihan guru / Hari Guru 25 Nov, (b) format nomor sertifikat dengan contoh per kegiatan. Agen: SEO. Pemilik: pastikan sitemap terkirim di Search Console + impor ke Bing (5 menit).
 - R3. Prospek 10–15 + 10 akun Sapa Akun, dengan aturan baru: hanya acara yang tanggalnya ≥7 hari dari sekarang dan **sudah dicek di halaman sumber** (tanggal ditulis per prospek). Pelajaran dari agen lama yang mengusulkan acara sudah lewat. Email dikirim manual sampai halo@ siap. Agen: Pencari Pelanggan.
 - R4. Kemudahan pakai (eksperimen): 4 dari 7 pendaftar belum membuat program. Agen Strategi meninjau alur setelah daftar (dashboard kosong → buat program pertama) dan mengajukan usulan perubahan kode terpisah (mis. tombol "Buat program pertama" + contoh program). Ukuran: rasio daftar → buat program naik dari 43%.
 
-**Tugas minggu ini (berlaku setelah disetujui; agen lain memakai ini sebagai arah default)**
+**Tugas minggu ini (berlaku — R1–R4 disetujui 24 Okt)**
 - Konten: kerjakan R1 + T1 (log konten). Tema Nov: kenalan + relatable + seri "Panitia Anti Lembur", siapkan 1 konten Hari Guru untuk minggu 23–25 Nov.
 - SEO: R2.
 - Pencari Pelanggan: R3 (10–15 prospek, tanggal acara terverifikasi; sasaran panitia seminar nasional/pelatihan guru Nov–awal Des).
