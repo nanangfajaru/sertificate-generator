@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Template kinetic typography 1080×1920. Isi CONFIG lewat marketing/video/buat-kinetic.py. */
+@font-face{font-family:I;src:url(../../src/fonts/inter-latin-400-normal.woff);font-weight:400}
+@font-face{font-family:I;src:url(../../src/fonts/inter-latin-700-normal.woff);font-weight:700}
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1920px;overflow:hidden;font-family:I,sans-serif;color:#fff;background:#0f1d4a}
+.abs{position:absolute}
+#bg{inset:0;background:linear-gradient(160deg,#1a326b,#0f1d4a 60%,#0b1437)}
+.dots{inset:0;background-image:radial-gradient(rgba(255,255,255,.09) 2px,transparent 2px);background-size:44px 44px}
+.el{left:90px;right:90px;text-align:center}
+.big{font-size:96px;font-weight:700;line-height:1.08;letter-spacing:-2.5px}
+.mid{font-size:64px;font-weight:700;line-height:1.15;letter-spacing:-1.5px}
+.sm{font-size:44px;line-height:1.35;color:#d6def0}
+.tag{display:inline-block;font-size:40px;font-weight:700;color:#0f1d4a;background:#f5b301;border-radius:999px;padding:14px 36px;letter-spacing:1px}
+.gold{color:#f5b301}.red{color:#ff6b6b}.green{color:#4ade80}
+.card{display:inline-block;background:#fff;color:#0f172a;border-radius:32px;padding:34px 44px;font-size:48px;font-weight:700;box-shadow:0 30px 60px -25px rgba(0,0,0,.6);text-align:left}
+.card small{display:block;font-size:30px;font-weight:400;color:#64748b;margin-bottom:8px}
+.bubble{display:inline-block;background:#fff;color:#0f172a;border-radius:36px 36px 36px 8px;padding:26px 38px;font-size:46px;box-shadow:0 20px 40px -20px rgba(0,0,0,.6)}
+.bubble b{display:block;font-size:28px;color:#16a34a;margin-bottom:6px}
+.col{position:absolute;top:0;bottom:0;width:540px;padding:300px 40px 0}
+.col h3{font-size:62px;text-align:center;margin-bottom:50px}
+.li{font-size:44px;font-weight:700;background:rgba(255,255,255,.08);border-radius:22px;padding:24px 26px;margin-bottom:26px;line-height:1.2}
+.clock{font-size:120px;font-weight:700;text-align:center;margin-top:30px;letter-spacing:-3px}
+#wm{right:46px;bottom:300px;width:96px;opacity:.85}
+#wm img{width:100%;border-radius:22px}
+#end{inset:0;background:linear-gradient(160deg,#1a326b,#0f1d4a 60%,#0b1437)}
+.url{display:inline-block;background:#fff;color:#0f1d4a;font-size:72px;font-weight:700;border-radius:999px;padding:28px 66px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45)}
+</style></head><body>
+<div id="bg" class="abs"></div><div class="abs dots"></div>
+<div id="stage"></div>
+<div id="wm" class="abs"><img src="../../public/logo-512.png"></div>
+<div id="end" class="abs">
+  <div id="eL" class="abs" style="left:440px;top:560px;width:200px"><img src="../../public/logo-512.png" style="width:100%;border-radius:44px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)"></div>
+  <div id="eT" class="abs el" style="top:820px;font-size:100px;font-weight:700;letter-spacing:-3px">Sertifikat<span class="gold">Ku</span></div>
+  <div id="eU" class="abs el" style="top:990px"><span class="url">sertifikatku.com</span></div>
+  <div id="eS" class="abs el sm" style="top:1190px">Sertifikat acara, terbit otomatis.</div>
+</div>
+<script>
+// CONFIG: {dur, end, items:[{html, top, cls, t0, t1, fx}]}; fx: up | pop | left | right | type
+const CONFIG = /*CONFIG*/{"dur":6,"end":3,"items":[{"html":"Contoh","top":800,"cls":"big","t0":0.2,"t1":2.8,"fx":"up"}]}/*END*/;
+const $=id=>document.getElementById(id);
+const cl=(x,a,b)=>Math.max(a,Math.min(b,x)),P=(t,a,b)=>cl((t-a)/(b-a),0,1),L=(a,b,k)=>a+(b-a)*k;
+const eo=k=>1-Math.pow(1-k,3),back=k=>{const c=1.70158;return 1+(c+1)*Math.pow(k-1,3)+c*Math.pow(k-1,2)};
+const set=(e,o,tr)=>{e=typeof e==='string'?$(e):e;e.style.opacity=o;e.style.transform=tr};
+const els=CONFIG.items.map(it=>{const d=document.createElement('div');d.className='abs el '+(it.cls||'');d.style.top=it.top+'px';if(it.style)d.style.cssText+=it.style;d.innerHTML=it.html;$('stage').appendChild(d);return d});
+function render(t){
+  CONFIG.items.forEach((it,i)=>{
+    const e=els[i];const k=P(t,it.t0,it.t0+.45);const out=it.t1?P(t,it.t1,it.t1+.35):0;const o=k*(1-out);
+    let tr='';
+    if(it.fx==='pop')tr=`scale(${L(.6,1,back(k))})`;
+    else if(it.fx==='left')tr=`translateX(${L(-140,0,eo(k))}px)`;
+    else if(it.fx==='right')tr=`translateX(${L(140,0,eo(k))}px)`;
+    else tr=`translateY(${L(60,0,eo(k))-out*60}px)`;
+    if(it.fx==='type'){const full=it.text;const n=Math.floor(full.length*P(t,it.t0,it.t0+it.typeDur));e.innerHTML=full.slice(0,n)+(t<it.t0+it.typeDur+.4&&Math.floor(t*3)%2?'<span style="opacity:.6">|</span>':'');tr='';}
+    set(e,o,tr);
+  });
+  const es=CONFIG.dur-CONFIG.end;
+  $('end').style.opacity=P(t,es,es+.35);
+  $('wm').style.opacity=.85*(1-P(t,es,es+.3));
+  set('eL',P(t,es+.1,es+.3),`scale(${back(P(t,es+.1,es+.6))})`);
+  set('eT',P(t,es+.35,es+.7),`translateY(${L(40,0,eo(P(t,es+.35,es+.8)))}px)`);
+  set('eU',P(t,es+.7,es+1),`scale(${L(.6,1,back(P(t,es+.7,es+1.2)))*(1+.03*Math.sin(Math.max(0,t-es-1.3)*5))})`);
+  set('eS',P(t,es+1.1,es+1.5),`translateY(${L(30,0,eo(P(t,es+1.1,es+1.6)))}px)`);
+}
+window.render=render;render(0);
+</script></body></html>

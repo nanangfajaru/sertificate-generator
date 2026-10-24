@@ -2,6 +2,20 @@
 
 _Diisi otomatis oleh agen. Terbaru di atas._
 
+## Pengajuan 24 Okt 2026 · paket 26 Okt–1 Nov (status: menunggu persetujuan)
+| Kode | Tayang | Platform | Pilar | Format | Hook |
+|---|---|---|---|---|---|
+| K1 | Sen 26 Okt 19.00 | TikTok, IG Reels, Shorts | Demo | motion demo HP (demo-isi-form.html, 28 dtk) | "Masih bikin sertifikat peserta satu per satu?" |
+| K5 | Sel 27 Okt 19.00 | IG carousel (+ utas Threads) | Edukasi | carousel 7 slide, seri Panitia Anti Lembur #1 | "5 kesalahan panitia waktu bikin sertifikat" |
+| K2 | Rab 28 Okt 19.00 | TikTok, IG Reels, Shorts | Relatable | kinetic POV (k2-pov-jam-2-pagi, 15 dtk), seri POV Panitia | "Jam 2 pagi. Kamu sie sekret." |
+| K3 | Jum 30 Okt 19.00 | TikTok, IG Reels, Shorts | Relatable | kontras split (k3-panitia-a-vs-b, 15 dtk) | "Panitia A lembur. Panitia B pulang cepat." |
+| K4 | Min 1 Nov 19.00 | TikTok, IG Reels, Shorts | Kepercayaan | kinetic + sertifikat (k4-cek-dulu-qr, 14 dtk), seri Cek Dulu | "Sertifikat ini asli atau editan?" |
+| K6 | Sen/Rab/Jum 12.00 | IG Story | Interaksi | polling, kuis, slider | — |
+| K7 | Sen/Rab/Jum/Min 11.30 | Threads | Interaksi | teks | — |
+Ide terpakai dari bank: 23, 12, 1, 10, 24, 41, 42, 43, 44. Belum dibuat minggu ini: carousel ke-2 (format nomor sertifikat) dan set Story highlight T1 → minggu depan. Audio: musik sintesis sendiri (audio.py), loudnorm −15 LUFS.
+
+---
+
 ## Tugas dari pemilik (kerjakan lebih dulu, centang bila selesai)
 
 ### T1 · Isi highlight Instagram (diberikan 20 Okt 2026) — status: belum dikerjakan
