@@ -2,6 +2,18 @@
 
 _Diisi otomatis oleh agen. Terbaru di atas._
 
+## Finalisasi Sabtu 24 Okt malam (diminta pemilik: tayang Minggu 25–Jumat 30 Okt) — terjadwal di Metricool, autoPublish
+| Kode | Tayang (WIB) | Platform | Metricool id |
+|---|---|---|---|
+| K1 demo | Min 25 Okt 19.00 | IG Reel, TikTok, YT Short | 405048549 |
+| K5 carousel | Sen 26 Okt 19.00 | IG | 405050034 |
+| K3 A vs B | Sel 27 Okt 19.00 | IG Reel, TikTok, YT Short | 405051934 |
+| K2 POV (Sumpah Pemuda) | Rab 28 Okt 19.00 | IG Reel, TikTok, YT Short | 405052387 |
+| K4 Cek Dulu | Jum 30 Okt 19.00 | IG Reel, TikTok, YT Short | 405052509 |
+| K7 Threads | Min 25, Sel 27 (utas K5), Kam 29, Jum 30 · 12.00 | Threads | 405052875, 405052931, 405052974, 405053100 |
+| K6 Story | Sen/Rab/Jum 12.00 | IG Story | manual oleh pemilik (stiker interaktif) |
+Media di-host di sertifikatku.com/sosmed/2026-10/ (commit 777b0a4).
+
 ## Pengajuan 24 Okt 2026 · paket 26 Okt–1 Nov (status: DISETUJUI semua 24 Okt; K2 tetap memakai istilah "sie sekret" — pemilik: "gpp")
 | Kode | Tayang | Platform | Pilar | Format | Hook |
 |---|---|---|---|---|---|
